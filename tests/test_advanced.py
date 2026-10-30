@@ -348,11 +348,18 @@ class TestPanel:
 
 class TestImportVariantsSetup:
     def test_import_altium_board(self, tmp_dir):
+        from kicad_cli_extended.utils import kicad_backend as kb
         src = os.path.join(qa_dir(), "eDP_adapter_dvt1_source", "eDP_adapter_dvt1.PcbDoc")
+        native = os.path.join(tmp_dir, "native.kicad_pcb")
+        kb.run_kicad_cli(["pcb", "import", "--format", "altium", "--output", native, src])
+        stats_path = os.path.join(tmp_dir, "native-stats.json")
+        kb.run_kicad_cli(["pcb", "export", "stats", "--format", "json", "--output", stats_path, native])
+        native_stats = json.loads(read_text(stats_path))
         res = rj(["project", "import", src, "--dir", os.path.join(tmp_dir, "edp")])
         b = res["board"]
         assert res["source_format"] == "Altium Designer" and b["copper_layers"] == 4
-        assert b["footprints"] == 115 and b["vias"] == 214 and b["nets"] > 50
+        assert b["footprints"] == native_stats["components"]["total"]["total"] == 115 and b["nets"] > 50
+        assert b["vias"] == sum(native_stats["vias"].values()) > 0
         assert res["import_statistics"]["footprints"] == 115
         assert {os.path.basename(x["file"]) for x in res["not_imported"]} == {"it6251_core.SchDoc", "power.SchDoc"}
         pro = res["project"]["pro"]
