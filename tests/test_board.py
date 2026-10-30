@@ -336,7 +336,7 @@ class TestPlaceNear:
         assert read_text(path) == before
         res = rj(P + ["pcb", "place", "near", "R9", "--to", "U1:1", "--max-dist", "15"])
         assert dry['dry_run'] is True and res['dry_run'] is False
-        assert path in dry['would_write'] and path in res['would_write']
+        assert os.path.realpath(path) in dry['would_write'] and path in res['would_write']
         metadata = {'dry_run', 'would_write', 'would_save'}
         assert {k: v for k, v in res.items() if k not in metadata} == {k: v for k, v in dry.items() if k not in metadata}
         assert res["reference"] == "R9" and res["target"] == "U1:1"
