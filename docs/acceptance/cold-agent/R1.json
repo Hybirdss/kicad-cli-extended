@@ -1,0 +1,125 @@
+{
+  "prompt": "I've never used KiCad. Make me a tiny board that plugs into a USB-C charger and lights one red LED. I want to order it from JLCPCB with the parts already soldered on. I'm on Windows. Keep it small and cheap.",
+  "chain": [
+    [
+      "--json",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "search",
+      "usb-c receptacle",
+      "--limit",
+      "10"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "search",
+      "usb-c plug",
+      "--limit",
+      "10"
+    ],
+    [
+      "--json",
+      "lib",
+      "fp",
+      "search",
+      "usb-c",
+      "--limit",
+      "20"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "show",
+      "Device:LED"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "show",
+      "Device:R"
+    ],
+    [
+      "--json",
+      "lib",
+      "suggest-footprints",
+      "Device:R",
+      "--size",
+      "0603"
+    ],
+    [
+      "--json",
+      "lib",
+      "suggest-footprints",
+      "Device:LED",
+      "--size",
+      "0603"
+    ],
+    [
+      "--json",
+      "fab",
+      "presets"
+    ],
+    [
+      "--json",
+      "project",
+      "new",
+      "P",
+      "--name",
+      "usb_c_led",
+      "--title",
+      "USB-C red LED"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "initial",
+      "--immutable"
+    ]
+  ],
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n '^##|USB|JLC|jlc|Windows|first|fab package|templates|lib sym search|lib fp search|lib sym show|lib fp show' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '416,525p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "sed -n '574,663p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "sed -n '1,75p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe fab parts check"
+  ],
+  "notes": {
+    "scope": "첫 체인은 R1 환경 확인과 R2 부품 탐색 및 빈 프로젝트의 초기 체크포인트까지다. 체인의 명령은 실행하지 않았다. 실제 변경은 이 기록 파일 저장뿐이다. 명령 결과를 보지 않고 USB-C 커넥터, 핀 번호, 풋프린트, 공급사 번호를 확정하거나 회로를 편집하지 않는다.",
+    "gates": "doctor.ok:true와 경고/라이브러리 테이블을 확인한 뒤 진행한다. 실패하면 체인을 중단한다. Windows에서는 KiCad 10 설치 또는 KCE_KICAD_CLI/KCE_PYTHON 설정을 먼저 해결한다. global_*_lib_table:false이면 lib init-global-tables를 실행하고 doctor를 다시 확인하는 분기로 바꾼다. P는 새 프로젝트 디렉터리이며 기존 프로젝트를 덮어쓰지 않는다.",
+    "design": "USB-C 전원의 기본 5V로 빨간 LED 하나를 구동하며 PD 협상은 필요하지 않다. 전류 제한 저항을 반드시 둔다. 작고 저렴한 2층 보드와 한쪽 면 실장을 우선한다. USB-C 리셉터클을 쓰는 경우 CC1과 CC2는 각각 별도의 5.1kΩ 풀다운으로 GND에 연결한다. 직접 꽂는 플러그 방식은 실제 플러그의 CC 핀 및 기구 도면을 확인해 별도로 설계한다. 요청의 plugs into가 직결 플러그인지 케이블 연결인지 부품 결정 전에 확인해야 하므로 둘 다 먼저 탐색한다. LED 극성과 정확한 커넥터 핀맵은 선택된 부품 데이터시트 및 lib sym/fp show와 lib link-check로 확인한다.",
+    "next_stage": "탐색 결과와 공급사 자료로 실제 부품을 확정한다. 재고와 JLCPCB 조립 가능 여부, basic/extended 비용 및 최소 조립 크기를 확인하고 MPN/LCSC를 임의로 쓰지 않는다. P/intent.json과 독립 승인 사본을 준비한다. 이후 Windows 호환 JSON run 계획을 P 밖에 작성하고 dry-run한다. 회로 계획에는 sch apply --power-flags, 명시적인 미사용 핀 no-connect, annotate, strict intent verify와 match:true 수용 조건, ERC --fail-on error를 넣고 schematic-ok를 체크포인트한다.",
+    "layout_and_fab": "선택된 커넥터 기구 치수에 맞춰 작은 outline을 만들고 pcb update --stable-uuids를 dry-run 후 반영한다. unmatched_pins 등을 확인하고 커넥터를 보드 가장자리에 배치·고정한다. 실제 제조 규칙을 확인하고 겹침 및 outline 밖 부품 수 0을 gate한다. 라우팅/zone 후 failed[], connectivity, ERC 및 DRC를 검사한다. 조립 전 fab parts check --offline과 BOM 필드를 확인하되 이는 재고/부품 일치의 증명이 아니다. 실제 공급사 확인 후 새 출력 디렉터리에 fab package --preset jlcpcb --fail-on-drc --require-lcsc --bom-fields Reference,Value,Footprint,MPN,LCSC로 Gerber/drill/BOM/CPL을 생성한다. complete:true, files[], warnings, BOM/CPL 참조와 LED/커넥터 방향을 확인하고 JLCPCB placement viewer에서 검토한다. 결제나 제조 주문은 자동으로 하지 않는다.",
+    "windows": "Bash 변수/루프 대신 명령 인자 배열 또는 PowerShell 배열과 JSON run 계획을 쓴다. 이 첫 체인은 아직 부품 선정 전이므로 실행할 run 계획을 만들지 않았다. 따라서 plans 객체는 없다."
+  }
+}

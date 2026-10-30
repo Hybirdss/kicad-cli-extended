@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUTF8: "0"            # exercise the real default encodings
+  KICAD_TAG: "10.0.7"        # demo fixtures (KiCad/kicad-source-mirror tag)
+
+jobs:
+  unit:
+    name: unit · ${{ matrix.os }} · py${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[test]"
+      - name: Generated command and skill references are current
+        run: python scripts/gen_skill.py --check
+      - name: Unit tests (implicit-encoding use is an error)
+        run: python -X warn_default_encoding -W error::EncodingWarning -m pytest tests/test_core.py -v
+      - name: Installed command works from another directory
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP"
+          kce --version
+          kce --json skill path
+
+  e2e-linux:
+    name: e2e · ubuntu (full suite, real KiCad)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install KiCad 10 (PPA kicad/kicad-10.0-releases)
+        run: |
+          sudo add-apt-repository --yes ppa:kicad/kicad-10.0-releases
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            kicad kicad-symbols kicad-footprints kicad-templates xvfb
+          kicad-cli version
+          /usr/bin/python3 -c "import pcbnew; print('pcbnew', pcbnew.Version())"
+      - run: python -m pip install ".[test]"
+      - run: python scripts/fetch_fixtures.py --tag "$KICAD_TAG"
+      - run: python scripts/ci_doctor.py
+      - run: kce lib init-global-tables
+      - name: Unit + full E2E suite
+        env:
+          KCE_FORCE_INSTALLED: "1"
+        run: xvfb-run -a python -X warn_default_encoding -W error::EncodingWarning -m pytest tests -v -rA
+
+  e2e-windows:
+    name: e2e · windows (smoke, real KiCad)
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install KiCad 10 (Chocolatey)
+        run: choco install kicad --version=10.0.7 --yes --no-progress
+      - run: python -m pip install ".[test]"
+      - run: python scripts/fetch_fixtures.py --tag "$env:KICAD_TAG"
+      - run: python scripts/ci_doctor.py
+      - run: kce lib init-global-tables
+      - name: E2E smoke subset
+        env:
+          KCE_FORCE_INSTALLED: "1"
+        run: python -m pytest tests -v -rA -m smoke
+
+      - name: Windows feature contracts (implicit encoding is an error)
+        env:
+          KCE_FORCE_INSTALLED: "1"
+          PYTHONIOENCODING: "cp1252"
+        run: python -X warn_default_encoding -W error::EncodingWarning -m pytest tests/test_core.py tests/test_contract.py tests/test_board.py tests/test_intent.py tests/test_serve.py -q
+
+  e2e-macos:
+    name: e2e · macos (smoke, real KiCad)
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install KiCad 10 (Homebrew cask)
+        run: brew install --cask kicad     # the cask does not put kicad-cli on PATH
+      - run: python -m pip install ".[test]"
+      - run: python scripts/fetch_fixtures.py --tag "$KICAD_TAG"
+      - name: Check KiCad through kce (finds the cask on its own)
+        run: python scripts/ci_doctor.py
+      - run: kce lib init-global-tables
+      - name: E2E smoke subset
+        env:
+          KCE_FORCE_INSTALLED: "1"
+        run: python -m pytest tests -v -rA -m smoke

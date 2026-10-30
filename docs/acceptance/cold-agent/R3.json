@@ -1,0 +1,65 @@
+{
+  "prompt": "I need a MAX17048 fuel gauge on the sensor board. Check whether KiCad already has it before drawing anything. I'll paste the pin table from the datasheet.",
+  "chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "--read-only",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--read-only",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--read-only",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--read-only",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--read-only",
+      "lib",
+      "sym",
+      "search",
+      "MAX17048",
+      "--explain"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--read-only",
+      "lib",
+      "sym",
+      "show",
+      "LIB_ID_FROM_SEARCH"
+    ]
+  ],
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n -A 65 -B 8 'Custom|custom|lib sym search|lib sym show|pin table|MAX17048' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "rg -n 'kce lib sym (search|show)|kce info doctor' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md"
+  ],
+  "notes": "R1으로 환경과 프로젝트를 읽기 전용으로 확인한 뒤 MAX17048을 검색한다. doctor.ok가 false이면 환경 문제를 먼저 보고한다. 마지막 show는 검색 결과가 있을 때만 실행하며 LIB_ID_FROM_SEARCH는 실제 반환된 라이브러리 ID로 치환한다. 후보의 핀 번호·이름·종류·단위·기본 풋프린트를 읽고 존재 여부를 보고한다. 검색 결과가 없으면 show를 실행하지 않고 설치 라이브러리에서 찾지 못했다고 보고한다. 아직 붙여넣지 않은 데이터시트 핀 표나 패키지를 추정하지 않는다. 핀 표를 받은 뒤 후보와 비교하고, 필요한 패키지 정보가 확인되면 풋프린트를 검색한다. 이 첫 체인에서는 심볼·풋프린트 생성, 배치, 배선, 체크포인트 등 쓰기를 계획하지 않는다. kce 명령은 실제 실행하지 않았다."
+}

@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kicad-cli-extended"
+dynamic = ["version"]
+description = "KiCad's kicad-cli, extended for AI agents: every kicad-cli command plus schematic editing, PCB update and routing, fab packages, previews and diffs, all with JSON output (command: kce)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "Hybirdss" }]
+keywords = ["kicad", "kicad-cli", "eda", "pcb", "schematic", "gerber", "cli", "ai-agents", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Manufacturing",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+]
+dependencies = [
+    "click>=8.1",
+    "prompt-toolkit>=3.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7", "jsonschema>=4.18"]
+
+[project.scripts]
+kce = "kicad_cli_extended.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Hybirdss/kicad-cli-extended"
+Issues = "https://github.com/Hybirdss/kicad-cli-extended/issues"
+
+[tool.hatch.version]
+path = "src/kicad_cli_extended/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kicad_cli_extended"]
+
+# the JSON Schemas of the machine contract ship inside the package, so an installed kce can hand
+# them to a caller (kicad_cli_extended/schemas/*.json), not only the repository checkout
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "kicad_cli_extended/schemas"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/", "tests/", "scripts/", "skills/", "docs/", "schemas/", "bench/", "README.md", "LICENSE", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "e2e: needs KiCad 10 (kicad-cli + pcbnew) and the demo fixtures",
+    "smoke: quick end-to-end subset used on Windows/macOS CI",
+]

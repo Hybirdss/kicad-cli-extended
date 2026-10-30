@@ -1,0 +1,1563 @@
+{
+ "date": "2026-10-30T00:02:35+00:00",
+ "tokenizer": "tiktoken o200k_base",
+ "tiktoken": "0.14.0",
+ "machine": {
+  "os": "Linux-7.2.8-9-omarchy-x86_64-with-glibc2.44",
+  "python": "3.11.17",
+  "cpus": 16,
+  "loadavg_at_start": [
+   1.4443359375,
+   1.451171875,
+   1.6181640625
+  ],
+  "loadavg_at_end": [
+   3.78515625,
+   2.728515625,
+   2.1005859375
+  ]
+ },
+ "load_gate": {
+  "max_load": 4.0,
+  "max_wait_seconds": 1800.0,
+  "reps": [
+   {
+    "rep": 0,
+    "loadavg": 2.02,
+    "waited_seconds": 0.0,
+    "started_above_limit": false
+   },
+   {
+    "rep": 1,
+    "loadavg": 3.38,
+    "waited_seconds": 0.0,
+    "started_above_limit": false
+   },
+   {
+    "rep": 2,
+    "loadavg": 3.54,
+    "waited_seconds": 15.0,
+    "started_above_limit": false
+   },
+   {
+    "rep": 3,
+    "loadavg": 3.45,
+    "waited_seconds": 15.0,
+    "started_above_limit": false
+   },
+   {
+    "rep": 4,
+    "loadavg": 3.36,
+    "waited_seconds": 15.0,
+    "started_above_limit": false
+   }
+  ]
+ },
+ "kicad": "10.0.7",
+ "kce": "kce (kicad-cli-extended) 0.1.0",
+ "servers": [
+  {
+   "id": "mixelpixx",
+   "repo": "https://github.com/mixelpixx/KiCAD-MCP-Server",
+   "ref": "v2.8.3",
+   "commit": "1d204fe3384eb73c890bbe531538a6e735c40fe0",
+   "stars_at_selection": 2995
+  },
+  {
+   "id": "lamaalrajih",
+   "repo": "https://github.com/lamaalrajih/kicad-mcp",
+   "ref": "main",
+   "commit": "98c9ea41cb393393a8bafd157a93e84431e00afb",
+   "stars_at_selection": 531
+  }
+ ],
+ "demo_project": "pic_programmer",
+ "reps": 5,
+ "context": {
+  "kce": {
+   "always_loaded": {
+    "skill_frontmatter": 157
+   },
+   "on_trigger": {
+    "skill_body": 3737
+   },
+   "on_demand": {
+    "commands_reference": 11238
+   },
+   "always_tokens": 157,
+   "with_skill_tokens": 3737
+  },
+  "mixelpixx": {
+   "tools": 244,
+   "tools_tokens": 63420,
+   "tools_list_raw_tokens": 66339,
+   "resources": 21,
+   "resources_tokens": 416,
+   "resource_templates": 11,
+   "resource_templates_tokens": 287,
+   "prompts": 18,
+   "prompts_tokens": 922,
+   "startup_seconds": 0.4,
+   "server_info": {
+    "name": "kicad-mcp-server",
+    "version": "2.8.3",
+    "description": "MCP server for KiCAD PCB design operations"
+   },
+   "always_tokens": 63420
+  },
+  "mixelpixx:core-toolbox": {
+   "tools": 37,
+   "tools_tokens": 6445,
+   "tools_list_raw_tokens": 6885,
+   "resources": 21,
+   "resources_tokens": 416,
+   "resource_templates": 11,
+   "resource_templates_tokens": 287,
+   "prompts": 18,
+   "prompts_tokens": 922,
+   "startup_seconds": 0.42,
+   "server_info": {
+    "name": "kicad-mcp-server",
+    "version": "2.8.3",
+    "description": "MCP server for KiCAD PCB design operations"
+   },
+   "always_tokens": 6445
+  },
+  "lamaalrajih": {
+   "tools": 16,
+   "tools_tokens": 4927,
+   "tools_list_raw_tokens": 5220,
+   "resources": 0,
+   "resources_tokens": 1,
+   "resource_templates": 12,
+   "resource_templates_tokens": 969,
+   "prompts": 17,
+   "prompts_tokens": 450,
+   "startup_seconds": 2.12,
+   "server_info": {
+    "name": "KiCad",
+    "version": "1.11.0"
+   },
+   "always_tokens": 4927
+  }
+ },
+ "summary": {
+  "erc": {
+   "kce": {
+    "supported": true,
+    "calls": 1,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 31,
+    "response_tokens": 77,
+    "median_seconds": 3.62
+   },
+   "mixelpixx": {
+    "supported": true,
+    "calls": 1,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 45,
+    "response_tokens": 24,
+    "median_seconds": 3.09
+   },
+   "lamaalrajih": {
+    "supported": false
+   }
+  },
+  "drc": {
+   "kce": {
+    "supported": true,
+    "calls": 1,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 31,
+    "response_tokens": 88,
+    "median_seconds": 4.45
+   },
+   "mixelpixx": {
+    "supported": true,
+    "calls": 2,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 54,
+    "response_tokens": 224,
+    "median_seconds": 3.63
+   },
+   "lamaalrajih": {
+    "supported": true,
+    "calls": 1,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 50,
+    "response_tokens": 59,
+    "median_seconds": 3.4
+   }
+  },
+  "bom": {
+   "kce": {
+    "supported": true,
+    "calls": 1,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 50,
+    "response_tokens": 127,
+    "median_seconds": 1.0
+   },
+   "mixelpixx": {
+    "supported": true,
+    "calls": 1,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 71,
+    "response_tokens": 40,
+    "median_seconds": 0.59
+   },
+   "lamaalrajih": {
+    "supported": true,
+    "calls": 1,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 50,
+    "response_tokens": 83,
+    "median_seconds": 0.53
+   }
+  },
+  "gerber_drill": {
+   "kce": {
+    "supported": true,
+    "calls": 2,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 111,
+    "response_tokens": 2660,
+    "median_seconds": 2.15
+   },
+   "mixelpixx": {
+    "supported": true,
+    "calls": 2,
+    "ok_runs": 5,
+    "produced_runs": 5,
+    "runs": 5,
+    "request_tokens": 145,
+    "response_tokens": 500,
+    "median_seconds": 1.43
+   },
+   "lamaalrajih": {
+    "supported": false
+   }
+  }
+ },
+ "tasks": {
+  "erc": {
+   "kce": {
+    "runs": [
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 77,
+      "seconds": 3.817,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/0-erc-kce/pic_programmer check erc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 77,
+        "seconds": 3.817,
+        "response_head": "{\"kind\":\"erc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 77,
+      "seconds": 3.591,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/1-erc-kce/pic_programmer check erc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 77,
+        "seconds": 3.591,
+        "response_head": "{\"kind\":\"erc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 77,
+      "seconds": 3.549,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/2-erc-kce/pic_programmer check erc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 77,
+        "seconds": 3.549,
+        "response_head": "{\"kind\":\"erc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 77,
+      "seconds": 3.623,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/3-erc-kce/pic_programmer check erc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 77,
+        "seconds": 3.623,
+        "response_head": "{\"kind\":\"erc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 77,
+      "seconds": 3.638,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/4-erc-kce/pic_programmer check erc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 77,
+        "seconds": 3.638,
+        "response_head": "{\"kind\":\"erc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   },
+   "mixelpixx": {
+    "runs": [
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 45,
+      "response_tokens": 24,
+      "seconds": 3.419,
+      "detail": [
+       {
+        "call": "run_erc({'schematicPath': '<benchmark>/0-erc-mixelpixx/pic_programmer/pic_programmer.kicad_sch'})",
+        "ok": true,
+        "request_tokens": 45,
+        "response_tokens": 24,
+        "seconds": 3.419,
+        "response_head": "ERC result: 0 violation(s)\n  Errors: 0  Warnings: 0  Info: 0"
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 45,
+      "response_tokens": 24,
+      "seconds": 3.071,
+      "detail": [
+       {
+        "call": "run_erc({'schematicPath': '<benchmark>/1-erc-mixelpixx/pic_programmer/pic_programmer.kicad_sch'})",
+        "ok": true,
+        "request_tokens": 45,
+        "response_tokens": 24,
+        "seconds": 3.071,
+        "response_head": "ERC result: 0 violation(s)\n  Errors: 0  Warnings: 0  Info: 0"
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 45,
+      "response_tokens": 24,
+      "seconds": 3.213,
+      "detail": [
+       {
+        "call": "run_erc({'schematicPath': '<benchmark>/2-erc-mixelpixx/pic_programmer/pic_programmer.kicad_sch'})",
+        "ok": true,
+        "request_tokens": 45,
+        "response_tokens": 24,
+        "seconds": 3.213,
+        "response_head": "ERC result: 0 violation(s)\n  Errors: 0  Warnings: 0  Info: 0"
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 45,
+      "response_tokens": 24,
+      "seconds": 3.086,
+      "detail": [
+       {
+        "call": "run_erc({'schematicPath': '<benchmark>/3-erc-mixelpixx/pic_programmer/pic_programmer.kicad_sch'})",
+        "ok": true,
+        "request_tokens": 45,
+        "response_tokens": 24,
+        "seconds": 3.086,
+        "response_head": "ERC result: 0 violation(s)\n  Errors: 0  Warnings: 0  Info: 0"
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 45,
+      "response_tokens": 24,
+      "seconds": 3.072,
+      "detail": [
+       {
+        "call": "run_erc({'schematicPath': '<benchmark>/4-erc-mixelpixx/pic_programmer/pic_programmer.kicad_sch'})",
+        "ok": true,
+        "request_tokens": 45,
+        "response_tokens": 24,
+        "seconds": 3.072,
+        "response_head": "ERC result: 0 violation(s)\n  Errors: 0  Warnings: 0  Info: 0"
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   },
+   "lamaalrajih": {
+    "runs": [],
+    "supported": false
+   }
+  },
+  "drc": {
+   "kce": {
+    "runs": [
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 88,
+      "seconds": 4.624,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/0-drc-kce/pic_programmer check drc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 88,
+        "seconds": 4.624,
+        "response_head": "{\"kind\":\"drc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"unconnected\":0,\"parity\":0,\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 88,
+      "seconds": 4.325,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/1-drc-kce/pic_programmer check drc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 88,
+        "seconds": 4.325,
+        "response_head": "{\"kind\":\"drc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"unconnected\":0,\"parity\":0,\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 88,
+      "seconds": 4.34,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/2-drc-kce/pic_programmer check drc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 88,
+        "seconds": 4.34,
+        "response_head": "{\"kind\":\"drc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"unconnected\":0,\"parity\":0,\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 88,
+      "seconds": 4.478,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/3-drc-kce/pic_programmer check drc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 88,
+        "seconds": 4.478,
+        "response_head": "{\"kind\":\"drc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"unconnected\":0,\"parity\":0,\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 31,
+      "response_tokens": 88,
+      "seconds": 4.447,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/4-drc-kce/pic_programmer check drc",
+        "ok": true,
+        "request_tokens": 31,
+        "response_tokens": 88,
+        "seconds": 4.447,
+        "response_head": "{\"kind\":\"drc\",\"total\":0,\"errors\":0,\"warnings\":0,\"by_severity\":{},\"by_type\":{},\"hints\":{},\"violations\":[],\"clean\":true,\"kicad_version\":\"10.0.7\",\"unconnected\":0,\"parity\":0,\"report\":null,\"new_violations\":0,\"fixed_violations\":0,\"exit_if_strict\":0}\n"
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   },
+   "mixelpixx": {
+    "runs": [
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 54,
+      "response_tokens": 224,
+      "seconds": 4.404,
+      "detail": [
+       {
+        "call": "open_project({'filename': '<benchmark>/0-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro'})",
+        "ok": true,
+        "request_tokens": 41,
+        "response_tokens": 131,
+        "seconds": 0.924,
+        "response_head": "{\n  \"success\": true,\n  \"message\": \"Opened project: pic_programmer.kicad_pcb\",\n  \"project\": {\n    \"name\": \"pic_programmer\",\n    \"path\": \"<benchmark>/0-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro\",\n    \"boardPath\": \"<benchmark>/0-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pcb\"\n  },\n  \"_backend\": \"swig\",\n  \"_realtime\": false,\n  \"sessionBackend\": \"swig\"\n}"
+       },
+       {
+        "call": "run_drc({})",
+        "ok": true,
+        "request_tokens": 13,
+        "response_tokens": 93,
+        "seconds": 3.48,
+        "response_head": "{\"success\":true,\"message\":\"Found 0 DRC violations\",\"summary\":{\"total\":0,\"by_severity\":{\"error\":0,\"warning\":0,\"info\":0},\"by_type\":{}},\"violationsFile\":\"<benchmark>/0-drc-mixelpixx/pic_programmer/pic_programmer_drc_violations.json\",\"reportPath\":null,\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 54,
+      "response_tokens": 224,
+      "seconds": 3.705,
+      "detail": [
+       {
+        "call": "open_project({'filename': '<benchmark>/1-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro'})",
+        "ok": true,
+        "request_tokens": 41,
+        "response_tokens": 131,
+        "seconds": 0.241,
+        "response_head": "{\n  \"success\": true,\n  \"message\": \"Opened project: pic_programmer.kicad_pcb\",\n  \"project\": {\n    \"name\": \"pic_programmer\",\n    \"path\": \"<benchmark>/1-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro\",\n    \"boardPath\": \"<benchmark>/1-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pcb\"\n  },\n  \"_backend\": \"swig\",\n  \"_realtime\": false,\n  \"sessionBackend\": \"swig\"\n}"
+       },
+       {
+        "call": "run_drc({})",
+        "ok": true,
+        "request_tokens": 13,
+        "response_tokens": 93,
+        "seconds": 3.464,
+        "response_head": "{\"success\":true,\"message\":\"Found 0 DRC violations\",\"summary\":{\"total\":0,\"by_severity\":{\"error\":0,\"warning\":0,\"info\":0},\"by_type\":{}},\"violationsFile\":\"<benchmark>/1-drc-mixelpixx/pic_programmer/pic_programmer_drc_violations.json\",\"reportPath\":null,\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 54,
+      "response_tokens": 224,
+      "seconds": 3.618,
+      "detail": [
+       {
+        "call": "open_project({'filename': '<benchmark>/2-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro'})",
+        "ok": true,
+        "request_tokens": 41,
+        "response_tokens": 131,
+        "seconds": 0.239,
+        "response_head": "{\n  \"success\": true,\n  \"message\": \"Opened project: pic_programmer.kicad_pcb\",\n  \"project\": {\n    \"name\": \"pic_programmer\",\n    \"path\": \"<benchmark>/2-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro\",\n    \"boardPath\": \"<benchmark>/2-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pcb\"\n  },\n  \"_backend\": \"swig\",\n  \"_realtime\": false,\n  \"sessionBackend\": \"swig\"\n}"
+       },
+       {
+        "call": "run_drc({})",
+        "ok": true,
+        "request_tokens": 13,
+        "response_tokens": 93,
+        "seconds": 3.38,
+        "response_head": "{\"success\":true,\"message\":\"Found 0 DRC violations\",\"summary\":{\"total\":0,\"by_severity\":{\"error\":0,\"warning\":0,\"info\":0},\"by_type\":{}},\"violationsFile\":\"<benchmark>/2-drc-mixelpixx/pic_programmer/pic_programmer_drc_violations.json\",\"reportPath\":null,\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 54,
+      "response_tokens": 224,
+      "seconds": 3.627,
+      "detail": [
+       {
+        "call": "open_project({'filename': '<benchmark>/3-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro'})",
+        "ok": true,
+        "request_tokens": 41,
+        "response_tokens": 131,
+        "seconds": 0.244,
+        "response_head": "{\n  \"success\": true,\n  \"message\": \"Opened project: pic_programmer.kicad_pcb\",\n  \"project\": {\n    \"name\": \"pic_programmer\",\n    \"path\": \"<benchmark>/3-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro\",\n    \"boardPath\": \"<benchmark>/3-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pcb\"\n  },\n  \"_backend\": \"swig\",\n  \"_realtime\": false,\n  \"sessionBackend\": \"swig\"\n}"
+       },
+       {
+        "call": "run_drc({})",
+        "ok": true,
+        "request_tokens": 13,
+        "response_tokens": 93,
+        "seconds": 3.382,
+        "response_head": "{\"success\":true,\"message\":\"Found 0 DRC violations\",\"summary\":{\"total\":0,\"by_severity\":{\"error\":0,\"warning\":0,\"info\":0},\"by_type\":{}},\"violationsFile\":\"<benchmark>/3-drc-mixelpixx/pic_programmer/pic_programmer_drc_violations.json\",\"reportPath\":null,\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 54,
+      "response_tokens": 224,
+      "seconds": 3.535,
+      "detail": [
+       {
+        "call": "open_project({'filename': '<benchmark>/4-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro'})",
+        "ok": true,
+        "request_tokens": 41,
+        "response_tokens": 131,
+        "seconds": 0.243,
+        "response_head": "{\n  \"success\": true,\n  \"message\": \"Opened project: pic_programmer.kicad_pcb\",\n  \"project\": {\n    \"name\": \"pic_programmer\",\n    \"path\": \"<benchmark>/4-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pro\",\n    \"boardPath\": \"<benchmark>/4-drc-mixelpixx/pic_programmer/pic_programmer.kicad_pcb\"\n  },\n  \"_backend\": \"swig\",\n  \"_realtime\": false,\n  \"sessionBackend\": \"swig\"\n}"
+       },
+       {
+        "call": "run_drc({})",
+        "ok": true,
+        "request_tokens": 13,
+        "response_tokens": 93,
+        "seconds": 3.292,
+        "response_head": "{\"success\":true,\"message\":\"Found 0 DRC violations\",\"summary\":{\"total\":0,\"by_severity\":{\"error\":0,\"warning\":0,\"info\":0},\"by_type\":{}},\"violationsFile\":\"<benchmark>/4-drc-mixelpixx/pic_programmer/pic_programmer_drc_violations.json\",\"reportPath\":null,\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   },
+   "lamaalrajih": {
+    "runs": [
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 59,
+      "seconds": 3.585,
+      "detail": [
+       {
+        "call": "run_drc_check({'project_path': '<benchmark>/0-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 59,
+        "seconds": 3.585,
+        "response_head": "{\"success\":true,\"method\":\"cli\",\"pcb_file\":\"<benchmark>/0-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pcb\",\"total_violations\":0,\"violation_categories\":{},\"violations\":[]}"
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 59,
+      "seconds": 3.398,
+      "detail": [
+       {
+        "call": "run_drc_check({'project_path': '<benchmark>/1-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 59,
+        "seconds": 3.398,
+        "response_head": "{\"success\":true,\"method\":\"cli\",\"pcb_file\":\"<benchmark>/1-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pcb\",\"total_violations\":0,\"violation_categories\":{},\"violations\":[]}"
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 59,
+      "seconds": 3.35,
+      "detail": [
+       {
+        "call": "run_drc_check({'project_path': '<benchmark>/2-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 59,
+        "seconds": 3.35,
+        "response_head": "{\"success\":true,\"method\":\"cli\",\"pcb_file\":\"<benchmark>/2-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pcb\",\"total_violations\":0,\"violation_categories\":{},\"violations\":[]}"
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 59,
+      "seconds": 3.304,
+      "detail": [
+       {
+        "call": "run_drc_check({'project_path': '<benchmark>/3-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 59,
+        "seconds": 3.304,
+        "response_head": "{\"success\":true,\"method\":\"cli\",\"pcb_file\":\"<benchmark>/3-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pcb\",\"total_violations\":0,\"violation_categories\":{},\"violations\":[]}"
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 59,
+      "seconds": 3.437,
+      "detail": [
+       {
+        "call": "run_drc_check({'project_path': '<benchmark>/4-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 59,
+        "seconds": 3.437,
+        "response_head": "{\"success\":true,\"method\":\"cli\",\"pcb_file\":\"<benchmark>/4-drc-lamaalrajih/pic_programmer/pic_programmer.kicad_pcb\",\"total_violations\":0,\"violation_categories\":{},\"violations\":[]}"
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   }
+  },
+  "bom": {
+   "kce": {
+    "runs": [
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 127,
+      "seconds": 1.022,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/0-bom-kce/pic_programmer sch export bom --output <benchmark>/0-bom-kce/out/bom.csv",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 127,
+        "seconds": 1.022,
+        "response_head": "{\"kicad_cli\":\"sch export bom\",\"returncode\":0,\"seconds\":0.82,\"input\":\"<benchmark>/0-bom-kce/pic_programmer/pic_programmer.kicad_sch\",\"output_dir\":\"<benchmark>/0-bom-kce/out\",\"outputs\":[{\"path\":\"bom.csv\",\"bytes\":4030,\"format\":\"csv\"}],\"dry_run\":false,\"would_write\":[\"<benchmark>/0-bom-kce/out\",\"<benchmark>/0-bom-kce/out/bom.csv\"]}\n"
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 127,
+      "seconds": 0.981,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/1-bom-kce/pic_programmer sch export bom --output <benchmark>/1-bom-kce/out/bom.csv",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 127,
+        "seconds": 0.981,
+        "response_head": "{\"kicad_cli\":\"sch export bom\",\"returncode\":0,\"seconds\":0.77,\"input\":\"<benchmark>/1-bom-kce/pic_programmer/pic_programmer.kicad_sch\",\"output_dir\":\"<benchmark>/1-bom-kce/out\",\"outputs\":[{\"path\":\"bom.csv\",\"bytes\":4030,\"format\":\"csv\"}],\"dry_run\":false,\"would_write\":[\"<benchmark>/1-bom-kce/out\",\"<benchmark>/1-bom-kce/out/bom.csv\"]}\n"
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 127,
+      "seconds": 0.991,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/2-bom-kce/pic_programmer sch export bom --output <benchmark>/2-bom-kce/out/bom.csv",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 127,
+        "seconds": 0.991,
+        "response_head": "{\"kicad_cli\":\"sch export bom\",\"returncode\":0,\"seconds\":0.81,\"input\":\"<benchmark>/2-bom-kce/pic_programmer/pic_programmer.kicad_sch\",\"output_dir\":\"<benchmark>/2-bom-kce/out\",\"outputs\":[{\"path\":\"bom.csv\",\"bytes\":4030,\"format\":\"csv\"}],\"dry_run\":false,\"would_write\":[\"<benchmark>/2-bom-kce/out\",\"<benchmark>/2-bom-kce/out/bom.csv\"]}\n"
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 127,
+      "seconds": 1.028,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/3-bom-kce/pic_programmer sch export bom --output <benchmark>/3-bom-kce/out/bom.csv",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 127,
+        "seconds": 1.028,
+        "response_head": "{\"kicad_cli\":\"sch export bom\",\"returncode\":0,\"seconds\":0.79,\"input\":\"<benchmark>/3-bom-kce/pic_programmer/pic_programmer.kicad_sch\",\"output_dir\":\"<benchmark>/3-bom-kce/out\",\"outputs\":[{\"path\":\"bom.csv\",\"bytes\":4030,\"format\":\"csv\"}],\"dry_run\":false,\"would_write\":[\"<benchmark>/3-bom-kce/out\",\"<benchmark>/3-bom-kce/out/bom.csv\"]}\n"
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 127,
+      "seconds": 0.998,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/4-bom-kce/pic_programmer sch export bom --output <benchmark>/4-bom-kce/out/bom.csv",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 127,
+        "seconds": 0.998,
+        "response_head": "{\"kicad_cli\":\"sch export bom\",\"returncode\":0,\"seconds\":0.82,\"input\":\"<benchmark>/4-bom-kce/pic_programmer/pic_programmer.kicad_sch\",\"output_dir\":\"<benchmark>/4-bom-kce/out\",\"outputs\":[{\"path\":\"bom.csv\",\"bytes\":4030,\"format\":\"csv\"}],\"dry_run\":false,\"would_write\":[\"<benchmark>/4-bom-kce/out\",\"<benchmark>/4-bom-kce/out/bom.csv\"]}\n"
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   },
+   "mixelpixx": {
+    "runs": [
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 71,
+      "response_tokens": 40,
+      "seconds": 0.66,
+      "detail": [
+       {
+        "call": "export_sch_bom({'schematicPath': '<benchmark>/0-bom-mixelpixx/pic_programmer/pic_programmer.kicad_sch', 'outputPath': '<benchmark>/0-bom-mixelpixx/out/bom.csv'})",
+        "ok": true,
+        "request_tokens": 71,
+        "response_tokens": 40,
+        "seconds": 0.66,
+        "response_head": "{\"success\":true,\"outputPath\":\"<benchmark>/0-bom-mixelpixx/out/bom.csv\",\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 71,
+      "response_tokens": 40,
+      "seconds": 0.588,
+      "detail": [
+       {
+        "call": "export_sch_bom({'schematicPath': '<benchmark>/1-bom-mixelpixx/pic_programmer/pic_programmer.kicad_sch', 'outputPath': '<benchmark>/1-bom-mixelpixx/out/bom.csv'})",
+        "ok": true,
+        "request_tokens": 71,
+        "response_tokens": 40,
+        "seconds": 0.588,
+        "response_head": "{\"success\":true,\"outputPath\":\"<benchmark>/1-bom-mixelpixx/out/bom.csv\",\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 71,
+      "response_tokens": 40,
+      "seconds": 0.57,
+      "detail": [
+       {
+        "call": "export_sch_bom({'schematicPath': '<benchmark>/2-bom-mixelpixx/pic_programmer/pic_programmer.kicad_sch', 'outputPath': '<benchmark>/2-bom-mixelpixx/out/bom.csv'})",
+        "ok": true,
+        "request_tokens": 71,
+        "response_tokens": 40,
+        "seconds": 0.57,
+        "response_head": "{\"success\":true,\"outputPath\":\"<benchmark>/2-bom-mixelpixx/out/bom.csv\",\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 71,
+      "response_tokens": 40,
+      "seconds": 0.638,
+      "detail": [
+       {
+        "call": "export_sch_bom({'schematicPath': '<benchmark>/3-bom-mixelpixx/pic_programmer/pic_programmer.kicad_sch', 'outputPath': '<benchmark>/3-bom-mixelpixx/out/bom.csv'})",
+        "ok": true,
+        "request_tokens": 71,
+        "response_tokens": 40,
+        "seconds": 0.638,
+        "response_head": "{\"success\":true,\"outputPath\":\"<benchmark>/3-bom-mixelpixx/out/bom.csv\",\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 71,
+      "response_tokens": 40,
+      "seconds": 0.579,
+      "detail": [
+       {
+        "call": "export_sch_bom({'schematicPath': '<benchmark>/4-bom-mixelpixx/pic_programmer/pic_programmer.kicad_sch', 'outputPath': '<benchmark>/4-bom-mixelpixx/out/bom.csv'})",
+        "ok": true,
+        "request_tokens": 71,
+        "response_tokens": 40,
+        "seconds": 0.579,
+        "response_head": "{\"success\":true,\"outputPath\":\"<benchmark>/4-bom-mixelpixx/out/bom.csv\",\"_backend\":\"swig\",\"_realtime\":false}"
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "bom_files": [
+        "bom.csv"
+       ],
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   },
+   "lamaalrajih": {
+    "runs": [
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 83,
+      "seconds": 0.607,
+      "detail": [
+       {
+        "call": "export_bom_csv({'project_path': '<benchmark>/0-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 83,
+        "seconds": 0.607,
+        "response_head": "{\"success\":true,\"schematic_file\":\"<benchmark>/0-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_sch\",\"output_file\":\"<benchmark>/0-bom-lamaalrajih/pic_programmer/pic_programmer_bom.csv\",\"file_size\":4030,\"message\":\"BOM exported successfully\"}"
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "bom_files": [
+        "pic_programmer_bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 83,
+      "seconds": 0.507,
+      "detail": [
+       {
+        "call": "export_bom_csv({'project_path': '<benchmark>/1-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 83,
+        "seconds": 0.507,
+        "response_head": "{\"success\":true,\"schematic_file\":\"<benchmark>/1-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_sch\",\"output_file\":\"<benchmark>/1-bom-lamaalrajih/pic_programmer/pic_programmer_bom.csv\",\"file_size\":4030,\"message\":\"BOM exported successfully\"}"
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "bom_files": [
+        "pic_programmer_bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 83,
+      "seconds": 0.526,
+      "detail": [
+       {
+        "call": "export_bom_csv({'project_path': '<benchmark>/2-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 83,
+        "seconds": 0.526,
+        "response_head": "{\"success\":true,\"schematic_file\":\"<benchmark>/2-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_sch\",\"output_file\":\"<benchmark>/2-bom-lamaalrajih/pic_programmer/pic_programmer_bom.csv\",\"file_size\":4030,\"message\":\"BOM exported successfully\"}"
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "bom_files": [
+        "pic_programmer_bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 83,
+      "seconds": 0.557,
+      "detail": [
+       {
+        "call": "export_bom_csv({'project_path': '<benchmark>/3-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 83,
+        "seconds": 0.557,
+        "response_head": "{\"success\":true,\"schematic_file\":\"<benchmark>/3-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_sch\",\"output_file\":\"<benchmark>/3-bom-lamaalrajih/pic_programmer/pic_programmer_bom.csv\",\"file_size\":4030,\"message\":\"BOM exported successfully\"}"
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "bom_files": [
+        "pic_programmer_bom.csv"
+       ],
+       "produced": true
+      }
+     },
+     {
+      "calls": 1,
+      "ok": true,
+      "request_tokens": 50,
+      "response_tokens": 83,
+      "seconds": 0.53,
+      "detail": [
+       {
+        "call": "export_bom_csv({'project_path': '<benchmark>/4-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_pro', 'ctx': None})",
+        "ok": true,
+        "request_tokens": 50,
+        "response_tokens": 83,
+        "seconds": 0.53,
+        "response_head": "{\"success\":true,\"schematic_file\":\"<benchmark>/4-bom-lamaalrajih/pic_programmer/pic_programmer.kicad_sch\",\"output_file\":\"<benchmark>/4-bom-lamaalrajih/pic_programmer/pic_programmer_bom.csv\",\"file_size\":4030,\"message\":\"BOM exported successfully\"}"
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "bom_files": [
+        "pic_programmer_bom.csv"
+       ],
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   }
+  },
+  "gerber_drill": {
+   "kce": {
+    "runs": [
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 111,
+      "response_tokens": 2660,
+      "seconds": 2.364,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/0-gerber_drill-kce/pic_programmer pcb export gerbers --output <benchmark>/0-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 56,
+        "response_tokens": 1308,
+        "seconds": 1.307,
+        "response_head": "{\"kicad_cli\":\"pcb export gerbers\",\"returncode\":0,\"seconds\":1.12,\"input\":\"<benchmark>/0-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/0-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"functio"
+       },
+       {
+        "call": "kce --json --project <benchmark>/0-gerber_drill-kce/pic_programmer pcb export drill --output <benchmark>/0-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 55,
+        "response_tokens": 1352,
+        "seconds": 1.057,
+        "response_head": "{\"kicad_cli\":\"pcb export drill\",\"returncode\":0,\"seconds\":0.86,\"input\":\"<benchmark>/0-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/0-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"function\""
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 111,
+      "response_tokens": 2660,
+      "seconds": 2.153,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/1-gerber_drill-kce/pic_programmer pcb export gerbers --output <benchmark>/1-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 56,
+        "response_tokens": 1308,
+        "seconds": 1.149,
+        "response_head": "{\"kicad_cli\":\"pcb export gerbers\",\"returncode\":0,\"seconds\":0.97,\"input\":\"<benchmark>/1-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/1-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"functio"
+       },
+       {
+        "call": "kce --json --project <benchmark>/1-gerber_drill-kce/pic_programmer pcb export drill --output <benchmark>/1-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 55,
+        "response_tokens": 1352,
+        "seconds": 1.004,
+        "response_head": "{\"kicad_cli\":\"pcb export drill\",\"returncode\":0,\"seconds\":0.83,\"input\":\"<benchmark>/1-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/1-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"function\""
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 111,
+      "response_tokens": 2660,
+      "seconds": 2.136,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/2-gerber_drill-kce/pic_programmer pcb export gerbers --output <benchmark>/2-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 56,
+        "response_tokens": 1308,
+        "seconds": 1.188,
+        "response_head": "{\"kicad_cli\":\"pcb export gerbers\",\"returncode\":0,\"seconds\":0.99,\"input\":\"<benchmark>/2-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/2-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"functio"
+       },
+       {
+        "call": "kce --json --project <benchmark>/2-gerber_drill-kce/pic_programmer pcb export drill --output <benchmark>/2-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 55,
+        "response_tokens": 1352,
+        "seconds": 0.948,
+        "response_head": "{\"kicad_cli\":\"pcb export drill\",\"returncode\":0,\"seconds\":0.79,\"input\":\"<benchmark>/2-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/2-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"function\""
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 111,
+      "response_tokens": 2660,
+      "seconds": 2.147,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/3-gerber_drill-kce/pic_programmer pcb export gerbers --output <benchmark>/3-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 56,
+        "response_tokens": 1308,
+        "seconds": 1.176,
+        "response_head": "{\"kicad_cli\":\"pcb export gerbers\",\"returncode\":0,\"seconds\":1.0,\"input\":\"<benchmark>/3-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/3-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"function"
+       },
+       {
+        "call": "kce --json --project <benchmark>/3-gerber_drill-kce/pic_programmer pcb export drill --output <benchmark>/3-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 55,
+        "response_tokens": 1352,
+        "seconds": 0.971,
+        "response_head": "{\"kicad_cli\":\"pcb export drill\",\"returncode\":0,\"seconds\":0.78,\"input\":\"<benchmark>/3-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/3-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"function\""
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 111,
+      "response_tokens": 2660,
+      "seconds": 2.265,
+      "detail": [
+       {
+        "call": "kce --json --project <benchmark>/4-gerber_drill-kce/pic_programmer pcb export gerbers --output <benchmark>/4-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 56,
+        "response_tokens": 1308,
+        "seconds": 1.164,
+        "response_head": "{\"kicad_cli\":\"pcb export gerbers\",\"returncode\":0,\"seconds\":1.0,\"input\":\"<benchmark>/4-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/4-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"function"
+       },
+       {
+        "call": "kce --json --project <benchmark>/4-gerber_drill-kce/pic_programmer pcb export drill --output <benchmark>/4-gerber_drill-kce/out/gerbers/",
+        "ok": true,
+        "request_tokens": 55,
+        "response_tokens": 1352,
+        "seconds": 1.101,
+        "response_head": "{\"kicad_cli\":\"pcb export drill\",\"returncode\":0,\"seconds\":0.94,\"input\":\"<benchmark>/4-gerber_drill-kce/pic_programmer/pic_programmer.kicad_pcb\",\"output_dir\":\"<benchmark>/4-gerber_drill-kce/out/gerbers\",\"outputs\":[{\"path\":\"pic_programmer-B_Adhesive.gba\",\"bytes\":458,\"format\":\"gerber\",\"function\":\"Glue,Bot\"},{\"path\":\"pic_programmer-B_Courtyard.gbr\",\"bytes\":674,\"format\":\"gerber\",\"function\""
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   },
+   "mixelpixx": {
+    "runs": [
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 145,
+      "response_tokens": 500,
+      "seconds": 1.73,
+      "detail": [
+       {
+        "call": "export_gerbers({'outputDir': '<benchmark>/0-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/0-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 73,
+        "response_tokens": 247,
+        "seconds": 0.958,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/0-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       },
+       {
+        "call": "export_drill({'outputDir': '<benchmark>/0-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/0-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 72,
+        "response_tokens": 253,
+        "seconds": 0.772,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/0-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       }
+      ],
+      "loadavg": 2.02,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 145,
+      "response_tokens": 500,
+      "seconds": 1.425,
+      "detail": [
+       {
+        "call": "export_gerbers({'outputDir': '<benchmark>/1-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/1-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 73,
+        "response_tokens": 247,
+        "seconds": 0.831,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/1-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       },
+       {
+        "call": "export_drill({'outputDir': '<benchmark>/1-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/1-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 72,
+        "response_tokens": 253,
+        "seconds": 0.593,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/1-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       }
+      ],
+      "loadavg": 3.38,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 145,
+      "response_tokens": 500,
+      "seconds": 1.355,
+      "detail": [
+       {
+        "call": "export_gerbers({'outputDir': '<benchmark>/2-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/2-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 73,
+        "response_tokens": 247,
+        "seconds": 0.801,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/2-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       },
+       {
+        "call": "export_drill({'outputDir': '<benchmark>/2-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/2-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 72,
+        "response_tokens": 253,
+        "seconds": 0.554,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/2-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       }
+      ],
+      "loadavg": 3.54,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 145,
+      "response_tokens": 500,
+      "seconds": 1.394,
+      "detail": [
+       {
+        "call": "export_gerbers({'outputDir': '<benchmark>/3-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/3-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 73,
+        "response_tokens": 247,
+        "seconds": 0.814,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/3-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       },
+       {
+        "call": "export_drill({'outputDir': '<benchmark>/3-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/3-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 72,
+        "response_tokens": 253,
+        "seconds": 0.58,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/3-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       }
+      ],
+      "loadavg": 3.45,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     },
+     {
+      "calls": 2,
+      "ok": true,
+      "request_tokens": 145,
+      "response_tokens": 500,
+      "seconds": 1.501,
+      "detail": [
+       {
+        "call": "export_gerbers({'outputDir': '<benchmark>/4-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/4-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 73,
+        "response_tokens": 247,
+        "seconds": 0.903,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/4-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       },
+       {
+        "call": "export_drill({'outputDir': '<benchmark>/4-gerber_drill-mixelpixx/out/gerbers', 'boardPath': '<benchmark>/4-gerber_drill-mixelpixx/pic_programmer/pic_programmer.kicad_pcb'})",
+        "ok": true,
+        "request_tokens": 72,
+        "response_tokens": 253,
+        "seconds": 0.598,
+        "response_head": "{\"success\":true,\"outputDir\":\"<benchmark>/4-gerber_drill-mixelpixx/out/gerbers\",\"files\":[\"pic_programmer-B_Adhesive.gba\",\"pic_programmer-B_Courtyard.gbr\",\"pic_programmer-B_Fab.gbr\",\"pic_programmer-B_Mask.gbs\",\"pic_programmer-B_Paste.gbp\",\"pic_programmer-B_Silkscreen.gbo\",\"pic_programmer-Edge_Cuts.gm1\",\"pic_programmer-F_Adhesive.gta\",\"pic_programmer-F_Courtyard.gbr\",\"pic_programmer-F_Fab.gbr\""
+       }
+      ],
+      "loadavg": 3.36,
+      "verify": {
+       "gerber_files": 18,
+       "drill_files": 1,
+       "produced": true
+      }
+     }
+    ],
+    "supported": true
+   },
+   "lamaalrajih": {
+    "runs": [],
+    "supported": false
+   }
+  }
+ }
+}

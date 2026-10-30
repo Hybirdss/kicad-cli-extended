@@ -1,0 +1,2869 @@
+{
+ "generated_from": "KiCad common/jobs (tag 10.0.7)",
+ "jobs": {
+  "pcb_drc": {
+   "class": "JOB_PCB_DRC",
+   "class_chain": [
+    "JOB_PCB_DRC",
+    "JOB_RC",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "in",
+      "mm",
+      "mils"
+     ],
+     "key": "units",
+     "param": "JOB_PARAM",
+     "type": "UNITS"
+    },
+    {
+     "key": "severity",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "choices": [
+      "report",
+      "json"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "OUTPUT_FORMAT"
+    },
+    {
+     "key": "fail_on_error",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "parity",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "report_all_track_errors",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "refill_zones",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "save_board",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    }
+   ],
+   "title": "PCB: Perform DRC"
+  },
+  "pcb_export_3d": {
+   "class": "JOB_EXPORT_PCB_3D",
+   "class_chain": [
+    "JOB_EXPORT_PCB_3D",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "overwrite",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_grid_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_drill_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_defined_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_pcb_center_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "board_only",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "include_unspecified",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "include_dnp",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "subst_models",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "optimize_step",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "has_user_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "user_origin.x",
+     "param": "JOB_PARAM_MM_TO_PCB_IU",
+     "type": ""
+    },
+    {
+     "key": "user_origin.y",
+     "param": "JOB_PARAM_MM_TO_PCB_IU",
+     "type": ""
+    },
+    {
+     "key": "board_outlines_chaining_epsilon",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "cut_vias_in_body",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "export_board_body",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "export_components",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "export_tracks",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "export_pads",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "export_zones",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "export_inner_copper",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "export_silkscreen",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "export_soldermask",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "fuse_shapes",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "fill_all_vias",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "extra_pad_thickness",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "net_filter",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "component_filter",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "vrml_model_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "vrml_relative_paths",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "in",
+      "m",
+      "mm",
+      "tenths"
+     ],
+     "key": "vrml_units",
+     "param": "JOB_PARAM",
+     "type": "JOB_EXPORT_PCB_3D::VRML_UNITS"
+    },
+    {
+     "choices": [
+      "stpz",
+      "step",
+      "brep",
+      "glb",
+      "vrml",
+      "xao",
+      "ply",
+      "stl",
+      "u3d",
+      "pdf"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "JOB_EXPORT_PCB_3D::FORMAT"
+    },
+    {
+     "key": "occt_format",
+     "param": "JOB_PARAM",
+     "type": "EXPORTER_STEP_PARAMS::FORMAT"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    }
+   ],
+   "title": "PCB: Export 3D Model"
+  },
+  "pcb_export_drill": {
+   "class": "JOB_EXPORT_PCB_DRILL",
+   "class_chain": [
+    "JOB_EXPORT_PCB_DRILL",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "excellon.mirror_y",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "excellon.minimal_header",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "excellon.combine_pth_npth",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "excellon.oval_drill_route",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "excellon",
+      "gerber"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "DRILL_FORMAT"
+    },
+    {
+     "choices": [
+      "abs",
+      "plot"
+     ],
+     "key": "drill_origin",
+     "param": "JOB_PARAM",
+     "type": "DRILL_ORIGIN"
+    },
+    {
+     "choices": [
+      "in",
+      "mm"
+     ],
+     "key": "units",
+     "param": "JOB_PARAM",
+     "type": "DRILL_UNITS"
+    },
+    {
+     "choices": [
+      "decimal",
+      "surpress_leading",
+      "surpress_trailing",
+      "keep_zeros"
+     ],
+     "key": "zero_format",
+     "param": "JOB_PARAM",
+     "type": "ZEROS_FORMAT"
+    },
+    {
+     "key": "generate_map",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "generate_tenting",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "dxf",
+      "gerberx2",
+      "pdf",
+      "postscript",
+      "svg"
+     ],
+     "key": "map_format",
+     "param": "JOB_PARAM",
+     "type": "MAP_FORMAT"
+    },
+    {
+     "key": "gerber_precision",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "generate_report",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "report_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    }
+   ],
+   "title": "PCB: Export Drill Data"
+  },
+  "pcb_export_dxf": {
+   "class": "JOB_EXPORT_PCB_DXF",
+   "class_chain": [
+    "JOB_EXPORT_PCB_DXF",
+    "JOB_EXPORT_PCB_PLOT",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "layers_to_include_on_all_layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "mirror",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "negative",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_footprint_values",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_ref_des",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "hide_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "crossout_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_pads_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_pad_numbers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "subtract_solder_mask_from_silk",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_drill_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "none",
+      "small",
+      "full"
+     ],
+     "key": "drill_shape",
+     "param": "JOB_PARAM",
+     "type": "DRILL_MARKS"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "check_zones",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "scale",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "plot_graphic_items_using_contours",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "in",
+      "mm"
+     ],
+     "key": "units",
+     "param": "JOB_PARAM",
+     "type": "DXF_UNITS"
+    },
+    {
+     "key": "polygon_mode",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "multi",
+      "single"
+     ],
+     "key": "gen_mode",
+     "param": "JOB_PARAM",
+     "type": "GEN_MODE"
+    }
+   ],
+   "title": "PCB: Export DXF"
+  },
+  "pcb_export_gencad": {
+   "class": "JOB_EXPORT_PCB_GENCAD",
+   "class_chain": [
+    "JOB_EXPORT_PCB_GENCAD",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "flip_bottom_pads",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_individual_shapes",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "store_origin_coords",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_drill_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_unique_pins",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    }
+   ],
+   "title": "PCB: Export GenCAD"
+  },
+  "pcb_export_gerbers": {
+   "class": "JOB_EXPORT_PCB_GERBERS",
+   "class_chain": [
+    "JOB_EXPORT_PCB_GERBERS",
+    "JOB_EXPORT_PCB_GERBER",
+    "JOB_EXPORT_PCB_PLOT",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "layers_to_include_on_all_layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "mirror",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "negative",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_footprint_values",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_ref_des",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "hide_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "crossout_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_pads_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_pad_numbers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "subtract_solder_mask_from_silk",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_drill_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "none",
+      "small",
+      "full"
+     ],
+     "key": "drill_shape",
+     "param": "JOB_PARAM",
+     "type": "DRILL_MARKS"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "check_zones",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "include_netlist_attributes",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_x2_format",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "disable_aperture_macros",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_protel_file_extension",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "precision",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "create_gerber_job_file",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    }
+   ],
+   "title": "PCB: Export Gerbers"
+  },
+  "pcb_export_hpgl": {
+   "class": "JOB_EXPORT_PCB_HPGL",
+   "class_chain": [
+    "JOB_EXPORT_PCB_HPGL",
+    "JOB_EXPORT_PCB_PLOT",
+    "JOB"
+   ],
+   "deprecated": true,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "layers_to_include_on_all_layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "mirror",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "negative",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_footprint_values",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_ref_des",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "hide_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "crossout_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_pads_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_pad_numbers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "subtract_solder_mask_from_silk",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_drill_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "none",
+      "small",
+      "full"
+     ],
+     "key": "drill_shape",
+     "param": "JOB_PARAM",
+     "type": "DRILL_MARKS"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "check_zones",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    }
+   ],
+   "title": "PCB: Export HPGL"
+  },
+  "pcb_export_ipc2581": {
+   "class": "JOB_EXPORT_PCB_IPC2581",
+   "class_chain": [
+    "JOB_EXPORT_PCB_IPC2581",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "in",
+      "mm"
+     ],
+     "key": "units",
+     "param": "JOB_PARAM",
+     "type": "IPC2581_UNITS"
+    },
+    {
+     "choices": [
+      "B",
+      "C"
+     ],
+     "key": "version",
+     "param": "JOB_PARAM",
+     "type": "IPC2581_VERSION"
+    },
+    {
+     "key": "precision",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "compress",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "field_bom_map.internal_id",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "field_bom_map.mfg_pn",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "field_bom_map.mfg",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "field_bom_map.dist_pn",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "field_bom_map.dist",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "bom_rev",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    }
+   ],
+   "title": "PCB: Export IPC-2581"
+  },
+  "pcb_export_ipcd356": {
+   "class": "JOB_EXPORT_PCB_IPCD356",
+   "class_chain": [
+    "JOB_EXPORT_PCB_IPCD356",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    }
+   ],
+   "title": "PCB: Export IPC-D-356"
+  },
+  "pcb_export_odb": {
+   "class": "JOB_EXPORT_PCB_ODB",
+   "class_chain": [
+    "JOB_EXPORT_PCB_ODB",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "in",
+      "mm"
+     ],
+     "key": "units",
+     "param": "JOB_PARAM",
+     "type": "ODB_UNITS"
+    },
+    {
+     "key": "precision",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "choices": [
+      "none",
+      "zip",
+      "tgz"
+     ],
+     "key": "compression",
+     "param": "JOB_PARAM",
+     "type": "ODB_COMPRESSION"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "check_zones",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    }
+   ],
+   "title": "PCB: Export ODB++"
+  },
+  "pcb_export_pdf": {
+   "class": "JOB_EXPORT_PCB_PDF",
+   "class_chain": [
+    "JOB_EXPORT_PCB_PDF",
+    "JOB_EXPORT_PCB_PLOT",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "layers_to_include_on_all_layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "mirror",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "negative",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_footprint_values",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_ref_des",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "hide_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "crossout_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_pads_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_pad_numbers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "subtract_solder_mask_from_silk",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_drill_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "none",
+      "small",
+      "full"
+     ],
+     "key": "drill_shape",
+     "param": "JOB_PARAM",
+     "type": "DRILL_MARKS"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "check_zones",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "scale",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "color_theme",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "pdf_metadata",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "single_document",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "front_fp_property_popups",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "back_fp_property_popups",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "all-layers-one-file",
+      "all-layers-separate-files",
+      "one-page-per-layer-one-file"
+     ],
+     "key": "pdf_gen_mode",
+     "param": "JOB_PARAM",
+     "type": "GEN_MODE"
+    },
+    {
+     "key": "background_color",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    }
+   ],
+   "title": "PCB: Export PDF"
+  },
+  "pcb_export_pos": {
+   "class": "JOB_EXPORT_PCB_POS",
+   "class_chain": [
+    "JOB_EXPORT_PCB_POS",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "use_drill_place_file_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "smd_only",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "exclude_footprints_with_th",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "exclude_dnp",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "exclude_bom",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "negate_bottom_x",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "single_file",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "gerber_board_edge",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "front",
+      "back",
+      "both"
+     ],
+     "key": "side",
+     "param": "JOB_PARAM",
+     "type": "SIDE"
+    },
+    {
+     "choices": [
+      "in",
+      "mm"
+     ],
+     "key": "units",
+     "param": "JOB_PARAM",
+     "type": "UNITS"
+    },
+    {
+     "choices": [
+      "ascii",
+      "csv",
+      "gerber"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "FORMAT"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    }
+   ],
+   "title": "PCB: Export Position Data"
+  },
+  "pcb_export_ps": {
+   "class": "JOB_EXPORT_PCB_PS",
+   "class_chain": [
+    "JOB_EXPORT_PCB_PS",
+    "JOB_EXPORT_PCB_PLOT",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "layers_to_include_on_all_layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "mirror",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "negative",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_footprint_values",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_ref_des",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "hide_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "crossout_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_pads_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_pad_numbers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "subtract_solder_mask_from_silk",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_drill_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "none",
+      "small",
+      "full"
+     ],
+     "key": "drill_shape",
+     "param": "JOB_PARAM",
+     "type": "DRILL_MARKS"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "check_zones",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "scale",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "color_theme",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "multi",
+      "single"
+     ],
+     "key": "gen_mode",
+     "param": "JOB_PARAM",
+     "type": "GEN_MODE"
+    },
+    {
+     "key": "track_width_correction",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "x_scale_factor",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "y_scale_factor",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "force_a4",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_global_settings",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    }
+   ],
+   "title": "PCB: Export Postscript"
+  },
+  "pcb_export_stats": {
+   "class": "JOB_EXPORT_PCB_STATS",
+   "class_chain": [
+    "JOB_EXPORT_PCB_STATS",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_format",
+     "param": "JOB_PARAM",
+     "type": "OUTPUT_FORMAT"
+    },
+    {
+     "choices": [
+      "in",
+      "mm"
+     ],
+     "key": "units",
+     "param": "JOB_PARAM",
+     "type": "UNITS"
+    },
+    {
+     "key": "exclude_footprints_without_pads",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "subtract_holes_from_board",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "subtract_holes_from_copper",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    }
+   ],
+   "title": "PCB: Export Board Statistics"
+  },
+  "pcb_export_svg": {
+   "class": "JOB_EXPORT_PCB_SVG",
+   "class_chain": [
+    "JOB_EXPORT_PCB_SVG",
+    "JOB_EXPORT_PCB_PLOT",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "layers_to_include_on_all_layers",
+     "param": "JOB_PARAM_LSEQ",
+     "type": ""
+    },
+    {
+     "key": "mirror",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "negative",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_footprint_values",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_ref_des",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "hide_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "crossout_dnp_footprints_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "sketch_pads_on_fab_layers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_pad_numbers",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "subtract_solder_mask_from_silk",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "use_drill_origin",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "none",
+      "small",
+      "full"
+     ],
+     "key": "drill_shape",
+     "param": "JOB_PARAM",
+     "type": "DRILL_MARKS"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "check_zones",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "scale",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "color_theme",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "fit_page_to_board",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "precision",
+     "param": "JOB_PARAM",
+     "type": "unsigned int"
+    },
+    {
+     "choices": [
+      "multi",
+      "single"
+     ],
+     "key": "gen_mode",
+     "param": "JOB_PARAM",
+     "type": "GEN_MODE"
+    }
+   ],
+   "title": "PCB: Export SVG"
+  },
+  "pcb_render": {
+   "class": "JOB_PCB_RENDER",
+   "class_chain": [
+    "JOB_PCB_RENDER",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_PCB",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "jpeg",
+      "png"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "FORMAT"
+    },
+    {
+     "key": "preset",
+     "param": "JOB_PARAM",
+     "type": "std::string"
+    },
+    {
+     "key": "use_board_stackup_colors",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "basic",
+      "high",
+      "user"
+     ],
+     "key": "quality",
+     "param": "JOB_PARAM",
+     "type": "QUALITY"
+    },
+    {
+     "choices": [
+      "default",
+      "opaque",
+      "transparent"
+     ],
+     "key": "bg_style",
+     "param": "JOB_PARAM",
+     "type": "BG_STYLE"
+    },
+    {
+     "choices": [
+      "back",
+      "bottom",
+      "front",
+      "left",
+      "right",
+      "top"
+     ],
+     "key": "side",
+     "param": "JOB_PARAM",
+     "type": "SIDE"
+    },
+    {
+     "key": "zoom",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "perspective",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "floor",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "anti_alias",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "post_process",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "procedural_textures",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "width",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "height",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "pivot_x",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "pivot_y",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "pivot_z",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "pan_x",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "pan_y",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "pan_z",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "rotation_x",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "rotation_y",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "rotation_z",
+     "param": "JOB_PARAM",
+     "type": "double"
+    },
+    {
+     "key": "light_top_intensity",
+     "param": "JOB_PARAM",
+     "type": "VECTOR3D"
+    },
+    {
+     "key": "light_bottom_intensity",
+     "param": "JOB_PARAM",
+     "type": "VECTOR3D"
+    },
+    {
+     "key": "light_side_intensity",
+     "param": "JOB_PARAM",
+     "type": "VECTOR3D"
+    },
+    {
+     "key": "light_camera_intensity",
+     "param": "JOB_PARAM",
+     "type": "VECTOR3D"
+    },
+    {
+     "key": "light_side_elevation",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "variant",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    }
+   ],
+   "title": "PCB: Render"
+  },
+  "sch_erc": {
+   "class": "JOB_SCH_ERC",
+   "class_chain": [
+    "JOB_SCH_ERC",
+    "JOB_RC",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_SCH",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "in",
+      "mm",
+      "mils"
+     ],
+     "key": "units",
+     "param": "JOB_PARAM",
+     "type": "UNITS"
+    },
+    {
+     "key": "severity",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "choices": [
+      "report",
+      "json"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "OUTPUT_FORMAT"
+    },
+    {
+     "key": "fail_on_error",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    }
+   ],
+   "title": "Schematic: Perform ERC"
+  },
+  "sch_export_bom": {
+   "class": "JOB_EXPORT_SCH_BOM",
+   "class_chain": [
+    "JOB_EXPORT_SCH_BOM",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_SCH",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "field_delimiter",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "string_delimiter",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "ref_delimiter",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "ref_range_delimiter",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "keep_tabs",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "keep_line_breaks",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "fields_ordered",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    },
+    {
+     "key": "fields_labels",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    },
+    {
+     "key": "fields_group_by",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    },
+    {
+     "key": "sort_field",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "sort_asc",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "filter_string",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "exclude_dnp",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "group_symbols",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "bom_preset_name",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "bom_format_preset_name",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_names",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    }
+   ],
+   "title": "Schematic: Generate Bill of Materials"
+  },
+  "sch_export_netlist": {
+   "class": "JOB_EXPORT_SCH_NETLIST",
+   "class_chain": [
+    "JOB_EXPORT_SCH_NETLIST",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_SCH",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "kicad",
+      "xml",
+      "allegro",
+      "pads",
+      "cadstar",
+      "orcadpcb2",
+      "spice",
+      "spicemodel"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "FORMAT"
+    },
+    {
+     "key": "spice.save_all_voltages",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "spice.save_all_currents",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "spice.save_all_events",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "spice.save_all_dissipations",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "variant_names",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    }
+   ],
+   "title": "Schematic: Export Netlist"
+  },
+  "sch_export_plot_dxf": {
+   "class": "JOB_EXPORT_SCH_PLOT_DXF",
+   "class_chain": [
+    "JOB_EXPORT_SCH_PLOT_DXF",
+    "JOB_EXPORT_SCH_PLOT",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_SCH",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "hpgl",
+      "pdf",
+      "post",
+      "svg",
+      "dxf"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "SCH_PLOT_FORMAT"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "plot_all",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "show_hop_over",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "auto",
+      "A4",
+      "A"
+     ],
+     "key": "page_size",
+     "param": "JOB_PARAM",
+     "type": "JOB_PAGE_SIZE"
+    },
+    {
+     "key": "use_background_color",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "min_pen_width",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "pdf_property_popups",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_hierarchical_links",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_metadata",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "color_theme",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_name",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_names",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    }
+   ],
+   "title": "Schematic: Export DXF"
+  },
+  "sch_export_plot_hpgl": {
+   "class": "JOB_EXPORT_SCH_PLOT_HPGL",
+   "class_chain": [
+    "JOB_EXPORT_SCH_PLOT_HPGL",
+    "JOB_EXPORT_SCH_PLOT",
+    "JOB"
+   ],
+   "deprecated": true,
+   "face": "FACE_SCH",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "hpgl",
+      "pdf",
+      "post",
+      "svg",
+      "dxf"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "SCH_PLOT_FORMAT"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "plot_all",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "show_hop_over",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "auto",
+      "A4",
+      "A"
+     ],
+     "key": "page_size",
+     "param": "JOB_PARAM",
+     "type": "JOB_PAGE_SIZE"
+    },
+    {
+     "key": "use_background_color",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "min_pen_width",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "pdf_property_popups",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_hierarchical_links",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_metadata",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "color_theme",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_name",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_names",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    }
+   ],
+   "title": "Schematic: Export HPGL"
+  },
+  "sch_export_plot_pdf": {
+   "class": "JOB_EXPORT_SCH_PLOT_PDF",
+   "class_chain": [
+    "JOB_EXPORT_SCH_PLOT_PDF",
+    "JOB_EXPORT_SCH_PLOT",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_SCH",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "hpgl",
+      "pdf",
+      "post",
+      "svg",
+      "dxf"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "SCH_PLOT_FORMAT"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "plot_all",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "show_hop_over",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "auto",
+      "A4",
+      "A"
+     ],
+     "key": "page_size",
+     "param": "JOB_PARAM",
+     "type": "JOB_PAGE_SIZE"
+    },
+    {
+     "key": "use_background_color",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "min_pen_width",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "pdf_property_popups",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_hierarchical_links",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_metadata",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "color_theme",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_name",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_names",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    }
+   ],
+   "title": "Schematic: Export PDF"
+  },
+  "sch_export_plot_ps": {
+   "class": "JOB_EXPORT_SCH_PLOT_PS",
+   "class_chain": [
+    "JOB_EXPORT_SCH_PLOT_PS",
+    "JOB_EXPORT_SCH_PLOT",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_SCH",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "hpgl",
+      "pdf",
+      "post",
+      "svg",
+      "dxf"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "SCH_PLOT_FORMAT"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "plot_all",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "show_hop_over",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "auto",
+      "A4",
+      "A"
+     ],
+     "key": "page_size",
+     "param": "JOB_PARAM",
+     "type": "JOB_PAGE_SIZE"
+    },
+    {
+     "key": "use_background_color",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "min_pen_width",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "pdf_property_popups",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_hierarchical_links",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_metadata",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "color_theme",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_name",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_names",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    }
+   ],
+   "title": "Schematic: Export Postscript"
+  },
+  "sch_export_plot_svg": {
+   "class": "JOB_EXPORT_SCH_PLOT_SVG",
+   "class_chain": [
+    "JOB_EXPORT_SCH_PLOT_SVG",
+    "JOB_EXPORT_SCH_PLOT",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "FACE_SCH",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "choices": [
+      "hpgl",
+      "pdf",
+      "post",
+      "svg",
+      "dxf"
+     ],
+     "key": "format",
+     "param": "JOB_PARAM",
+     "type": "SCH_PLOT_FORMAT"
+    },
+    {
+     "key": "drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "plot_all",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "plot_drawing_sheet",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "black_and_white",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "show_hop_over",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "choices": [
+      "auto",
+      "A4",
+      "A"
+     ],
+     "key": "page_size",
+     "param": "JOB_PARAM",
+     "type": "JOB_PAGE_SIZE"
+    },
+    {
+     "key": "use_background_color",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "min_pen_width",
+     "param": "JOB_PARAM",
+     "type": "int"
+    },
+    {
+     "key": "pdf_property_popups",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_hierarchical_links",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "pdf_metadata",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "color_theme",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_name",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "variant_names",
+     "param": "JOB_PARAM_LIST",
+     "type": "wxString"
+    }
+   ],
+   "title": "Schematic: Export SVG"
+  },
+  "special_copyfiles": {
+   "class": "JOB_SPECIAL_COPYFILES",
+   "class_chain": [
+    "JOB_SPECIAL_COPYFILES",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "KIWAY_FACE_COUNT",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "source",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "dest",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "zero_copies_error",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "overwrite",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    }
+   ],
+   "title": "Special: Copy Files"
+  },
+  "special_execute": {
+   "class": "JOB_SPECIAL_EXECUTE",
+   "class_chain": [
+    "JOB_SPECIAL_EXECUTE",
+    "JOB"
+   ],
+   "deprecated": false,
+   "face": "KIWAY_FACE_COUNT",
+   "settings": [
+    {
+     "key": "description",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_dir",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "output_filename",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "command",
+     "param": "JOB_PARAM",
+     "type": "wxString"
+    },
+    {
+     "key": "ignore_exit_code",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    },
+    {
+     "key": "record_output",
+     "param": "JOB_PARAM",
+     "type": "bool"
+    }
+   ],
+   "title": "Special: Execute Command"
+  }
+ },
+ "outputs": {
+  "archive": [
+   "output_path",
+   "format"
+  ],
+  "folder": [
+   "output_path"
+  ]
+ }
+}

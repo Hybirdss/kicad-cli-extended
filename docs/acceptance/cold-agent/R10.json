@@ -1,0 +1,113 @@
+{
+  "prompt": "I got AirPi_Sensor.PrjPcb from a contractor. Bring it into KiCad, don't touch the original, and tell me honestly what came across and what didn't.",
+  "chain": [
+    [
+      "--json",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "project",
+      "import",
+      "P/AirPi_Sensor.PcbDoc",
+      "--dir",
+      "NEW",
+      "--name",
+      "AirPi_Sensor",
+      "--format",
+      "altium"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "session",
+      "checkpoint",
+      "imported",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "pcb",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "pcb",
+      "footprints"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "pcb",
+      "stackup"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "project",
+      "rules",
+      "show"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "project",
+      "netclass",
+      "list"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "pcb",
+      "models"
+    ],
+    [
+      "--json",
+      "--project",
+      "NEW",
+      "check",
+      "drc",
+      "--fail-on",
+      "error"
+    ]
+  ],
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n -A 60 -B 5 'Altium|PrjPcb|intake|loss|foreign' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '470,555p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe project import"
+  ],
+  "notes": [
+    "실제 설계 파일이나 저장소는 조회하거나 변경하지 않았다. 명령 체인만 기록했다.",
+    "문서와 describe는 Altium .PcbDoc 보드 가져오기를 명시하며 .PrjPcb 프로젝트 전체 변환은 문서화하지 않는다. .PrjPcb를 .PcbDoc처럼 넘기거나 확장자를 바꾸지 않는다.",
+    "P는 원본 전달 폴더이며 NEW는 P 밖의 새 비어 있는 대상 디렉터리다. 체인의 P/AirPi_Sensor.PcbDoc는 실제로 전달받은 관련 보드 파일을 확인한 뒤 대체할 자리표시자다. .PrjPcb만 있다면 import 이전에 중단하고 해당 프로젝트가 참조하는 .PcbDoc 및 .SchDoc와 라이브러리/모델을 요청한다. 파일 이름을 추정하여 실행하지 않는다.",
+    "doctor가 ok:true일 때만 진행하고 import 실패 시 후속 명령을 실행하지 않는다. 원본에는 체크포인트나 초기화 명령을 실행하지 않으며 --overwrite도 사용하지 않는다.",
+    "import 반환값의 losses, rules, stackup, source oracle coverage 및 source_unchanged:true를 확인한다. read_back.path, sha256, footprints를 검토한다. 관측한 내용만 무엇이 넘어왔는지 설명한다.",
+    "체크포인트와 DRC는 NEW에만 적용한다. 기존 배선과 부품을 바꾸는 pcb update/자동 수정은 하지 않는다. 원본 규칙이 확인되면 별도 명시적 매핑 후 NEW에 적용하고 DRC를 다시 수행한다. DRC 결과가 좋아도 원본 규칙 보존을 증명하지는 않는다.",
+    "회로도 편집 가능한 전체 프로젝트 이관과 보드 가져오기를 구별한다. 누락된 회로도, 해소되지 않은 부품 정체성, 핀/패드 대응, 규칙과 스택업 및 3D 모델 손실을 숨기지 않는다. source oracle이 없거나 범위가 제한되면 그 한계를 보고하며, KiCad 재로딩이나 DRC 통과만으로 Altium 원본 동등성을 주장하지 않는다."
+  ]
+}

@@ -1,0 +1,431 @@
+{
+  "prompt": "Place the parts, put decoupling near its chip, keep the connector on the board edge, then route and add a ground pour. Fix DRC errors before we proceed.",
+  "chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "symbols",
+      "--no-power"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "nets"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints",
+      "--pads"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "drawings",
+      "--layer",
+      "Edge.Cuts"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "ratsnest"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "zones"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "rules",
+      "show"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "drc",
+      "--fail-on",
+      "none"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "pre-place",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/layout.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/layout.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "pcb",
+      "legalize",
+      "--strict",
+      "--max-dist",
+      "3",
+      "--refs",
+      "REFS_REMAINING"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/legalize.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "preview",
+      "capture",
+      "--recipe",
+      "board"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprint",
+      "REF_CONN"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprint",
+      "REF_DECOUPLE"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "rules",
+      "show"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "pre-route",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/route-pour.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/route-pour.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "drc",
+      "--fail-on",
+      "error"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "compare",
+      "checkpoint:pre-place"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "layout-routed-accepted",
+      "--immutable"
+    ]
+  ],
+  "plans": {
+    "OUTSIDE_P/layout.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "move",
+            "REF_CONN",
+            "--at",
+            "EDGE_X,EDGE_Y",
+            "--rotation",
+            "CONNECTOR_ROTATION"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "move",
+            "REF_CHIP",
+            "--at",
+            "CHIP_X,CHIP_Y",
+            "--rotation",
+            "CHIP_ROTATION"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "lock",
+            "REF_CONN,REF_CHIP"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "place",
+            "grid",
+            "--refs",
+            "REFS_REMAINING",
+            "--margin",
+            "BOARD_MARGIN"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "place",
+            "near",
+            "REF_DECOUPLE",
+            "--to",
+            "REF_CHIP:SUPPLY_PAD",
+            "--max-dist",
+            "5",
+            "--rotation",
+            "auto"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "lock",
+            "REF_DECOUPLE"
+          ]
+        }
+      ]
+    },
+    "OUTSIDE_P/legalize.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "legalize",
+            "--strict",
+            "--max-dist",
+            "3",
+            "--refs",
+            "REFS_REMAINING"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "score"
+          ],
+          "expect": [
+            {
+              "path": "courtyard_overlaps.count",
+              "op": "eq",
+              "value": 0
+            },
+            {
+              "path": "outside_outline.count",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      ]
+    },
+    "OUTSIDE_P/route-pour.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "autoroute",
+            "--engine",
+            "builtin",
+            "--skip-net",
+            "GROUND_NET",
+            "--width",
+            "RULE_TRACK_WIDTH",
+            "--clearance",
+            "RULE_CLEARANCE",
+            "--via-diameter",
+            "RULE_VIA_DIAMETER",
+            "--via-drill",
+            "RULE_VIA_DRILL",
+            "--layers",
+            "ROUTING_LAYERS"
+          ],
+          "expect": [
+            {
+              "path": "failed",
+              "op": "empty"
+            }
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "zone",
+            "add",
+            "--net",
+            "GROUND_NET",
+            "--layer",
+            "POUR_LAYER",
+            "--clearance",
+            "RULE_CLEARANCE",
+            "--pad-connection",
+            "tht_thermal"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "zone",
+            "fill"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "connectivity"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "drc",
+            "--fail-on",
+            "error"
+          ],
+          "expect": [
+            {
+              "path": "errors",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n -A 32 -B 8 'place near|place grid|decoupl|connector|autoroute|legalize|check drc|pcb info|pcb footprints|pcb pads' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '465,505p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb place near",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb legalize",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb score",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb connectivity",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb autoroute",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe preview capture",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe check diagnose"
+  ],
+  "notes": [
+    "실행하지 않는 최초 선택 체인이다. 설계 파일·소스·테스트·리뷰·다른 기록은 조회하거나 변경하지 않았다. R6.json만 기록한다.",
+    "P와 OUTSIDE_P 및 대문자 토큰은 실제 실행 전 사전 조회로 치환한다. REF_CHIP/REF_DECOUPLE은 sch nets와 패드 정보로 공급핀·접지핀을 확인한다. REFS_REMAINING에는 칩·커넥터·디커플링·기존 잠금 앵커를 넣지 않는다.",
+    "닫힌 보드 외곽과 커넥터 기구 형상을 확인해 EDGE_X,EDGE_Y와 회전을 정한다. 커넥터가 이미 올바른 가장자리 위치에 있으면 해당 move는 생략하고 고정한다. 보호 잠금을 자동 해제하지 않는다.",
+    "동기화가 필요하면 checkpoint 후 dry-run pcb update --stable-uuids 결과의 제거·교체·핀 매칭을 검토하고 실제 update를 적용한 뒤 배치한다. 현재 체인은 PCB와 회로도가 동기화된 경우다.",
+    "5mm는 첫 디커플링 배치 검색 한도다. 전원 패드까지의 연결·전류 루프와 보드 미리보기를 검토한다. PlacementBlocked 또는 strict legalize 실패 시 중단하고 blocker와 이동 범위를 검토한다. 커넥터·칩·디커플링 고정을 풀어 회피하지 않는다.",
+    "legalize 미리보기의 moves와 unmoved를 검사하고 legalize 계획의 score 두 조건을 모두 통과해야 배선한다. 미리보기에서 커넥터 방향·가장자리·디커플링 위치를 확인한다.",
+    "RULE_*와 BOARD_MARGIN, ROUTING_LAYERS, POUR_LAYER는 기존 규칙과 실제 제작 한계에 맞춘다. 모르는 제작 한계를 임의로 낮추거나 DRC 심각도를 무시로 바꾸지 않는다. 규칙 변경이 필요하면 확인한 값으로 project rules set을 별도 dry-run 후 적용한다.",
+    "GROUND_NET은 PCB에 있는 정확한 이름(GND 또는 /GND 등)이다. 기존 동일 접지 영역이 있으면 중복 추가 대신 해당 영역을 확인하고 refill한다. 의도된 비접지망만 autoroute하고 접지는 pour로 연결한다.",
+    "명령은 성공과 검토 조건에 따라 순차 실행한다. failed[]가 비어 있지 않은 라우터 결과는 계획 acceptance 실패로 전체 route-pour 트랜잭션을 되돌린다. 부분 라우팅이 별도로 저장된 경우 session undo 또는 pre-route 복원 후에만 더 작은 grid로 재시도한다.",
+    "DRC 오류면 다음 단계로 진행하지 않고 check diagnose --only drc와 pcb ratsnest로 원인을 확인한다. 해당 원인에 맞춰 scoped move/place near/legalize 또는 문제 트랙의 삭제·재배선·zone fill을 수행하고 connectivity와 check drc --fail-on error를 다시 검사한다. 실패 시 오류 보고를 보존한다.",
+    "최종 connectivity의 미연결이 0인지 확인하고 DRC 오류 0을 통과해야 accepted checkpoint를 생성한다. 기준선으로 기존 오류를 면제하지 않는다. 실제 문제를 보지 않고 고정된 보정 명령을 미리 꾸며 넣지 않는다."
+  ]
+}

@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build sdist + wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+      - name: Tag is on main and matches the package version
+        run: |
+          version=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' src/kicad_cli_extended/__init__.py)
+          test "v$version" = "$GITHUB_REF_NAME" \
+            || { echo "::error::tag $GITHUB_REF_NAME does not match __version__ $version"; exit 1; }
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main \
+            || { echo "::error::$GITHUB_REF_NAME is not on main"; exit 1; }
+      - name: Build
+        run: |
+          uv run --extra test python scripts/gen_skill.py --check
+          uv build
+      - name: Check metadata, install the wheel, run the unit tests against it
+        run: |
+          uvx twine check dist/*
+          uv venv --python 3.12 .smoke
+          uv pip install --python .smoke/bin/python dist/*.whl pytest jsonschema
+          .smoke/bin/kce --version
+          .smoke/bin/kce --json skill path
+          .smoke/bin/python -m pytest tests/test_core.py -q -p no:cacheprovider
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    name: publish to PyPI (trusted publishing)
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write          # OIDC token for PyPI trusted publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

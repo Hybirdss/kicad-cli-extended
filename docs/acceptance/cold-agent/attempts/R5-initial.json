@@ -1,0 +1,638 @@
+{
+  "prompt": "C2 is EOL. Swap it for a Panasonic EEU-FR1V221, 220 µF/35 V radial, 8 mm can, 3.5 mm pitch. Put the MPN in the schematic. Also add a 100 nF decoupling cap on the 74HC125's supply. Update the PCB from the schematic. I don't want any placed part to move and I don't want the router touching existing copper. Put the new cap right next to U2's supply pins and route only what is missing.",
+  "chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "symbols",
+      "--no-power"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "C2"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "pins",
+      "U2"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "nets"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints",
+      "--pads"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "tracks"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "ratsnest"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "score"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "rules",
+      "show"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "lib",
+      "fp",
+      "show",
+      "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "lib",
+      "fp",
+      "show",
+      "Capacitor_SMD:C_0603_1608Metric"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "pre-eco",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "erc",
+      "--output",
+      "OUTSIDE_P/baseline-erc.json",
+      "--fail-on",
+      "none"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "drc",
+      "--output",
+      "OUTSIDE_P/baseline-drc.json",
+      "--fail-on",
+      "none"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/schematic-eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/schematic-eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "C2"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "C10"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "nets"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "pcb",
+      "update",
+      "--keep-extra",
+      "--no-place",
+      "--lock-existing"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/sync-eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/sync-eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/place-eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/place-eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "ratsnest"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "tracks"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/route-eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/route-eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints",
+      "--pads"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "tracks"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "compare",
+      "checkpoint:pre-eco",
+      "--geometry",
+      "--allow",
+      "C2,C10,net:SUPPLY_NET,net:GROUND_NET",
+      "--fail-on-unexpected"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "eco-accepted",
+      "--immutable"
+    ]
+  ],
+  "plans": {
+    "OUTSIDE_P/schematic-eco.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "sch",
+            "set-value",
+            "C2",
+            "220uF"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-field",
+            "C2",
+            "Voltage",
+            "35V"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-field",
+            "C2",
+            "Manufacturer",
+            "Panasonic"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-field",
+            "C2",
+            "MPN",
+            "EEU-FR1V221"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-footprint",
+            "C2",
+            "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "add",
+            "Device:C",
+            "--ref",
+            "C10",
+            "--at",
+            "SCH_XY",
+            "--value",
+            "100nF",
+            "--footprint",
+            "Capacitor_SMD:C_0603_1608Metric"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "connect",
+            "C10:1",
+            "U2:14"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "connect",
+            "C10:2",
+            "U2:7"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "show",
+            "C2"
+          ],
+          "expect": [
+            {
+              "path": "value",
+              "op": "eq",
+              "value": "220uF"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "show",
+            "C10"
+          ],
+          "expect": [
+            {
+              "path": "value",
+              "op": "eq",
+              "value": "100nF"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "nets"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--baseline",
+            "OUTSIDE_P/baseline-erc.json",
+            "--fail-on",
+            "error"
+          ]
+        }
+      ]
+    },
+    "OUTSIDE_P/sync-eco.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "update",
+            "--keep-extra",
+            "--no-place",
+            "--lock-existing"
+          ],
+          "expect": [
+            {
+              "path": "unmatched_pins",
+              "op": "empty"
+            }
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "footprints",
+            "--pads"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            "compare",
+            "checkpoint:pre-eco",
+            "--geometry",
+            "--allow",
+            "C2,C10,net:SUPPLY_NET,net:GROUND_NET",
+            "--fail-on-unexpected"
+          ]
+        }
+      ]
+    },
+    "OUTSIDE_P/place-eco.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "lock",
+            "--all",
+            "--except",
+            "C10"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "place",
+            "near",
+            "C10",
+            "--to",
+            "U2:14",
+            "--max-dist",
+            "6",
+            "--grid",
+            "0.25",
+            "--rotation",
+            "auto"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "score"
+          ],
+          "expect": [
+            {
+              "path": "courtyard_overlaps.count",
+              "op": "eq",
+              "value": 0
+            },
+            {
+              "path": "outside_outline.count",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "footprints",
+            "--pads"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            "compare",
+            "checkpoint:pre-eco",
+            "--geometry",
+            "--allow",
+            "C2,C10,net:SUPPLY_NET,net:GROUND_NET",
+            "--fail-on-unexpected"
+          ]
+        }
+      ]
+    },
+    "OUTSIDE_P/route-eco.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "autoroute",
+            "--engine",
+            "builtin",
+            "--refs",
+            "C10,C2",
+            "--area",
+            "ROUTE_AREA_X_Y_W_H",
+            "--grid",
+            "auto"
+          ],
+          "expect": [
+            {
+              "path": "failed",
+              "op": "empty"
+            }
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "tracks"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "connectivity"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "ratsnest"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--baseline",
+            "OUTSIDE_P/baseline-erc.json",
+            "--fail-on",
+            "error"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "drc",
+            "--baseline",
+            "OUTSIDE_P/baseline-drc.json",
+            "--fail-on",
+            "error"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            "compare",
+            "checkpoint:pre-eco",
+            "--geometry",
+            "--allow",
+            "C2,C10,net:SUPPLY_NET,net:GROUND_NET",
+            "--fail-on-unexpected"
+          ]
+        }
+      ]
+    }
+  },
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n -A 20 -B 10 'lock-existing|preserve|incremental|autoroute|geometry|pad-displacement|displaced' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '310,450p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "sed -n '450,650p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "sed -n '1,76p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb update",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb autoroute",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe project compare",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb place near",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb lock",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb footprints",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe check drc"
+  ],
+  "notes": [
+    "문서 및 info describe만 조회했다. 이 파일 외 실제 프로젝트나 설계 파일을 변경하지 않았고 chain은 실행하지 않았다.",
+    "P는 프로젝트, OUTSIDE_P는 체크포인트 복원 범위 밖 작업 디렉터리다. C10은 sch symbols에서 미사용 참조임을 확인하고 필요하면 새 참조로 일괄 치환한다. SCH_XY는 U2 전원 유닛 가까이의 빈 회로도 격자 좌표다. U2:14=VCC, U2:7=GND는 sch pins와 sch nets에서 확인 후 확정하며 다르면 실제 공급 핀으로 치환한다. SUPPLY_NET/GROUND_NET은 해당 핀의 실제 net 이름이다. 기존 캐패시터 스타일을 확인해 새 100nF의 적합한 패키지도 확인한다.",
+    "첫 조회 단계에서 원래 footprint UUID/위치/각도/면/패드 net/좌표와 기존 track/via UUID/좌표/폭/층/net을 baseline으로 보관한다. 결과 출력은 외부 journal에 저장한다. baseline 검사 결과 파일은 계획의 경로와 일치시킨다.",
+    "회로도 plan dry-run 결과를 읽고 기존 C2 극성과 연결을 유지하는지, MPN=EEU-FR1V221, 제조사/전압/값/footprint가 맞는지 확인한다. C10은 U2 전원과 GND 사이에만 붙이며 기존 net의 pin partition 변화가 없어야 한다. 각 dry-run을 검토한 뒤에만 바로 뒤 실제 run을 선택한다.",
+    "PCB update dry-run의 adopted/replaced[].pads_moved/tracks_ending_on_old_pads/unmatched_pins/would_place/would_remove를 전부 읽는다. 기존 footprint 중심/회전/면/UUID/패드 위치 보존이 필수다. --lock-existing이 기존 pad 변위를 거부하면 이 체인은 중단하고 pre-eco로 복원한다. 보호를 끄거나 C2를 움직여 강행하지 않는다.",
+    "새 C10만 배치한다. 기존 부품은 잠그고 U2의 실제 공급 pad를 기준으로 6mm 내 가장 가까운 legal 위치와 적절한 회전을 선택한다. 배치가 막히면 기존 부품을 풀거나 옮기지 않고 실패를 보고한다. C10의 두 pad에서 공급/접지 pin까지 실제 loop 길이와 극성을 검토한다.",
+    "ROUTE_AREA_X_Y_W_H는 배치/기존 copper/미연결 결과에서 정한 좁은 작업 영역이다. builtin 라우터의 --refs와 --area로 C10 및 교체 C2의 미연결만 대상으로 삼는다. C2에 미연결이 없으면 --refs C10만 사용한다. 필요한 width/clearance/via 치수는 project rules에서 확인해 맞춘다. Freerouting, 기존 트랙 삭제, ripup, 전체 autoroute는 선택하지 않는다.",
+    "route dry-run 및 실제 결과에서 baseline의 모든 기존 track/via가 동일한 UUID와 geometry/width/layer/net으로 남고 추가 copper만 생기는지 직접 비교한다. compare의 allow net만으로 기존 copper 불변성이 증명되는 것은 아니다. 기존 부품 이동/패드 net 변경/원래 copper 변경/무관한 신규 라우팅/남은 ECO 미연결이 있으면 수용하지 않는다. router failed가 있으면 transaction 실패로 복원하고 임의로 재시도하지 않는다.",
+    "최종 ERC/DRC에는 새 오류가 없어야 하고 초기 오류는 명시적으로 구분한다. ECO 관련 미연결은 0이어야 한다. 모든 보존 비교와 전기적 검증을 통과한 뒤에만 eco-accepted 체크포인트를 만든다. Git commit이나 fab 작업은 하지 않는다."
+  ]
+}

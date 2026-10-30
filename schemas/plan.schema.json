@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hybirdss/kicad-cli-extended/schemas/plan.schema.json",
+  "title": "kce run plan",
+  "description": "A transaction: the steps run in order, in one session and one project, and KiCad validates the result once at the end. If a step or the final validation fails, every project file returns to its previous bytes and the error names the failing step.",
+  "type": "object",
+  "required": [
+    "version",
+    "steps"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Plan format version. Only 1 exists."
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Project to run against (.kicad_pro, .kicad_sch, .kicad_pcb or directory), relative to the plan's working directory. Default: the --project argument, else the single .kicad_pro in the current directory."
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Commands to run in order; each is one kce invocation without the leading `kce`.",
+      "items": {
+        "$ref": "#/$defs/step"
+      }
+    }
+  },
+  "$defs": {
+    "step": {
+      "type": "object",
+      "required": [
+        "args"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "type": "array",
+          "minItems": 1,
+          "description": "One command as an argument array, e.g. [\"sch\", \"add\", \"Device:R\", \"--ref\", \"R1\", \"--at\", \"50,50\"]. Only --json may precede the command; transaction options belong on kce run. Commands cannot switch projects or start another session. Global transaction options cannot appear after a step command either. VCS and session metadata paths are reserved.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "sch",
+              "connect",
+              "J1:1",
+              "R1:1"
+            ]
+          ]
+        },
+        "expect": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/predicate"
+          }
+        }
+      }
+    },
+    "predicate": {
+      "type": "object",
+      "required": [
+        "path",
+        "op"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "op": {
+          "enum": [
+            "eq",
+            "ne",
+            "lt",
+            "le",
+            "gt",
+            "ge",
+            "empty",
+            "nonempty",
+            "true",
+            "false"
+          ]
+        },
+        "value": {}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "op": {
+                "enum": [
+                  "eq",
+                  "ne",
+                  "lt",
+                  "le",
+                  "gt",
+                  "ge"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "value"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "examples": [
+    {
+      "version": 1,
+      "project": "blink",
+      "steps": [
+        {
+          "args": [
+            "sch",
+            "add",
+            "Device:R",
+            "--ref",
+            "R1",
+            "--at",
+            "50,50"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "add",
+            "Device:LED",
+            "--ref",
+            "D1",
+            "--at",
+            "70,50"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "connect",
+            "R1:2",
+            "D1:2"
+          ]
+        }
+      ]
+    }
+  ]
+}

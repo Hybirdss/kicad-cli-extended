@@ -1,0 +1,40 @@
+# Benchmark setup — 2026-10-29
+
+Third-party servers are fetched and built outside the repository, at the commits pinned in
+bench/servers.json. Package-level output is dropped from this log; every command is kept.
+
+~~~
+$ python bench/fetch_servers.py --workdir /tmp/kce-bench --kicad-python /usr/bin/python3
++ git -c advice.detachedHead=false checkout 1d204fe3384eb73c890bbe531538a6e735c40fe0
++ ~/.local/share/mise/installs/node/26.12.0/bin/npm ci --no-audit --no-fund
++ ~/.local/share/mise/installs/node/26.12.0/bin/npm run build
++ /tmp/kce-bench/mixelpixx/.bench-venv/bin/python -m pip install -q -r /tmp/kce-bench/mixelpixx/requirements.txt
+ready: mixelpixx @ 1d204fe -> /tmp/kce-bench/mixelpixx
++ git -c advice.detachedHead=false checkout 98c9ea41cb393393a8bafd157a93e84431e00afb
++ ~/.local/share/../bin/uv sync --frozen
+ready: lamaalrajih @ 98c9ea4 -> /tmp/kce-bench/lamaalrajih
+FETCH_EXIT=0
+~~~
+
+Build and run verification, after the fetch:
+
+~~~
+$ for d in mixelpixx lamaalrajih; do echo "$d $(git -C /tmp/kce-bench/$d rev-parse HEAD)"; done
+mixelpixx 1d204fe3384eb73c890bbe531538a6e735c40fe0
+lamaalrajih 98c9ea41cb393393a8bafd157a93e84431e00afb
+
+$ node --version
+v26.12.0
+
+$ ls /tmp/kce-bench/mixelpixx/dist/index.js
+/tmp/kce-bench/mixelpixx/dist/index.js
+
+$ /tmp/kce-bench/mixelpixx/.bench-venv/bin/python -c 'import pcbnew; print(pcbnew.Version())'
+10.0.7
+
+$ /tmp/kce-bench/lamaalrajih/.venv/bin/python -c 'import kicad_mcp; print("import ok")'
+import ok
+
+$ grep -n "timeoutDuration = " /tmp/kce-bench/mixelpixx/src/server.ts
+1042:      const timeoutDuration = request.timeout || 30000;
+~~~

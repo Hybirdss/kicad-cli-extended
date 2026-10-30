@@ -1,0 +1,524 @@
+{
+  "prompt": "Before you touch the layout, check an RC anti-alias filter on the ADS1115 CH2 input. I want a corner near 1 kHz. Then insert it and put the capacitor right next to the ADC pin.",
+  "chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "symbols",
+      "--no-power"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "pins",
+      "U_ADC"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "nets"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "items"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "ratsnest"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sim",
+      "engine"
+    ],
+    [
+      "--json",
+      "project",
+      "new",
+      "S",
+      "--name",
+      "rc-check"
+    ],
+    [
+      "--json",
+      "--project",
+      "S",
+      "session",
+      "checkpoint",
+      "initial",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "S",
+      "run",
+      "scratch-rc.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "S",
+      "sim",
+      "models"
+    ],
+    [
+      "--json",
+      "--project",
+      "S",
+      "sim",
+      "directives"
+    ],
+    [
+      "--json",
+      "--project",
+      "S",
+      "sim",
+      "netlist"
+    ],
+    [
+      "--json",
+      "--project",
+      "S",
+      "sim",
+      "run",
+      "--probe",
+      "v(/in)",
+      "--probe",
+      "v(/out)",
+      "--points",
+      "200",
+      "--output-dir",
+      "S/outputs/sim"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "before-rc",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "insert-rc.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "insert-rc.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "R_NEW"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "C_NEW"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "pcb",
+      "update",
+      "--stable-uuids",
+      "--lock-existing"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "update",
+      "--stable-uuids",
+      "--lock-existing"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "place-rc.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "place-rc.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "preview",
+      "capture"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "ratsnest",
+      "--net",
+      "FILTERED_NET"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "drc",
+      "--fail-on",
+      "error"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "compare",
+      "checkpoint:before-rc"
+    ]
+  ],
+  "plans": {
+    "scratch-rc.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "sch",
+            "add",
+            "Simulation_SPICE:VDC",
+            "--ref",
+            "V1",
+            "--at",
+            "25.4,50.8"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "add",
+            "Device:R",
+            "--ref",
+            "R1",
+            "--at",
+            "50.8,50.8",
+            "--value",
+            "1.6k"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "add",
+            "Device:C",
+            "--ref",
+            "C1",
+            "--at",
+            "76.2,50.8",
+            "--value",
+            "100n"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "label-pin",
+            "V1:1",
+            "in"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "label-pin",
+            "R1:1",
+            "in"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "label-pin",
+            "R1:2",
+            "out"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "label-pin",
+            "C1:1",
+            "out"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "label-pin",
+            "V1:2",
+            "0",
+            "--kind",
+            "global"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "label-pin",
+            "C1:2",
+            "0",
+            "--kind",
+            "global"
+          ]
+        },
+        {
+          "args": [
+            "sim",
+            "model",
+            "V1",
+            "--device",
+            "V",
+            "--type",
+            "DC",
+            "--params",
+            "dc=0 ac=1"
+          ]
+        },
+        {
+          "args": [
+            "sim",
+            "model",
+            "R1",
+            "--device",
+            "R",
+            "--params",
+            "r=1.6k"
+          ]
+        },
+        {
+          "args": [
+            "sim",
+            "model",
+            "C1",
+            "--device",
+            "C",
+            "--params",
+            "c=100n"
+          ]
+        },
+        {
+          "args": [
+            "sim",
+            "directive",
+            "add",
+            ".ac dec 100 10 100k"
+          ]
+        }
+      ]
+    },
+    "insert-rc.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "sch",
+            "delete-item",
+            "ADC_BRANCH_UUID"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "apply",
+            "expected-rc-intent.json",
+            "--patch"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "verify",
+            "--expect",
+            "expected-rc-intent.json",
+            "--strict"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--fail-on",
+            "error"
+          ]
+        }
+      ]
+    },
+    "place-rc.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "place",
+            "near",
+            "C_NEW",
+            "--to",
+            "U_ADC:AIN2_PAD",
+            "--max-dist",
+            "3",
+            "--grid",
+            "0.1",
+            "--rotation",
+            "auto"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "place",
+            "near",
+            "R_NEW",
+            "--to",
+            "C_NEW",
+            "--max-dist",
+            "5",
+            "--grid",
+            "0.1",
+            "--rotation",
+            "auto"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "score"
+          ],
+          "expect": [
+            {
+              "path": "courtyard_overlaps.count",
+              "op": "eq",
+              "value": 0
+            },
+            {
+              "path": "outside_outline.count",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n -A 60 -B 8 'SPICE|Simulate|anti-alias|sim run|sim model|place near' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe sim model",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe sim run",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb place near",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe sch apply",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe sim directive add",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe sch add"
+  ],
+  "notes": [
+    "선택 레시피 R1 → R11 → 기존 설계 ECO → R6. 이 파일은 명령 계획이며 프로젝트 명령은 실행하지 않았다.",
+    "P는 실제 프로젝트, S는 P 밖의 별도 scratch 프로젝트. 계획과 기록은 P 밖에 둔다. U_ADC, AIN2_PAD, R_NEW, C_NEW, ADC_BRANCH_UUID 및 넷/좌표/풋프린트는 초기 조회 결과로 확정한다. ADS1115 CH2가 실제로 AIN2를 뜻하는지 핀 이름과 기존 회로를 확인하며 번호를 추측하지 않는다.",
+    "1.6 kΩ + 100 nF 후보의 이상적 차단 주파수는 약 994.7 Hz. sim engine 가용성 확인 후 scratch에서만 AC 분석한다. netlist에서 노드 0, 소스 ac=1, R/C 값, 실제 /in 및 /out 벡터를 확인한 뒤 sim run을 실행한다. warnings 및 진단과 CSV를 읽고 |Vout/Vin|의 저주파 이득이 약 1, 약 995 Hz에서 -3.01 dB이고 비영점인 것을 확인해야만 P 변경 단계로 진행한다.",
+    "이는 수동 RC의 이상적 모델이다. 실제 소스 임피던스, ADC 입력 부하 및 샘플링률이 있으면 검증에 반영한다. 1 kHz 코너만으로 ADS1115의 모든 데이터 속도에서 alias 억제 성능이 검증되는 것은 아니다.",
+    "expected-rc-intent.json은 초기 sch nets를 기반으로 전체 기존 회로를 보존하면서 CH2 upstream → R_NEW:1, R_NEW:2 + C_NEW:1 + U_ADC:AIN2 → FILTERED_NET, C_NEW:2 → 기존 ADC 아날로그 접지로 변경한 독립 기대값이다. 1.6k와 100n 및 검증한 풋프린트를 포함한다. P 안에 배치하고 승인된 독립 사본을 P 밖에 보관한 뒤 checkpoint한다. scratch의 SPICE 소스, 0 라벨 및 시뮬레이션 필드는 실제 회로에 복사하지 않는다.",
+    "ADC_BRANCH_UUID는 ADC 핀을 기존 CH2 upstream에 직결시키는 기존 branch wire/label 항목이다. 여러 항목이면 실제 연결 구조에 맞춰 필요한 delete-item 단계를 확장한다. 공유 배선은 보존하고 새 저항을 우회하는 기존 연결을 반드시 제거한다. 실제 연결 구조가 확인될 때까지 이 placeholder를 실행하지 않는다. 전체 strict netlist 검증으로 다른 채널 보존 및 RC 직렬 삽입을 확인한다.",
+    "pcb update dry-run 보고의 removed/replaced/adopted/unmatched_pins/old-pad endpoints를 검토한 뒤에만 실제 동기화한다. 기존 배치와 잠금을 유지하며 새 R/C만 이동한다. C는 ADC 바디 중심이 아니라 확인한 AIN2 패드를 대상으로 3mm 내 가장 가까운 합법 위치에 놓는다. PlacementBlocked이면 기존 부품을 자동 해제/이동하지 않고 위치 제약과 허용 반경을 재검토한다.",
+    "preview와 pad 위치를 보고 C의 입력측 패드와 ADC AIN2 사이 연결이 실제로 짧은지 확인한다. 새 네트의 라우팅이 필요하면 ratsnest 확인 후 해당 넷만 dry-run/route하고 연결성과 DRC를 다시 확인한다. 최종 compare에서 기존 부품/배선의 불필요한 변화가 없고 RC 삽입/배치만 달라졌음을 확인한다."
+  ]
+}

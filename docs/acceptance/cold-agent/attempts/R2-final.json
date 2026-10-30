@@ -1,0 +1,242 @@
+{
+  "prompt": "회로도 그림 대신 prose spec에서 작은 센서 보드를 만들고 싶습니다. ESP32 모듈과 BME280을 쓸 예정이며, 연결 의도를 JSON으로 보존하고 각 단계를 확인하며 진행하고 싶습니다. 첫 명령 체인을 계획해 주세요.",
+  "chain": [
+    [
+      "--json",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "search",
+      "ESP32"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "search",
+      "BME280"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "show",
+      "ESP32_LIB_ID"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "show",
+      "BME280_LIB_ID"
+    ],
+    [
+      "--json",
+      "lib",
+      "suggest-footprints",
+      "ESP32_LIB_ID"
+    ],
+    [
+      "--json",
+      "lib",
+      "suggest-footprints",
+      "BME280_LIB_ID"
+    ],
+    [
+      "--json",
+      "lib",
+      "fp",
+      "show",
+      "ESP32_FOOTPRINT_ID"
+    ],
+    [
+      "--json",
+      "lib",
+      "fp",
+      "show",
+      "BME280_FOOTPRINT_ID"
+    ],
+    [
+      "--json",
+      "lib",
+      "link-check",
+      "ESP32_LIB_ID",
+      "ESP32_FOOTPRINT_ID"
+    ],
+    [
+      "--json",
+      "lib",
+      "link-check",
+      "BME280_LIB_ID",
+      "BME280_FOOTPRINT_ID"
+    ],
+    [
+      "--json",
+      "project",
+      "new",
+      "P",
+      "--name",
+      "sensor",
+      "--title",
+      "ESP32 BME280 sensor board"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "initial",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "sch",
+      "apply",
+      "P/intent.json",
+      "--power-flags"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "S/schematic-stage.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "S/schematic-stage.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "nets"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "U1"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "U2"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "schematic-ok",
+      "--immutable"
+    ]
+  ],
+  "plans": {
+    "S/schematic-stage.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "sch",
+            "apply",
+            "P/intent.json",
+            "--power-flags"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "no-connect",
+            "U1:CONFIRMED_UNUSED_PIN"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "annotate"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "verify",
+            "--expect",
+            "P/intent.json",
+            "--strict"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--fail-on",
+            "error"
+          ],
+          "expect": [
+            {
+              "path": "errors",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n 'schema|intent|run|lib sym show|lib sym search|info describe' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '270,480p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe sch apply",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe sch verify",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb score",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe run"
+  ],
+  "notes": [
+    "R1로 환경을 확인하고 R2의 netlist-first 경로를 선택한다. 이번 첫 체인은 schematic-ok까지다. doctor.ok=true와 필요한 라이브러리가 확인되어야 진행한다.",
+    "P는 새 프로젝트의 절대 경로, S는 P 바깥의 계획/저널 디렉터리다. 모든 LIB_ID와 FOOTPRINT_ID는 검색 및 show 결과와 데이터시트 비교 후 확정한다. 명령 체인은 계획이며 실제 프로젝트를 생성하거나 편집하지 않았다.",
+    "검색 뒤 ESP32 모듈의 정확한 변종, BME280 패키지, 공급전원, I2C 또는 SPI 및 ESP32 GPIO 배정, 프로그래밍/부트/리셋 연결을 확정한다. 미정인 회로 의도나 벤더 핀 번호를 추측하여 intent에 넣지 않는다. 필요한 커넥터/수동소자도 같은 검색·show·핀맵 확인을 거친다.",
+    "project new 및 initial 체크포인트 뒤, apply 전에 prose spec에서 P/intent.json을 작성한다. components에는 U1/U2 및 필요한 보조부품의 라이브러리·풋프린트·값을, nets에는 검증한 REF:PIN 집합을, no_connect에는 의도적으로 사용하지 않을 핀을, power_flags에는 필요한 전원 의도를 기록한다. 독립 승인본은 S에 보존한다. intent와 계획 파일 작성은 kce 명령이 아니므로 chain에는 적지 않았다.",
+    "CONFIRMED_UNUSED_PIN은 확인된 실제 핀 번호로 치환하며 해당 no-connect 단계는 승인된 미사용 핀마다 펼친다. 미사용 핀이 없으면 삭제한다. 같은 핀을 intent.no_connect에도 보존하여 strict 검증 대상에 포함한다. ERC를 통과시키기 위한 임의의 전체 미연결 핀 처리는 하지 않는다.",
+    "dry-run 결과의 changes, verify 비교 및 would_write를 확인한 뒤 실제 run을 수행한다. 계획의 strict intent 검증 또는 ERC 오류 게이트 실패는 전체 단계 롤백 사유다. 종료코드와 JSON을 모두 확인하고 sch nets로 실제 KiCad 연결을 읽은 뒤 schematic-ok를 기록한다. 오류가 남으면 원인을 고치고 같은 기대 의도로 재검증한다.",
+    "다음 단계는 외곽선 확정, pcb update --stable-uuids의 dry-run과 실제 적용, pcb score 수용 게이트, synced-ok 체크포인트다. 회로 의도 검증이 먼저이며 배치·배선·제조 출력은 이번 첫 체인 범위에 포함하지 않았다."
+  ]
+}

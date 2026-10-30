@@ -1,0 +1,7465 @@
+{
+ "commands": {
+  "fp export svg": {
+   "description": "Exports the footprint or entire footprint library to SVG",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-l"
+     ],
+     "default": "",
+     "flags": [
+      "-l",
+      "--layers"
+     ],
+     "help": "Comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to footprint editor settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "--fp"
+     ],
+     "default": "",
+     "flags": [
+      "--fp",
+      "--footprint"
+     ],
+     "help": "Specific footprint to export within the library",
+     "long": "--footprint",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "--sp"
+     ],
+     "default": null,
+     "flags": [
+      "--sp",
+      "--sketch-pads-on-fab-layers"
+     ],
+     "help": "Draw pad outlines and their numbers on front and back fab layers",
+     "long": "--sketch-pads-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--hdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--hdnp",
+      "--hide-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Don't plot text & graphics of DNP footprints on fab layers",
+     "long": "--hide-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--sdnp",
+      "--sketch-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot graphics of DNP footprints in sketch mode on fab layers",
+     "long": "--sketch-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--cdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--cdnp",
+      "--crossout-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot an 'X' over the courtyard of DNP footprints on fab layers, and strikeout their reference designators",
+     "long": "--crossout-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file or directory",
+     "name": "INPUT_FILE_OR_DIR"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export svg [--help] [--output OUTPUT_DIR] [--layers LAYER_LIST] [--define-var KEY=VALUE]... [--theme VAR] [--footprint FOOTPRINT_NAME] [--sketch-pads-on-fab-layers] [--hide-DNP-footprints-on-fab-layers] [--sketch-DNP-footprints-on-fab-layers] [--crossout-DNP-footprints-on-fab-layers] [--black-and-white] INPUT_FILE_OR_DIR"
+  },
+  "fp upgrade": {
+   "description": "Upgrades the footprint library to the current kicad version format",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--force"
+     ],
+     "help": "Forces the footprint library to be resaved regardless of versioning",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file or directory",
+     "name": "INPUT_FILE_OR_DIR"
+    }
+   ],
+   "subcommands": [],
+   "usage": "fp upgrade [--help] [--output OUTPUT_DIR] [--force] INPUT_FILE_OR_DIR"
+  },
+  "jobset run": {
+   "description": "Runs a jobset file",
+   "options": [
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--stop-on-error"
+     ],
+     "help": "Stops processing jobs as they are executed sequentially on the first failure of a job",
+     "long": "--stop-on-error",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": "",
+     "flags": [
+      "-f",
+      "--file"
+     ],
+     "help": "Jobset file to be run",
+     "long": "--file",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--output"
+     ],
+     "help": "Jobset file output to generate, leave blank for all outputs defined in the jobset",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "jobset run [--help] [--stop-on-error] [--file JOB_FILE] [--output OUTPUT] INPUT_FILE"
+  },
+  "pcb drc": {
+   "description": "Runs the Design Rules Check (DRC) on the PCB and creates a report",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "report",
+     "flags": [
+      "--format"
+     ],
+     "help": "Output file format, options: json, report",
+     "long": "--format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--all-track-errors"
+     ],
+     "help": "Report all errors for each track",
+     "long": "--all-track-errors",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--schematic-parity"
+     ],
+     "help": "Test for parity between PCB and schematic",
+     "long": "--schematic-parity",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "mm",
+     "flags": [
+      "--units"
+     ],
+     "help": "Report units; valid options: in, mm, mils",
+     "long": "--units",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--severity-all"
+     ],
+     "help": "Report all DRC violations, this is equivalent to including all the other severity arguments",
+     "long": "--severity-all",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--severity-error"
+     ],
+     "help": "Report all DRC error level violations, this can be combined with the other severity arguments",
+     "long": "--severity-error",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--severity-warning"
+     ],
+     "help": "Report all DRC warning level violations, this can be combined with the other severity arguments",
+     "long": "--severity-warning",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--severity-exclusions"
+     ],
+     "help": "Report all excluded DRC violations, this can be combined with the other severity arguments",
+     "long": "--severity-exclusions",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exit-code-violations"
+     ],
+     "help": "Return a nonzero exit code if DRC violations exist",
+     "long": "--exit-code-violations",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--refill-zones"
+     ],
+     "help": "Refill zones before running DRC",
+     "long": "--refill-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--save-board"
+     ],
+     "help": "Save the board after DRC, must be used with --refill-zones",
+     "long": "--save-board",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "pcb drc [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--format FORMAT] [--all-track-errors] [--schematic-parity] [--units UNITS] [--severity-all] [--severity-error] [--severity-warning] [--severity-exclusions] [--exit-code-violations] [--refill-zones] [--save-board] INPUT_FILE"
+  },
+  "pcb export 3dpdf": {
+   "description": "Export PDF",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--grid-origin"
+     ],
+     "help": "Use Grid Origin for output origin",
+     "long": "--grid-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Use Drill Origin for output origin",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subst-models"
+     ],
+     "help": "Substitute STEP or IGS models with the same name in place of VRML models",
+     "long": "--subst-models",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-only"
+     ],
+     "help": "Only generate a board with no components",
+     "long": "--board-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--cut-vias-in-body"
+     ],
+     "help": "Cut via holes in board body even if conductor layers are not exported.",
+     "long": "--cut-vias-in-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-board-body"
+     ],
+     "help": "Exclude board body",
+     "long": "--no-board-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-components"
+     ],
+     "help": "Exclude 3D models for components",
+     "long": "--no-components",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--component-filter"
+     ],
+     "help": "Only include component 3D models matching this list of reference designators (comma-separated, wildcards supported)",
+     "long": "--component-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-tracks"
+     ],
+     "help": "Export tracks and vias",
+     "long": "--include-tracks",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-pads"
+     ],
+     "help": "Export pads",
+     "long": "--include-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-zones"
+     ],
+     "help": "Export zones",
+     "long": "--include-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-inner-copper"
+     ],
+     "help": "Export elements on inner copper layers",
+     "long": "--include-inner-copper",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-silkscreen"
+     ],
+     "help": "Export silkscreen graphics as a set of flat faces",
+     "long": "--include-silkscreen",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-soldermask"
+     ],
+     "help": "Export soldermask layers as a set of flat faces",
+     "long": "--include-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fuse-shapes"
+     ],
+     "help": "Fuse overlapping geometry together",
+     "long": "--fuse-shapes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fill-all-vias"
+     ],
+     "help": "Don't cut via holes in conductor layers.",
+     "long": "--fill-all-vias",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-extra-pad-thickness"
+     ],
+     "help": "Disable extra pad thickness (pads will have normal thickness)",
+     "long": "--no-extra-pad-thickness",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0.01mm",
+     "flags": [
+      "--min-distance"
+     ],
+     "help": "Minimum distance between points to treat them as separate ones",
+     "long": "--min-distance",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--net-filter"
+     ],
+     "help": "Only include copper items belonging to nets matching this wildcard",
+     "long": "--net-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export 3dpdf [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--grid-origin] [--drill-origin] [--subst-models] [--board-only] [--cut-vias-in-body] [--no-board-body] [--no-components] [--component-filter VAR] [--include-tracks] [--include-pads] [--include-zones] [--include-inner-copper] [--include-silkscreen] [--include-soldermask] [--fuse-shapes] [--fill-all-vias] [--no-extra-pad-thickness] [--min-distance MIN_DIST] [--net-filter VAR] [--user-origin VAR] INPUT_FILE"
+  },
+  "pcb export brep": {
+   "description": "Export BREP",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--grid-origin"
+     ],
+     "help": "Use Grid Origin for output origin",
+     "long": "--grid-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Use Drill Origin for output origin",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subst-models"
+     ],
+     "help": "Substitute STEP or IGS models with the same name in place of VRML models",
+     "long": "--subst-models",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-only"
+     ],
+     "help": "Only generate a board with no components",
+     "long": "--board-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--cut-vias-in-body"
+     ],
+     "help": "Cut via holes in board body even if conductor layers are not exported.",
+     "long": "--cut-vias-in-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-board-body"
+     ],
+     "help": "Exclude board body",
+     "long": "--no-board-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-components"
+     ],
+     "help": "Exclude 3D models for components",
+     "long": "--no-components",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--component-filter"
+     ],
+     "help": "Only include component 3D models matching this list of reference designators (comma-separated, wildcards supported)",
+     "long": "--component-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-tracks"
+     ],
+     "help": "Export tracks and vias",
+     "long": "--include-tracks",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-pads"
+     ],
+     "help": "Export pads",
+     "long": "--include-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-zones"
+     ],
+     "help": "Export zones",
+     "long": "--include-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-inner-copper"
+     ],
+     "help": "Export elements on inner copper layers",
+     "long": "--include-inner-copper",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-silkscreen"
+     ],
+     "help": "Export silkscreen graphics as a set of flat faces",
+     "long": "--include-silkscreen",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-soldermask"
+     ],
+     "help": "Export soldermask layers as a set of flat faces",
+     "long": "--include-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fuse-shapes"
+     ],
+     "help": "Fuse overlapping geometry together",
+     "long": "--fuse-shapes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fill-all-vias"
+     ],
+     "help": "Don't cut via holes in conductor layers.",
+     "long": "--fill-all-vias",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-extra-pad-thickness"
+     ],
+     "help": "Disable extra pad thickness (pads will have normal thickness)",
+     "long": "--no-extra-pad-thickness",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0.01mm",
+     "flags": [
+      "--min-distance"
+     ],
+     "help": "Minimum distance between points to treat them as separate ones",
+     "long": "--min-distance",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--net-filter"
+     ],
+     "help": "Only include copper items belonging to nets matching this wildcard",
+     "long": "--net-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export brep [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--grid-origin] [--drill-origin] [--subst-models] [--board-only] [--cut-vias-in-body] [--no-board-body] [--no-components] [--component-filter VAR] [--include-tracks] [--include-pads] [--include-zones] [--include-inner-copper] [--include-silkscreen] [--include-soldermask] [--fuse-shapes] [--fill-all-vias] [--no-extra-pad-thickness] [--min-distance MIN_DIST] [--net-filter VAR] [--user-origin VAR] INPUT_FILE"
+  },
+  "pcb export drill": {
+   "description": "Generate Drill Files",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "excellon",
+     "flags": [
+      "--format"
+     ],
+     "help": "Valid options excellon, gerber.",
+     "long": "--format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "absolute",
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Valid options are: absolute, plot",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "decimal",
+     "flags": [
+      "--excellon-zeros-format"
+     ],
+     "help": "Valid options are: decimal, suppressleading, suppresstrailing, keep.",
+     "long": "--excellon-zeros-format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "alternate",
+     "flags": [
+      "--excellon-oval-format"
+     ],
+     "help": "Valid options are: route, alternate.",
+     "long": "--excellon-oval-format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-u"
+     ],
+     "default": "mm",
+     "flags": [
+      "-u",
+      "--excellon-units"
+     ],
+     "help": "Output units, valid options: in, mm",
+     "long": "--excellon-units",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--excellon-mirror-y"
+     ],
+     "help": "Mirror Y axis",
+     "long": "--excellon-mirror-y",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--excellon-min-header"
+     ],
+     "help": "Minimal header",
+     "long": "--excellon-min-header",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--excellon-separate-th"
+     ],
+     "help": "Generate independent files for NPTH and PTH holes",
+     "long": "--excellon-separate-th",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--generate-map"
+     ],
+     "help": "Generate map / summary of drill hits",
+     "long": "--generate-map",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--generate-report"
+     ],
+     "help": "Generate report of drill hits",
+     "long": "--generate-report",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--report-path"
+     ],
+     "help": "Report output file path",
+     "long": "--report-path",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--generate-tenting"
+     ],
+     "help": "Generate a file specifically for tenting",
+     "long": "--generate-tenting",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "pdf",
+     "flags": [
+      "--map-format"
+     ],
+     "help": "Valid options: pdf, gerberx2, ps, dxf, svg",
+     "long": "--map-format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "6",
+     "flags": [
+      "--gerber-precision"
+     ],
+     "help": "Precision of Gerber coordinates (5 or 6)",
+     "long": "--gerber-precision",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export drill [--help] [--output OUTPUT_DIR] [--format FORMAT] [--drill-origin DRILL_ORIGIN] [--excellon-zeros-format ZEROS_FORMAT] [--excellon-oval-format OVAL_FORMAT] [--excellon-units UNITS] [--excellon-mirror-y] [--excellon-min-header] [--excellon-separate-th] [--generate-map] [--generate-report] [--report-path REPORT_FILE] [--generate-tenting] [--map-format MAP_FORMAT] [--gerber-precision VAR] INPUT_FILE"
+  },
+  "pcb export dxf": {
+   "description": "Generate a DXF from a list of layers",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-l"
+     ],
+     "default": "",
+     "flags": [
+      "-l",
+      "--layers"
+     ],
+     "help": "Comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "--cl"
+     ],
+     "default": "",
+     "flags": [
+      "--cl",
+      "--common-layers"
+     ],
+     "help": "Layers to include on each plot, comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--common-layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "--erd"
+     ],
+     "default": null,
+     "flags": [
+      "--erd",
+      "--exclude-refdes"
+     ],
+     "help": "Exclude the reference designator text",
+     "long": "--exclude-refdes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--ev"
+     ],
+     "default": null,
+     "flags": [
+      "--ev",
+      "--exclude-value"
+     ],
+     "help": "Exclude the value text",
+     "long": "--exclude-value",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sp"
+     ],
+     "default": null,
+     "flags": [
+      "--sp",
+      "--sketch-pads-on-fab-layers"
+     ],
+     "help": "Draw pad outlines and their numbers on front and back fab layers",
+     "long": "--sketch-pads-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--hdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--hdnp",
+      "--hide-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Don't plot text & graphics of DNP footprints on fab layers",
+     "long": "--hide-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--sdnp",
+      "--sketch-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot graphics of DNP footprints in sketch mode on fab layers",
+     "long": "--sketch-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--cdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--cdnp",
+      "--crossout-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot an 'X' over the courtyard of DNP footprints on fab layers, and strikeout their reference designators",
+     "long": "--crossout-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subtract-soldermask"
+     ],
+     "help": "Subtract soldermask from silkscreen",
+     "long": "--subtract-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--uc"
+     ],
+     "default": null,
+     "flags": [
+      "--uc",
+      "--use-contours"
+     ],
+     "help": "Plot graphic items using their contours",
+     "long": "--use-contours",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--udo"
+     ],
+     "default": null,
+     "flags": [
+      "--udo",
+      "--use-drill-origin"
+     ],
+     "help": "Plot using the drill/place file origin",
+     "long": "--use-drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--ibt"
+     ],
+     "default": null,
+     "flags": [
+      "--ibt",
+      "--include-border-title"
+     ],
+     "help": "Include the border and title block",
+     "long": "--include-border-title",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--ou"
+     ],
+     "default": "in",
+     "flags": [
+      "--ou",
+      "--output-units"
+     ],
+     "help": "Output units, valid options: mm, in",
+     "long": "--output-units",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "2",
+     "flags": [
+      "--drill-shape-opt"
+     ],
+     "help": "Set pad/via drill shape option (0 = no shape, 1 = small shape, 2 = actual shape)",
+     "long": "--drill-shape-opt",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--mode-single"
+     ],
+     "help": "Generates a single file with the output arg path acting as the complete directory and filename path. COMMON_LAYER_LIST does not function in this mode. Instead LAYER_LIST controls all layers plotted.",
+     "long": "--mode-single",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--mode-multi"
+     ],
+     "help": "Generates one or more files with behavior similar to the KiCad GUI plotting. The given output path specifies a directory in which files may be output.",
+     "long": "--mode-multi",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "1",
+     "flags": [
+      "--scale"
+     ],
+     "help": "Scale for the PCB, not for the border and title. Use 0 for autoscale",
+     "long": "--scale",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--check-zones"
+     ],
+     "help": "Check and refill zones if required",
+     "long": "--check-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export dxf [--help] [--output OUTPUT_DIR] [--layers LAYER_LIST] [--common-layers COMMON_LAYER_LIST] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--exclude-refdes] [--exclude-value] [--sketch-pads-on-fab-layers] [--hide-DNP-footprints-on-fab-layers] [--sketch-DNP-footprints-on-fab-layers] [--crossout-DNP-footprints-on-fab-layers] [--subtract-soldermask] [--use-contours] [--use-drill-origin] [--include-border-title] [--output-units UNITS] [--drill-shape-opt VAR] [--mode-single] [--mode-multi] [--scale SCALE] [--check-zones] [--variant VAR]... INPUT_FILE"
+  },
+  "pcb export gencad": {
+   "description": "Export the PCB in Gencad format",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--flip-bottom-pads"
+     ],
+     "help": "Flip bottom footprint padstacks",
+     "long": "--flip-bottom-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--unique-pins"
+     ],
+     "help": "Generate unique pin names",
+     "long": "--unique-pins",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--unique-footprints"
+     ],
+     "help": "Generate a new shape for each footprint instance (do not reuse shapes)",
+     "long": "--unique-footprints",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--use-drill-origin"
+     ],
+     "help": "Use drill/place file origin as origin",
+     "long": "--use-drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--store-origin-coord"
+     ],
+     "help": "Save the origin coordinates in the file",
+     "long": "--store-origin-coord",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export gencad [--help] [--output OUTPUT_DIR] [--define-var KEY=VALUE]... [--flip-bottom-pads] [--unique-pins] [--unique-footprints] [--use-drill-origin] [--store-origin-coord] INPUT_FILE"
+  },
+  "pcb export gerbers": {
+   "description": "Plot multiple Gerbers for a PCB, including the ability to use stored board plot settings",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-l"
+     ],
+     "default": "",
+     "flags": [
+      "-l",
+      "--layers"
+     ],
+     "help": "Comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "--cl"
+     ],
+     "default": "",
+     "flags": [
+      "--cl",
+      "--common-layers"
+     ],
+     "help": "Layers to include on each plot, comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--common-layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "--erd"
+     ],
+     "default": null,
+     "flags": [
+      "--erd",
+      "--exclude-refdes"
+     ],
+     "help": "Exclude the reference designator text",
+     "long": "--exclude-refdes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--ev"
+     ],
+     "default": null,
+     "flags": [
+      "--ev",
+      "--exclude-value"
+     ],
+     "help": "Exclude the value text",
+     "long": "--exclude-value",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--ibt"
+     ],
+     "default": null,
+     "flags": [
+      "--ibt",
+      "--include-border-title"
+     ],
+     "help": "Include the border and title block",
+     "long": "--include-border-title",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sp"
+     ],
+     "default": null,
+     "flags": [
+      "--sp",
+      "--sketch-pads-on-fab-layers"
+     ],
+     "help": "Draw pad outlines and their numbers on front and back fab layers",
+     "long": "--sketch-pads-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--hdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--hdnp",
+      "--hide-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Don't plot text & graphics of DNP footprints on fab layers",
+     "long": "--hide-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--sdnp",
+      "--sketch-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot graphics of DNP footprints in sketch mode on fab layers",
+     "long": "--sketch-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--cdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--cdnp",
+      "--crossout-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot an 'X' over the courtyard of DNP footprints on fab layers, and strikeout their reference designators",
+     "long": "--crossout-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-x2"
+     ],
+     "help": "Do not use the extended X2 format",
+     "long": "--no-x2",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-netlist"
+     ],
+     "help": "Do not generate netlist attributes",
+     "long": "--no-netlist",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subtract-soldermask"
+     ],
+     "help": "Subtract soldermask from silkscreen",
+     "long": "--subtract-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--disable-aperture-macros"
+     ],
+     "help": "Disable aperture macros",
+     "long": "--disable-aperture-macros",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--use-drill-file-origin"
+     ],
+     "help": "Use drill/place file origin",
+     "long": "--use-drill-file-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "6",
+     "flags": [
+      "--precision"
+     ],
+     "help": "Precision of Gerber coordinates, valid options: 5 or 6",
+     "long": "--precision",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-protel-ext"
+     ],
+     "help": "Use KiCad Gerber file extension",
+     "long": "--no-protel-ext",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--check-zones"
+     ],
+     "help": "Check and refill zones if required",
+     "long": "--check-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-plot-params"
+     ],
+     "help": "Use the Gerber plot settings already configured in the board file",
+     "long": "--board-plot-params",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export gerbers [--help] [--output OUTPUT_DIR] [--layers LAYER_LIST] [--common-layers COMMON_LAYER_LIST] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--exclude-refdes] [--exclude-value] [--include-border-title] [--sketch-pads-on-fab-layers] [--hide-DNP-footprints-on-fab-layers] [--sketch-DNP-footprints-on-fab-layers] [--crossout-DNP-footprints-on-fab-layers] [--no-x2] [--no-netlist] [--subtract-soldermask] [--disable-aperture-macros] [--use-drill-file-origin] [--precision PRECISION] [--no-protel-ext] [--check-zones] [--variant VAR]... [--board-plot-params] INPUT_FILE"
+  },
+  "pcb export glb": {
+   "description": "Export GLB (binary GLTF)",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--grid-origin"
+     ],
+     "help": "Use Grid Origin for output origin",
+     "long": "--grid-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Use Drill Origin for output origin",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subst-models"
+     ],
+     "help": "Substitute STEP or IGS models with the same name in place of VRML models",
+     "long": "--subst-models",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-only"
+     ],
+     "help": "Only generate a board with no components",
+     "long": "--board-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--cut-vias-in-body"
+     ],
+     "help": "Cut via holes in board body even if conductor layers are not exported.",
+     "long": "--cut-vias-in-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-board-body"
+     ],
+     "help": "Exclude board body",
+     "long": "--no-board-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-components"
+     ],
+     "help": "Exclude 3D models for components",
+     "long": "--no-components",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--component-filter"
+     ],
+     "help": "Only include component 3D models matching this list of reference designators (comma-separated, wildcards supported)",
+     "long": "--component-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-tracks"
+     ],
+     "help": "Export tracks and vias",
+     "long": "--include-tracks",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-pads"
+     ],
+     "help": "Export pads",
+     "long": "--include-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-zones"
+     ],
+     "help": "Export zones",
+     "long": "--include-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-inner-copper"
+     ],
+     "help": "Export elements on inner copper layers",
+     "long": "--include-inner-copper",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-silkscreen"
+     ],
+     "help": "Export silkscreen graphics as a set of flat faces",
+     "long": "--include-silkscreen",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-soldermask"
+     ],
+     "help": "Export soldermask layers as a set of flat faces",
+     "long": "--include-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fuse-shapes"
+     ],
+     "help": "Fuse overlapping geometry together",
+     "long": "--fuse-shapes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fill-all-vias"
+     ],
+     "help": "Don't cut via holes in conductor layers.",
+     "long": "--fill-all-vias",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-extra-pad-thickness"
+     ],
+     "help": "Disable extra pad thickness (pads will have normal thickness)",
+     "long": "--no-extra-pad-thickness",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0.01mm",
+     "flags": [
+      "--min-distance"
+     ],
+     "help": "Minimum distance between points to treat them as separate ones",
+     "long": "--min-distance",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--net-filter"
+     ],
+     "help": "Only include copper items belonging to nets matching this wildcard",
+     "long": "--net-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export glb [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--grid-origin] [--drill-origin] [--subst-models] [--board-only] [--cut-vias-in-body] [--no-board-body] [--no-components] [--component-filter VAR] [--include-tracks] [--include-pads] [--include-zones] [--include-inner-copper] [--include-silkscreen] [--include-soldermask] [--fuse-shapes] [--fill-all-vias] [--no-extra-pad-thickness] [--min-distance MIN_DIST] [--net-filter VAR] [--user-origin VAR] INPUT_FILE"
+  },
+  "pcb export hpgl": {
+   "description": "No longer supported as of KiCad 10.0.",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export hpgl [--help] [--output OUTPUT_DIR] INPUT_FILE"
+  },
+  "pcb export ipc2581": {
+   "description": "Export the PCB in IPC-2581 format",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "6",
+     "flags": [
+      "--precision"
+     ],
+     "help": "Precision",
+     "long": "--precision",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--compress"
+     ],
+     "help": "Compress the output",
+     "long": "--compress",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "C",
+     "flags": [
+      "--version"
+     ],
+     "help": "IPC-2581 standard version",
+     "long": "--version",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "mm",
+     "flags": [
+      "--units"
+     ],
+     "help": "Units",
+     "long": "--units",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--bom-col-int-id"
+     ],
+     "help": "Name of the part field to use for the Bill of Material Internal Id Column",
+     "long": "--bom-col-int-id",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--bom-col-mfg-pn"
+     ],
+     "help": "Name of the part field to use for the Bill of Material Manufacturer Part Number Column",
+     "long": "--bom-col-mfg-pn",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--bom-col-mfg"
+     ],
+     "help": "Name of the part field to use for the Bill of Material Manufacturer Column",
+     "long": "--bom-col-mfg",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--bom-col-dist-pn"
+     ],
+     "help": "Name of the part field to use for the Bill of Material Distributor Part Number Column",
+     "long": "--bom-col-dist-pn",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--bom-col-dist"
+     ],
+     "help": "Name to insert into Bill of Material Distributor Column",
+     "long": "--bom-col-dist",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--bom-rev"
+     ],
+     "help": "BOM revision to use in the output file. Defaults to schematic revision from the project file",
+     "long": "--bom-rev",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export ipc2581 [--help] [--output OUTPUT_FILE] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--precision PRECISION] [--compress] [--version VAR] [--units VAR] [--bom-col-int-id FIELD_NAME] [--bom-col-mfg-pn FIELD_NAME] [--bom-col-mfg FIELD_NAME] [--bom-col-dist-pn FIELD_NAME] [--bom-col-dist FIELD_NAME] [--bom-rev REVISION] [--variant VAR]... INPUT_FILE"
+  },
+  "pcb export ipcd356": {
+   "description": "Generate IPC-D-356 netlist file",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export ipcd356 [--help] [--output OUTPUT_FILE] INPUT_FILE"
+  },
+  "pcb export odb": {
+   "description": "Export the PCB in ODB++ format",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "2",
+     "flags": [
+      "--precision"
+     ],
+     "help": "Precision",
+     "long": "--precision",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "zip",
+     "flags": [
+      "--compression"
+     ],
+     "help": "Compression mode",
+     "long": "--compression",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "mm",
+     "flags": [
+      "--units"
+     ],
+     "help": "Units",
+     "long": "--units",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--check-zones"
+     ],
+     "help": "Check and refill zones if required",
+     "long": "--check-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export odb [--help] [--output OUTPUT_FILE] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--precision PRECISION] [--compression VAR] [--units VAR] [--check-zones] [--variant VAR]... INPUT_FILE"
+  },
+  "pcb export pdf": {
+   "description": "Generate PDF from a list of layers",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-l"
+     ],
+     "default": "",
+     "flags": [
+      "-l",
+      "--layers"
+     ],
+     "help": "Comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "--cl"
+     ],
+     "default": "",
+     "flags": [
+      "--cl",
+      "--common-layers"
+     ],
+     "help": "Layers to include on each plot, comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--common-layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-m"
+     ],
+     "default": null,
+     "flags": [
+      "-m",
+      "--mirror"
+     ],
+     "help": "Mirror the board (useful for trying to show bottom layers)",
+     "long": "--mirror",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--erd"
+     ],
+     "default": null,
+     "flags": [
+      "--erd",
+      "--exclude-refdes"
+     ],
+     "help": "Exclude the reference designator text",
+     "long": "--exclude-refdes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--ev"
+     ],
+     "default": null,
+     "flags": [
+      "--ev",
+      "--exclude-value"
+     ],
+     "help": "Exclude the value text",
+     "long": "--exclude-value",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--ibt"
+     ],
+     "default": null,
+     "flags": [
+      "--ibt",
+      "--include-border-title"
+     ],
+     "help": "Include the border and title block",
+     "long": "--include-border-title",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subtract-soldermask"
+     ],
+     "help": "Subtract soldermask from silkscreen",
+     "long": "--subtract-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sp"
+     ],
+     "default": null,
+     "flags": [
+      "--sp",
+      "--sketch-pads-on-fab-layers"
+     ],
+     "help": "Draw pad outlines and their numbers on front and back fab layers",
+     "long": "--sketch-pads-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--hdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--hdnp",
+      "--hide-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Don't plot text & graphics of DNP footprints on fab layers",
+     "long": "--hide-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--sdnp",
+      "--sketch-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot graphics of DNP footprints in sketch mode on fab layers",
+     "long": "--sketch-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--cdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--cdnp",
+      "--crossout-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot an 'X' over the courtyard of DNP footprints on fab layers, and strikeout their reference designators",
+     "long": "--crossout-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-n"
+     ],
+     "default": null,
+     "flags": [
+      "-n",
+      "--negative"
+     ],
+     "help": "Plot as negative (useful for directly etching from the export)",
+     "long": "--negative",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to PCB Editor settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "2",
+     "flags": [
+      "--drill-shape-opt"
+     ],
+     "help": "Set pad/via drill shape option (0 = no shape, 1 = small shape, 2 = actual shape)",
+     "long": "--drill-shape-opt",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--mode-single"
+     ],
+     "help": "Generates a single file with the output arg path acting as the complete directory and filename path. COMMON_LAYER_LIST does not function in this mode. Instead LAYER_LIST controls all layers plotted.",
+     "long": "--mode-single",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--mode-separate"
+     ],
+     "help": "Plot the layers to individual PDF files",
+     "long": "--mode-separate",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--mode-multipage"
+     ],
+     "help": "Plot the layers to a single PDF file with multiple pages",
+     "long": "--mode-multipage",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "1",
+     "flags": [
+      "--scale"
+     ],
+     "help": "Scale for the PCB, not for the border and title. Use 0 for autoscale",
+     "long": "--scale",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--bg-color"
+     ],
+     "help": "Background color, can be in hex #rrggbb, #rrggbbaa; or css rgb(r,g,b), rgba(r,g,b,a) format",
+     "long": "--bg-color",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--check-zones"
+     ],
+     "help": "Check and refill zones if required",
+     "long": "--check-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-property-popups"
+     ],
+     "help": "Suppress footprint property popups",
+     "long": "--no-property-popups",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export pdf [--help] [--output OUTPUT_DIR] [--layers LAYER_LIST] [--common-layers COMMON_LAYER_LIST] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--mirror] [--exclude-refdes] [--exclude-value] [--include-border-title] [--subtract-soldermask] [--sketch-pads-on-fab-layers] [--hide-DNP-footprints-on-fab-layers] [--sketch-DNP-footprints-on-fab-layers] [--crossout-DNP-footprints-on-fab-layers] [--negative] [--black-and-white] [--theme THEME_NAME] [--drill-shape-opt VAR] [--mode-single] [--mode-separate] [--mode-multipage] [--scale SCALE] [--bg-color COLOR] [--check-zones] [--no-property-popups] [--variant VAR]... INPUT_FILE"
+  },
+  "pcb export ply": {
+   "description": "Export PLY",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--grid-origin"
+     ],
+     "help": "Use Grid Origin for output origin",
+     "long": "--grid-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Use Drill Origin for output origin",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subst-models"
+     ],
+     "help": "Substitute STEP or IGS models with the same name in place of VRML models",
+     "long": "--subst-models",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-only"
+     ],
+     "help": "Only generate a board with no components",
+     "long": "--board-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--cut-vias-in-body"
+     ],
+     "help": "Cut via holes in board body even if conductor layers are not exported.",
+     "long": "--cut-vias-in-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-board-body"
+     ],
+     "help": "Exclude board body",
+     "long": "--no-board-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-components"
+     ],
+     "help": "Exclude 3D models for components",
+     "long": "--no-components",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--component-filter"
+     ],
+     "help": "Only include component 3D models matching this list of reference designators (comma-separated, wildcards supported)",
+     "long": "--component-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-tracks"
+     ],
+     "help": "Export tracks and vias",
+     "long": "--include-tracks",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-pads"
+     ],
+     "help": "Export pads",
+     "long": "--include-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-zones"
+     ],
+     "help": "Export zones",
+     "long": "--include-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-inner-copper"
+     ],
+     "help": "Export elements on inner copper layers",
+     "long": "--include-inner-copper",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-silkscreen"
+     ],
+     "help": "Export silkscreen graphics as a set of flat faces",
+     "long": "--include-silkscreen",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-soldermask"
+     ],
+     "help": "Export soldermask layers as a set of flat faces",
+     "long": "--include-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fuse-shapes"
+     ],
+     "help": "Fuse overlapping geometry together",
+     "long": "--fuse-shapes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fill-all-vias"
+     ],
+     "help": "Don't cut via holes in conductor layers.",
+     "long": "--fill-all-vias",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-extra-pad-thickness"
+     ],
+     "help": "Disable extra pad thickness (pads will have normal thickness)",
+     "long": "--no-extra-pad-thickness",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0.01mm",
+     "flags": [
+      "--min-distance"
+     ],
+     "help": "Minimum distance between points to treat them as separate ones",
+     "long": "--min-distance",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--net-filter"
+     ],
+     "help": "Only include copper items belonging to nets matching this wildcard",
+     "long": "--net-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export ply [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--grid-origin] [--drill-origin] [--subst-models] [--board-only] [--cut-vias-in-body] [--no-board-body] [--no-components] [--component-filter VAR] [--include-tracks] [--include-pads] [--include-zones] [--include-inner-copper] [--include-silkscreen] [--include-soldermask] [--fuse-shapes] [--fill-all-vias] [--no-extra-pad-thickness] [--min-distance MIN_DIST] [--net-filter VAR] [--user-origin VAR] INPUT_FILE"
+  },
+  "pcb export pos": {
+   "description": "Generate Position File",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "both",
+     "flags": [
+      "--side"
+     ],
+     "help": "Valid options: front, back, both. Gerber format only supports \"front\" or \"back\".",
+     "long": "--side",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "ascii",
+     "flags": [
+      "--format"
+     ],
+     "help": "Valid options: ascii, csv, gerber",
+     "long": "--format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "in",
+     "flags": [
+      "--units"
+     ],
+     "help": "Output units; ascii or csv format only; valid options: in, mm",
+     "long": "--units",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--bottom-negate-x"
+     ],
+     "help": "Use negative X coordinates for footprints on bottom layer (ascii or csv formats only)",
+     "long": "--bottom-negate-x",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--use-drill-file-origin"
+     ],
+     "help": "Use drill/place file origin (ascii or csv only)",
+     "long": "--use-drill-file-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--smd-only"
+     ],
+     "help": "Include only SMD footprints (ascii or csv only)",
+     "long": "--smd-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exclude-fp-th"
+     ],
+     "help": "Exclude all footprints with through-hole pads (ascii or csv only)",
+     "long": "--exclude-fp-th",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exclude-dnp"
+     ],
+     "help": "Exclude all footprints with the Do Not Populate flag set",
+     "long": "--exclude-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--gerber-board-edge"
+     ],
+     "help": "Include board edge layer (Gerber only)",
+     "long": "--gerber-board-edge",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export pos [--help] [--output OUTPUT_FILE] [--side VAR] [--format FORMAT] [--units UNITS] [--bottom-negate-x] [--use-drill-file-origin] [--smd-only] [--exclude-fp-th] [--exclude-dnp] [--gerber-board-edge] [--variant VAR]... INPUT_FILE"
+  },
+  "pcb export ps": {
+   "description": "Generate Postscript from a list of layers",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-l"
+     ],
+     "default": "",
+     "flags": [
+      "-l",
+      "--layers"
+     ],
+     "help": "Comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "--cl"
+     ],
+     "default": "",
+     "flags": [
+      "--cl",
+      "--common-layers"
+     ],
+     "help": "Layers to include on each plot, comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--common-layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-m"
+     ],
+     "default": null,
+     "flags": [
+      "-m",
+      "--mirror"
+     ],
+     "help": "Mirror the board (useful for trying to show bottom layers)",
+     "long": "--mirror",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--erd"
+     ],
+     "default": null,
+     "flags": [
+      "--erd",
+      "--exclude-refdes"
+     ],
+     "help": "Exclude the reference designator text",
+     "long": "--exclude-refdes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--ev"
+     ],
+     "default": null,
+     "flags": [
+      "--ev",
+      "--exclude-value"
+     ],
+     "help": "Exclude the value text",
+     "long": "--exclude-value",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--ibt"
+     ],
+     "default": null,
+     "flags": [
+      "--ibt",
+      "--include-border-title"
+     ],
+     "help": "Include the border and title block",
+     "long": "--include-border-title",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subtract-soldermask"
+     ],
+     "help": "Subtract soldermask from silkscreen",
+     "long": "--subtract-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sp"
+     ],
+     "default": null,
+     "flags": [
+      "--sp",
+      "--sketch-pads-on-fab-layers"
+     ],
+     "help": "Draw pad outlines and their numbers on front and back fab layers",
+     "long": "--sketch-pads-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--hdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--hdnp",
+      "--hide-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Don't plot text & graphics of DNP footprints on fab layers",
+     "long": "--hide-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--sdnp",
+      "--sketch-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot graphics of DNP footprints in sketch mode on fab layers",
+     "long": "--sketch-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--cdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--cdnp",
+      "--crossout-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot an 'X' over the courtyard of DNP footprints on fab layers, and strikeout their reference designators",
+     "long": "--crossout-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-n"
+     ],
+     "default": null,
+     "flags": [
+      "-n",
+      "--negative"
+     ],
+     "help": "Plot as negative (useful for directly etching from the export)",
+     "long": "--negative",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to PCB Editor settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "2",
+     "flags": [
+      "--drill-shape-opt"
+     ],
+     "help": "Set pad/via drill shape option (0 = no shape, 1 = small shape, 2 = actual shape)",
+     "long": "--drill-shape-opt",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--mode-single"
+     ],
+     "help": "Generates a single file with the output arg path acting as the complete directory and filename path. COMMON_LAYER_LIST does not function in this mode. Instead LAYER_LIST controls all layers plotted.",
+     "long": "--mode-single",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--mode-multi"
+     ],
+     "help": "Generates one or more files with behavior similar to the KiCad GUI plotting. The given output path specifies a directory in which files may be output.",
+     "long": "--mode-multi",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-C"
+     ],
+     "default": "0",
+     "flags": [
+      "-C",
+      "--track-width-correction"
+     ],
+     "help": "Track width correction [mm]. Used to compensate errors in track widths, pad and via sizes.",
+     "long": "--track-width-correction",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-X"
+     ],
+     "default": "1",
+     "flags": [
+      "-X",
+      "--x-scale-factor"
+     ],
+     "help": "X scale adjust for exact scale.",
+     "long": "--x-scale-factor",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-Y"
+     ],
+     "default": "1",
+     "flags": [
+      "-Y",
+      "--y-scale-factor"
+     ],
+     "help": "Y scale adjust for exact scale.",
+     "long": "--y-scale-factor",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-A"
+     ],
+     "default": null,
+     "flags": [
+      "-A",
+      "--force-a4"
+     ],
+     "help": "Force A4 paper size.",
+     "long": "--force-a4",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "1",
+     "flags": [
+      "--scale"
+     ],
+     "help": "Scale for the PCB, not for the border and title. Use 0 for autoscale",
+     "long": "--scale",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--check-zones"
+     ],
+     "help": "Check and refill zones if required",
+     "long": "--check-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export ps [--help] [--output OUTPUT_DIR] [--layers LAYER_LIST] [--common-layers COMMON_LAYER_LIST] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--mirror] [--exclude-refdes] [--exclude-value] [--include-border-title] [--subtract-soldermask] [--sketch-pads-on-fab-layers] [--hide-DNP-footprints-on-fab-layers] [--sketch-DNP-footprints-on-fab-layers] [--crossout-DNP-footprints-on-fab-layers] [--negative] [--black-and-white] [--theme THEME_NAME] [--drill-shape-opt VAR] [--mode-single] [--mode-multi] [--track-width-correction TRACK_COR] [--x-scale-factor X_SCALE] [--y-scale-factor Y_SCALE] [--force-a4] [--scale SCALE] [--check-zones] [--variant VAR]... INPUT_FILE"
+  },
+  "pcb export stats": {
+   "description": "Generate a board statistics report",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "report",
+     "flags": [
+      "--format"
+     ],
+     "help": "Output file format, options: json, report",
+     "long": "--format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "mm",
+     "flags": [
+      "--units"
+     ],
+     "help": "Report units; valid options: in, mm",
+     "long": "--units",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exclude-footprints-without-pads"
+     ],
+     "help": "Exclude footprints without pads",
+     "long": "--exclude-footprints-without-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subtract-holes-from-board"
+     ],
+     "help": "Subtract holes from the board area",
+     "long": "--subtract-holes-from-board",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subtract-holes-from-copper"
+     ],
+     "help": "Subtract holes from copper areas",
+     "long": "--subtract-holes-from-copper",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export stats [--help] [--output OUTPUT_FILE] [--format FORMAT] [--units UNITS] [--exclude-footprints-without-pads] [--subtract-holes-from-board] [--subtract-holes-from-copper] INPUT_FILE"
+  },
+  "pcb export step": {
+   "description": "Export STEP",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--grid-origin"
+     ],
+     "help": "Use Grid Origin for output origin",
+     "long": "--grid-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Use Drill Origin for output origin",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subst-models"
+     ],
+     "help": "Substitute STEP or IGS models with the same name in place of VRML models",
+     "long": "--subst-models",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-only"
+     ],
+     "help": "Only generate a board with no components",
+     "long": "--board-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--cut-vias-in-body"
+     ],
+     "help": "Cut via holes in board body even if conductor layers are not exported.",
+     "long": "--cut-vias-in-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-board-body"
+     ],
+     "help": "Exclude board body",
+     "long": "--no-board-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-components"
+     ],
+     "help": "Exclude 3D models for components",
+     "long": "--no-components",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--component-filter"
+     ],
+     "help": "Only include component 3D models matching this list of reference designators (comma-separated, wildcards supported)",
+     "long": "--component-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-tracks"
+     ],
+     "help": "Export tracks and vias",
+     "long": "--include-tracks",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-pads"
+     ],
+     "help": "Export pads",
+     "long": "--include-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-zones"
+     ],
+     "help": "Export zones",
+     "long": "--include-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-inner-copper"
+     ],
+     "help": "Export elements on inner copper layers",
+     "long": "--include-inner-copper",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-silkscreen"
+     ],
+     "help": "Export silkscreen graphics as a set of flat faces",
+     "long": "--include-silkscreen",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-soldermask"
+     ],
+     "help": "Export soldermask layers as a set of flat faces",
+     "long": "--include-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fuse-shapes"
+     ],
+     "help": "Fuse overlapping geometry together",
+     "long": "--fuse-shapes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fill-all-vias"
+     ],
+     "help": "Don't cut via holes in conductor layers.",
+     "long": "--fill-all-vias",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-extra-pad-thickness"
+     ],
+     "help": "Disable extra pad thickness (pads will have normal thickness)",
+     "long": "--no-extra-pad-thickness",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0.01mm",
+     "flags": [
+      "--min-distance"
+     ],
+     "help": "Minimum distance between points to treat them as separate ones",
+     "long": "--min-distance",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--net-filter"
+     ],
+     "help": "Only include copper items belonging to nets matching this wildcard",
+     "long": "--net-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-optimize-step"
+     ],
+     "help": "Do not optimize STEP file (enables writing parametric curves)",
+     "long": "--no-optimize-step",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export step [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--grid-origin] [--drill-origin] [--subst-models] [--board-only] [--cut-vias-in-body] [--no-board-body] [--no-components] [--component-filter VAR] [--include-tracks] [--include-pads] [--include-zones] [--include-inner-copper] [--include-silkscreen] [--include-soldermask] [--fuse-shapes] [--fill-all-vias] [--no-extra-pad-thickness] [--min-distance MIN_DIST] [--net-filter VAR] [--no-optimize-step] [--user-origin VAR] INPUT_FILE"
+  },
+  "pcb export stl": {
+   "description": "Export STL",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--grid-origin"
+     ],
+     "help": "Use Grid Origin for output origin",
+     "long": "--grid-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Use Drill Origin for output origin",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subst-models"
+     ],
+     "help": "Substitute STEP or IGS models with the same name in place of VRML models",
+     "long": "--subst-models",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-only"
+     ],
+     "help": "Only generate a board with no components",
+     "long": "--board-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--cut-vias-in-body"
+     ],
+     "help": "Cut via holes in board body even if conductor layers are not exported.",
+     "long": "--cut-vias-in-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-board-body"
+     ],
+     "help": "Exclude board body",
+     "long": "--no-board-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-components"
+     ],
+     "help": "Exclude 3D models for components",
+     "long": "--no-components",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--component-filter"
+     ],
+     "help": "Only include component 3D models matching this list of reference designators (comma-separated, wildcards supported)",
+     "long": "--component-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-tracks"
+     ],
+     "help": "Export tracks and vias",
+     "long": "--include-tracks",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-pads"
+     ],
+     "help": "Export pads",
+     "long": "--include-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-zones"
+     ],
+     "help": "Export zones",
+     "long": "--include-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-inner-copper"
+     ],
+     "help": "Export elements on inner copper layers",
+     "long": "--include-inner-copper",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-silkscreen"
+     ],
+     "help": "Export silkscreen graphics as a set of flat faces",
+     "long": "--include-silkscreen",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-soldermask"
+     ],
+     "help": "Export soldermask layers as a set of flat faces",
+     "long": "--include-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fuse-shapes"
+     ],
+     "help": "Fuse overlapping geometry together",
+     "long": "--fuse-shapes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fill-all-vias"
+     ],
+     "help": "Don't cut via holes in conductor layers.",
+     "long": "--fill-all-vias",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-extra-pad-thickness"
+     ],
+     "help": "Disable extra pad thickness (pads will have normal thickness)",
+     "long": "--no-extra-pad-thickness",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0.01mm",
+     "flags": [
+      "--min-distance"
+     ],
+     "help": "Minimum distance between points to treat them as separate ones",
+     "long": "--min-distance",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--net-filter"
+     ],
+     "help": "Only include copper items belonging to nets matching this wildcard",
+     "long": "--net-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export stl [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--grid-origin] [--drill-origin] [--subst-models] [--board-only] [--cut-vias-in-body] [--no-board-body] [--no-components] [--component-filter VAR] [--include-tracks] [--include-pads] [--include-zones] [--include-inner-copper] [--include-silkscreen] [--include-soldermask] [--fuse-shapes] [--fill-all-vias] [--no-extra-pad-thickness] [--min-distance MIN_DIST] [--net-filter VAR] [--user-origin VAR] INPUT_FILE"
+  },
+  "pcb export stpz": {
+   "description": "Export STEPZ",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--grid-origin"
+     ],
+     "help": "Use Grid Origin for output origin",
+     "long": "--grid-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Use Drill Origin for output origin",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subst-models"
+     ],
+     "help": "Substitute STEP or IGS models with the same name in place of VRML models",
+     "long": "--subst-models",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-only"
+     ],
+     "help": "Only generate a board with no components",
+     "long": "--board-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--cut-vias-in-body"
+     ],
+     "help": "Cut via holes in board body even if conductor layers are not exported.",
+     "long": "--cut-vias-in-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-board-body"
+     ],
+     "help": "Exclude board body",
+     "long": "--no-board-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-components"
+     ],
+     "help": "Exclude 3D models for components",
+     "long": "--no-components",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--component-filter"
+     ],
+     "help": "Only include component 3D models matching this list of reference designators (comma-separated, wildcards supported)",
+     "long": "--component-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-tracks"
+     ],
+     "help": "Export tracks and vias",
+     "long": "--include-tracks",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-pads"
+     ],
+     "help": "Export pads",
+     "long": "--include-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-zones"
+     ],
+     "help": "Export zones",
+     "long": "--include-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-inner-copper"
+     ],
+     "help": "Export elements on inner copper layers",
+     "long": "--include-inner-copper",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-silkscreen"
+     ],
+     "help": "Export silkscreen graphics as a set of flat faces",
+     "long": "--include-silkscreen",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-soldermask"
+     ],
+     "help": "Export soldermask layers as a set of flat faces",
+     "long": "--include-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fuse-shapes"
+     ],
+     "help": "Fuse overlapping geometry together",
+     "long": "--fuse-shapes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fill-all-vias"
+     ],
+     "help": "Don't cut via holes in conductor layers.",
+     "long": "--fill-all-vias",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-extra-pad-thickness"
+     ],
+     "help": "Disable extra pad thickness (pads will have normal thickness)",
+     "long": "--no-extra-pad-thickness",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0.01mm",
+     "flags": [
+      "--min-distance"
+     ],
+     "help": "Minimum distance between points to treat them as separate ones",
+     "long": "--min-distance",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--net-filter"
+     ],
+     "help": "Only include copper items belonging to nets matching this wildcard",
+     "long": "--net-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-optimize-step"
+     ],
+     "help": "Do not optimize STEP file (enables writing parametric curves)",
+     "long": "--no-optimize-step",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export stpz [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--grid-origin] [--drill-origin] [--subst-models] [--board-only] [--cut-vias-in-body] [--no-board-body] [--no-components] [--component-filter VAR] [--include-tracks] [--include-pads] [--include-zones] [--include-inner-copper] [--include-silkscreen] [--include-soldermask] [--fuse-shapes] [--fill-all-vias] [--no-extra-pad-thickness] [--min-distance MIN_DIST] [--net-filter VAR] [--no-optimize-step] [--user-origin VAR] INPUT_FILE"
+  },
+  "pcb export svg": {
+   "description": "Generate SVG outputs of a given layer list",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-l"
+     ],
+     "default": "",
+     "flags": [
+      "-l",
+      "--layers"
+     ],
+     "help": "Comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "--cl"
+     ],
+     "default": "",
+     "flags": [
+      "--cl",
+      "--common-layers"
+     ],
+     "help": "Layers to include on each plot, comma separated list of untranslated layer names to include such as F.Cu,B.Cu",
+     "long": "--common-layers",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subtract-soldermask"
+     ],
+     "help": "Subtract soldermask from silkscreen",
+     "long": "--subtract-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-m"
+     ],
+     "default": null,
+     "flags": [
+      "-m",
+      "--mirror"
+     ],
+     "help": "Mirror the board (useful for trying to show bottom layers)",
+     "long": "--mirror",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to PCB editor settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-n"
+     ],
+     "default": null,
+     "flags": [
+      "-n",
+      "--negative"
+     ],
+     "help": "Plot as negative (useful for directly etching from the export)",
+     "long": "--negative",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sp"
+     ],
+     "default": null,
+     "flags": [
+      "--sp",
+      "--sketch-pads-on-fab-layers"
+     ],
+     "help": "Draw pad outlines and their numbers on front and back fab layers",
+     "long": "--sketch-pads-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--hdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--hdnp",
+      "--hide-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Don't plot text & graphics of DNP footprints on fab layers",
+     "long": "--hide-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--sdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--sdnp",
+      "--sketch-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot graphics of DNP footprints in sketch mode on fab layers",
+     "long": "--sketch-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "--cdnp"
+     ],
+     "default": null,
+     "flags": [
+      "--cdnp",
+      "--crossout-DNP-footprints-on-fab-layers"
+     ],
+     "help": "Plot an 'X' over the courtyard of DNP footprints on fab layers, and strikeout their reference designators",
+     "long": "--crossout-DNP-footprints-on-fab-layers",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0",
+     "flags": [
+      "--page-size-mode"
+     ],
+     "help": "Set page sizing mode (0 = page with frame and title block, 1 = current page size, 2 = board area only)",
+     "long": "--page-size-mode",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fit-page-to-board"
+     ],
+     "help": "Fit the page to the board",
+     "long": "--fit-page-to-board",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exclude-drawing-sheet"
+     ],
+     "help": "No drawing sheet",
+     "long": "--exclude-drawing-sheet",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "2",
+     "flags": [
+      "--drill-shape-opt"
+     ],
+     "help": "Set pad/via drill shape option (0 = no shape, 1 = small shape, 2 = actual shape)",
+     "long": "--drill-shape-opt",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--mode-single"
+     ],
+     "help": "Generates a single file with the output arg path acting as the complete directory and filename path. COMMON_LAYER_LIST does not function in this mode. Instead LAYER_LIST controls all layers plotted.",
+     "long": "--mode-single",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--mode-multi"
+     ],
+     "help": "Generates one or more files with behavior similar to the KiCad GUI plotting. The given output path specifies a directory in which files may be output.",
+     "long": "--mode-multi",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "1",
+     "flags": [
+      "--scale"
+     ],
+     "help": "Scale for the PCB, not for the border and title. Use 0 for autoscale",
+     "long": "--scale",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--check-zones"
+     ],
+     "help": "Check and refill zones if required",
+     "long": "--check-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export svg [--help] [--output OUTPUT_DIR] [--layers LAYER_LIST] [--common-layers COMMON_LAYER_LIST] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--subtract-soldermask] [--mirror] [--theme THEME_NAME] [--negative] [--black-and-white] [--sketch-pads-on-fab-layers] [--hide-DNP-footprints-on-fab-layers] [--sketch-DNP-footprints-on-fab-layers] [--crossout-DNP-footprints-on-fab-layers] [--page-size-mode MODE] [--fit-page-to-board] [--exclude-drawing-sheet] [--drill-shape-opt SHAPE_OPTION] [--mode-single] [--mode-multi] [--scale SCALE] [--check-zones] [--variant VAR]... INPUT_FILE"
+  },
+  "pcb export u3d": {
+   "description": "Export U3D",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--grid-origin"
+     ],
+     "help": "Use Grid Origin for output origin",
+     "long": "--grid-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Use Drill Origin for output origin",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subst-models"
+     ],
+     "help": "Substitute STEP or IGS models with the same name in place of VRML models",
+     "long": "--subst-models",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-only"
+     ],
+     "help": "Only generate a board with no components",
+     "long": "--board-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--cut-vias-in-body"
+     ],
+     "help": "Cut via holes in board body even if conductor layers are not exported.",
+     "long": "--cut-vias-in-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-board-body"
+     ],
+     "help": "Exclude board body",
+     "long": "--no-board-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-components"
+     ],
+     "help": "Exclude 3D models for components",
+     "long": "--no-components",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--component-filter"
+     ],
+     "help": "Only include component 3D models matching this list of reference designators (comma-separated, wildcards supported)",
+     "long": "--component-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-tracks"
+     ],
+     "help": "Export tracks and vias",
+     "long": "--include-tracks",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-pads"
+     ],
+     "help": "Export pads",
+     "long": "--include-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-zones"
+     ],
+     "help": "Export zones",
+     "long": "--include-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-inner-copper"
+     ],
+     "help": "Export elements on inner copper layers",
+     "long": "--include-inner-copper",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-silkscreen"
+     ],
+     "help": "Export silkscreen graphics as a set of flat faces",
+     "long": "--include-silkscreen",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-soldermask"
+     ],
+     "help": "Export soldermask layers as a set of flat faces",
+     "long": "--include-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fuse-shapes"
+     ],
+     "help": "Fuse overlapping geometry together",
+     "long": "--fuse-shapes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fill-all-vias"
+     ],
+     "help": "Don't cut via holes in conductor layers.",
+     "long": "--fill-all-vias",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-extra-pad-thickness"
+     ],
+     "help": "Disable extra pad thickness (pads will have normal thickness)",
+     "long": "--no-extra-pad-thickness",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0.01mm",
+     "flags": [
+      "--min-distance"
+     ],
+     "help": "Minimum distance between points to treat them as separate ones",
+     "long": "--min-distance",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--net-filter"
+     ],
+     "help": "Only include copper items belonging to nets matching this wildcard",
+     "long": "--net-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export u3d [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--grid-origin] [--drill-origin] [--subst-models] [--board-only] [--cut-vias-in-body] [--no-board-body] [--no-components] [--component-filter VAR] [--include-tracks] [--include-pads] [--include-zones] [--include-inner-copper] [--include-silkscreen] [--include-soldermask] [--fuse-shapes] [--fill-all-vias] [--no-extra-pad-thickness] [--min-distance MIN_DIST] [--net-filter VAR] [--user-origin VAR] INPUT_FILE"
+  },
+  "pcb export vrml": {
+   "description": "Export VRML",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "in",
+     "flags": [
+      "--units"
+     ],
+     "help": "Output units; valid options: mm, m, in, tenths",
+     "long": "--units",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--models-dir"
+     ],
+     "help": "Name of folder to create and store 3d models in, if not specified or empty, the models will be embedded in main exported VRML file",
+     "long": "--models-dir",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--models-relative"
+     ],
+     "help": "Used with --models-dir to output relative paths in the resulting file",
+     "long": "--models-relative",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export vrml [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--user-origin VAR] [--units VAR] [--models-dir VAR] [--models-relative] INPUT_FILE"
+  },
+  "pcb export xao": {
+   "description": "Export XAO",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-f"
+     ],
+     "default": null,
+     "flags": [
+      "-f",
+      "--force"
+     ],
+     "help": "Overwrite output file",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-unspecified"
+     ],
+     "help": "Exclude 3D models for components with 'Unspecified' footprint type",
+     "long": "--no-unspecified",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-dnp"
+     ],
+     "help": "Exclude 3D models for components with 'Do not populate' attribute",
+     "long": "--no-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--grid-origin"
+     ],
+     "help": "Use Grid Origin for output origin",
+     "long": "--grid-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--drill-origin"
+     ],
+     "help": "Use Drill Origin for output origin",
+     "long": "--drill-origin",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--subst-models"
+     ],
+     "help": "Substitute STEP or IGS models with the same name in place of VRML models",
+     "long": "--subst-models",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--board-only"
+     ],
+     "help": "Only generate a board with no components",
+     "long": "--board-only",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--cut-vias-in-body"
+     ],
+     "help": "Cut via holes in board body even if conductor layers are not exported.",
+     "long": "--cut-vias-in-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-board-body"
+     ],
+     "help": "Exclude board body",
+     "long": "--no-board-body",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-components"
+     ],
+     "help": "Exclude 3D models for components",
+     "long": "--no-components",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--component-filter"
+     ],
+     "help": "Only include component 3D models matching this list of reference designators (comma-separated, wildcards supported)",
+     "long": "--component-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-tracks"
+     ],
+     "help": "Export tracks and vias",
+     "long": "--include-tracks",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-pads"
+     ],
+     "help": "Export pads",
+     "long": "--include-pads",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-zones"
+     ],
+     "help": "Export zones",
+     "long": "--include-zones",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-inner-copper"
+     ],
+     "help": "Export elements on inner copper layers",
+     "long": "--include-inner-copper",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-silkscreen"
+     ],
+     "help": "Export silkscreen graphics as a set of flat faces",
+     "long": "--include-silkscreen",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-soldermask"
+     ],
+     "help": "Export soldermask layers as a set of flat faces",
+     "long": "--include-soldermask",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fuse-shapes"
+     ],
+     "help": "Fuse overlapping geometry together",
+     "long": "--fuse-shapes",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--fill-all-vias"
+     ],
+     "help": "Don't cut via holes in conductor layers.",
+     "long": "--fill-all-vias",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--no-extra-pad-thickness"
+     ],
+     "help": "Disable extra pad thickness (pads will have normal thickness)",
+     "long": "--no-extra-pad-thickness",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "0.01mm",
+     "flags": [
+      "--min-distance"
+     ],
+     "help": "Minimum distance between points to treat them as separate ones",
+     "long": "--min-distance",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--net-filter"
+     ],
+     "help": "Only include copper items belonging to nets matching this wildcard",
+     "long": "--net-filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--user-origin"
+     ],
+     "help": "User-specified output origin ex. 1x1in, 1x1inch, 25.4x25.4mm (default unit mm)",
+     "long": "--user-origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export xao [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--force] [--no-unspecified] [--no-dnp] [--variant VAR]... [--grid-origin] [--drill-origin] [--subst-models] [--board-only] [--cut-vias-in-body] [--no-board-body] [--no-components] [--component-filter VAR] [--include-tracks] [--include-pads] [--include-zones] [--include-inner-copper] [--include-silkscreen] [--include-soldermask] [--fuse-shapes] [--fill-all-vias] [--no-extra-pad-thickness] [--min-distance MIN_DIST] [--net-filter VAR] [--user-origin VAR] INPUT_FILE"
+  },
+  "pcb import": {
+   "description": "Import a non-KiCad PCB file to KiCad format",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "auto",
+     "flags": [
+      "--format"
+     ],
+     "help": "Input format hint: auto, pads, altium, eagle, cadstar, fabmaster, pcad, solidworks (default: auto)",
+     "long": "--format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "none",
+     "flags": [
+      "--report-format"
+     ],
+     "help": "Import report format: none, json, text (default: none)",
+     "long": "--report-format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--report-file"
+     ],
+     "help": "File path for import report (default: stdout)",
+     "long": "--report-file",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "pcb import [--help] [--output OUTPUT_FILE] [--format FORMAT] [--report-format FORMAT] [--report-file FILE] INPUT_FILE"
+  },
+  "pcb render": {
+   "description": "Renders the PCB in 3D view to PNG or JPEG image",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-w"
+     ],
+     "default": "1600",
+     "flags": [
+      "-w",
+      "--width"
+     ],
+     "help": "Image width",
+     "long": "--width",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-h"
+     ],
+     "default": "900",
+     "flags": [
+      "-h",
+      "--height"
+     ],
+     "help": "Image height",
+     "long": "--height",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "top",
+     "flags": [
+      "--side"
+     ],
+     "help": "Render from side. Options: top, bottom, left, right, front, back",
+     "long": "--side",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--background"
+     ],
+     "help": "Image background. Options: default, transparent, opaque. Default: transparent for PNG, opaque for JPEG",
+     "long": "--background",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "basic",
+     "flags": [
+      "--quality"
+     ],
+     "help": "Render quality. Options: basic, high, user, job_settings",
+     "long": "--quality",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "follow_plot_settings",
+     "flags": [
+      "--preset"
+     ],
+     "help": "Appearance preset. Options: follow_pcb_editor, follow_plot_settings, or user-defined preset name",
+     "long": "--preset",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--use-board-stackup-colors"
+     ],
+     "help": "Use colors defined in the board stackup instead of those in the preset",
+     "long": "--use-board-stackup-colors",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--floor"
+     ],
+     "help": "Enables floor, shadows and post-processing, even if disabled in quality setting",
+     "long": "--floor",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--perspective"
+     ],
+     "help": "Use perspective projection instead of orthogonal",
+     "long": "--perspective",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "1",
+     "flags": [
+      "--zoom"
+     ],
+     "help": "Camera zoom",
+     "long": "--zoom",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--pan"
+     ],
+     "help": "Pan camera, format 'X,Y,Z' e.g.: '3,0,0'",
+     "long": "--pan",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--pivot"
+     ],
+     "help": "Set pivot point relative to the board center in centimeters, format 'X,Y,Z' e.g.: '-10,2,0'",
+     "long": "--pivot",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--rotate"
+     ],
+     "help": "Rotate board, format 'X,Y,Z' e.g.: '-45,0,45' for isometric view",
+     "long": "--rotate",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--light-top"
+     ],
+     "help": "Top light intensity, format 'R,G,B' or a single number, range: 0-1",
+     "long": "--light-top",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--light-bottom"
+     ],
+     "help": "Bottom light intensity, format 'R,G,B' or a single number, range: 0-1",
+     "long": "--light-bottom",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--light-side"
+     ],
+     "help": "Side lights intensity, format 'R,G,B' or a single number, range: 0-1",
+     "long": "--light-side",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--light-camera"
+     ],
+     "help": "Camera light intensity, format 'R,G,B' or a single number, range: 0-1",
+     "long": "--light-camera",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "60",
+     "flags": [
+      "--light-side-elevation"
+     ],
+     "help": "Side lights elevation angle in degrees, range: 0-90",
+     "long": "--light-side-elevation",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "pcb render [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--variant VAR]... [--width WIDTH] [--height HEIGHT] [--side SIDE] [--background BG] [--quality QUALITY] [--preset PRESET] [--use-board-stackup-colors] [--floor] [--perspective] [--zoom ZOOM] [--pan VECTOR] [--pivot PIVOT] [--rotate ANGLES] [--light-top COLOR] [--light-bottom COLOR] [--light-side COLOR] [--light-camera COLOR] [--light-side-elevation ANGLE] INPUT_FILE"
+  },
+  "pcb upgrade": {
+   "description": "Upgrade the board file's format to the latest one",
+   "options": [
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--force"
+     ],
+     "help": "Forces the board file to be resaved regardless of versioning",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "pcb upgrade [--help] [--force] INPUT_FILE"
+  },
+  "sch erc": {
+   "description": "Runs the Electrical Rules Check (ERC) on the schematic and creates a report",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "report",
+     "flags": [
+      "--format"
+     ],
+     "help": "Output file format, options: json, report",
+     "long": "--format",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "mm",
+     "flags": [
+      "--units"
+     ],
+     "help": "Report units; valid options: in, mm, mils",
+     "long": "--units",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--severity-all"
+     ],
+     "help": "Report all ERC violations, this is equivalent to including all the other severity arguments",
+     "long": "--severity-all",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--severity-error"
+     ],
+     "help": "Report all ERC error level violations, this can be combined with the other severity arguments",
+     "long": "--severity-error",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--severity-warning"
+     ],
+     "help": "Report all ERC warning level violations, this can be combined with the other severity arguments",
+     "long": "--severity-warning",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--severity-exclusions"
+     ],
+     "help": "Report all excluded ERC violations, this can be combined with the other severity arguments",
+     "long": "--severity-exclusions",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exit-code-violations"
+     ],
+     "help": "Return a nonzero exit code if ERC violations exist",
+     "long": "--exit-code-violations",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "sch erc [--help] [--output OUTPUT_FILE] [--define-var KEY=VALUE]... [--format VAR] [--units VAR] [--severity-all] [--severity-error] [--severity-warning] [--severity-exclusions] [--exit-code-violations] INPUT_FILE"
+  },
+  "sch export bom": {
+   "description": "Generate a Bill of Materials (BOM)",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--preset"
+     ],
+     "help": "Use a named BOM preset setting from the schematic, e.g. \"Grouped By Value\".",
+     "long": "--preset",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--format-preset"
+     ],
+     "help": "Use a named BOM format preset setting from the schematic, e.g. CSV.",
+     "long": "--format-preset",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "Reference,Value,Footprint,QUANTITY,DNP",
+     "flags": [
+      "--fields"
+     ],
+     "help": "An ordered list of fields to export. Generated fields such as QUANTITY, ITEM_NUMBER, DNP, EXCLUDE_FROM_BOM, EXCLUDE_FROM_BOARD, and EXCLUDE_FROM_SIM can be specified with or without ${} delimiters.",
+     "long": "--fields",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "Refs,Value,Footprint,Qty,DNP",
+     "flags": [
+      "--labels"
+     ],
+     "help": "An ordered list of labels to apply the exported fields.",
+     "long": "--labels",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--group-by"
+     ],
+     "help": "Fields to group references by when field values match.",
+     "long": "--group-by",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "Reference",
+     "flags": [
+      "--sort-field"
+     ],
+     "help": "Field name to sort by.",
+     "long": "--sort-field",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "true",
+     "flags": [
+      "--sort-asc"
+     ],
+     "help": "Sort ascending (true) or descending (false).",
+     "long": "--sort-asc",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--filter"
+     ],
+     "help": "Filter string to remove output lines.",
+     "long": "--filter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exclude-dnp"
+     ],
+     "help": "Exclude symbols marked Do-Not-Populate.",
+     "long": "--exclude-dnp",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-excluded-from-bom"
+     ],
+     "help": "Deprecated.  Has no effect.",
+     "long": "--include-excluded-from-bom",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": ",",
+     "flags": [
+      "--field-delimiter"
+     ],
+     "help": "Separator between output fields/columns.",
+     "long": "--field-delimiter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--string-delimiter"
+     ],
+     "help": "Character to surround fields with.",
+     "long": "--string-delimiter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": ",",
+     "flags": [
+      "--ref-delimiter"
+     ],
+     "help": "Character to place between individual references.",
+     "long": "--ref-delimiter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "-",
+     "flags": [
+      "--ref-range-delimiter"
+     ],
+     "help": "Character to place in ranges of references. Leave blank for no ranges.",
+     "long": "--ref-range-delimiter",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--keep-tabs"
+     ],
+     "help": "Keep tab characters from input fields. Stripped by default.",
+     "long": "--keep-tabs",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--keep-line-breaks"
+     ],
+     "help": "Keep line break characters from input fields. Stripped by default.",
+     "long": "--keep-line-breaks",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export bom [--help] [--output OUTPUT_FILE] [--variant VAR]... [--preset PRESET] [--format-preset FMT_PRESET] [--fields FIELDS] [--labels LABELS] [--group-by GROUP_BY] [--sort-field SORT_BY] [--sort-asc VAR] [--filter FILTER] [--exclude-dnp] [--include-excluded-from-bom] [--field-delimiter FIELD_DELIM] [--string-delimiter STR_DELIM] [--ref-delimiter REF_DELIM] [--ref-range-delimiter REF_RANGE_DELIM] [--keep-tabs] [--keep-line-breaks] INPUT_FILE"
+  },
+  "sch export dxf": {
+   "description": "Export DXF",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to schematic settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-b"
+     ],
+     "default": null,
+     "flags": [
+      "-b",
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-e"
+     ],
+     "default": null,
+     "flags": [
+      "-e",
+      "--exclude-drawing-sheet"
+     ],
+     "help": "No drawing sheet",
+     "long": "--exclude-drawing-sheet",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--default-font"
+     ],
+     "help": "Default font name",
+     "long": "--default-font",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--draw-hop-over"
+     ],
+     "help": "Draw hop over at wire crossings",
+     "long": "--draw-hop-over",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--pages"
+     ],
+     "help": "List of page numbers separated by comma to print, blank or unspecified is equivalent to all pages",
+     "long": "--pages",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export dxf [--help] [--output OUTPUT_DIR] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--variant VAR]... [--theme THEME_NAME] [--black-and-white] [--exclude-drawing-sheet] [--default-font VAR] [--draw-hop-over] [--pages PAGE_LIST] INPUT_FILE"
+  },
+  "sch export hpgl": {
+   "description": "Export HPGL",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to schematic settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-b"
+     ],
+     "default": null,
+     "flags": [
+      "-b",
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-e"
+     ],
+     "default": null,
+     "flags": [
+      "-e",
+      "--exclude-drawing-sheet"
+     ],
+     "help": "No drawing sheet",
+     "long": "--exclude-drawing-sheet",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--default-font"
+     ],
+     "help": "Default font name",
+     "long": "--default-font",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--draw-hop-over"
+     ],
+     "help": "Draw hop over at wire crossings",
+     "long": "--draw-hop-over",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--pages"
+     ],
+     "help": "List of page numbers separated by comma to print, blank or unspecified is equivalent to all pages",
+     "long": "--pages",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-p"
+     ],
+     "default": "0.5",
+     "flags": [
+      "-p",
+      "--pen-size"
+     ],
+     "help": "Deprecated.  Has no effect.",
+     "long": "--pen-size",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-r"
+     ],
+     "default": "1",
+     "flags": [
+      "-r",
+      "--origin"
+     ],
+     "help": "Deprecated.  Has no effect.",
+     "long": "--origin",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export hpgl [--help] [--output OUTPUT_DIR] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--variant VAR]... [--theme THEME_NAME] [--black-and-white] [--exclude-drawing-sheet] [--default-font VAR] [--draw-hop-over] [--pages PAGE_LIST] [--pen-size PEN_SIZE] [--origin ORIGIN] INPUT_FILE"
+  },
+  "sch export netlist": {
+   "description": "Export a netlist",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "kicadsexpr",
+     "flags": [
+      "--format"
+     ],
+     "help": "Netlist output format, valid options: kicadsexpr, kicadxml, cadstar, orcadpcb2, spice, spicemodel, pads, allegro",
+     "long": "--format",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export netlist [--help] [--output OUTPUT_FILE] [--variant VAR]... [--format FORMAT] INPUT_FILE"
+  },
+  "sch export pdf": {
+   "description": "Export PDF",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to schematic settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-b"
+     ],
+     "default": null,
+     "flags": [
+      "-b",
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-e"
+     ],
+     "default": null,
+     "flags": [
+      "-e",
+      "--exclude-drawing-sheet"
+     ],
+     "help": "No drawing sheet",
+     "long": "--exclude-drawing-sheet",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--default-font"
+     ],
+     "help": "Default font name",
+     "long": "--default-font",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--draw-hop-over"
+     ],
+     "help": "Draw hop over at wire crossings",
+     "long": "--draw-hop-over",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exclude-pdf-property-popups"
+     ],
+     "help": "Do not generate property popups in PDF",
+     "long": "--exclude-pdf-property-popups",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exclude-pdf-hierarchical-links"
+     ],
+     "help": "Do not generate clickable links for hierarchical elements in PDF",
+     "long": "--exclude-pdf-hierarchical-links",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--exclude-pdf-metadata"
+     ],
+     "help": "Do not generate PDF metadata from AUTHOR and SUBJECT variables",
+     "long": "--exclude-pdf-metadata",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-n"
+     ],
+     "default": null,
+     "flags": [
+      "-n",
+      "--no-background-color"
+     ],
+     "help": "Avoid setting a background color (regardless of theme)",
+     "long": "--no-background-color",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--pages"
+     ],
+     "help": "List of page numbers separated by comma to print, blank or unspecified is equivalent to all pages",
+     "long": "--pages",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export pdf [--help] [--output OUTPUT_FILE] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--variant VAR]... [--theme THEME_NAME] [--black-and-white] [--exclude-drawing-sheet] [--default-font VAR] [--draw-hop-over] [--exclude-pdf-property-popups] [--exclude-pdf-hierarchical-links] [--exclude-pdf-metadata] [--no-background-color] [--pages PAGE_LIST] INPUT_FILE"
+  },
+  "sch export ps": {
+   "description": "Export PS",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to schematic settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-b"
+     ],
+     "default": null,
+     "flags": [
+      "-b",
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-e"
+     ],
+     "default": null,
+     "flags": [
+      "-e",
+      "--exclude-drawing-sheet"
+     ],
+     "help": "No drawing sheet",
+     "long": "--exclude-drawing-sheet",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--default-font"
+     ],
+     "help": "Default font name",
+     "long": "--default-font",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--draw-hop-over"
+     ],
+     "help": "Draw hop over at wire crossings",
+     "long": "--draw-hop-over",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-n"
+     ],
+     "default": null,
+     "flags": [
+      "-n",
+      "--no-background-color"
+     ],
+     "help": "Avoid setting a background color (regardless of theme)",
+     "long": "--no-background-color",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--pages"
+     ],
+     "help": "List of page numbers separated by comma to print, blank or unspecified is equivalent to all pages",
+     "long": "--pages",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export ps [--help] [--output OUTPUT_DIR] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--variant VAR]... [--theme THEME_NAME] [--black-and-white] [--exclude-drawing-sheet] [--default-font VAR] [--draw-hop-over] [--no-background-color] [--pages PAGE_LIST] INPUT_FILE"
+  },
+  "sch export python-bom": {
+   "description": "Export the legacy BOM XML format used in the schematic editor with Python scripts",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export python-bom [--help] [--output OUTPUT_FILE] INPUT_FILE"
+  },
+  "sch export svg": {
+   "description": "Export SVG",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--drawing-sheet"
+     ],
+     "help": "Path to drawing sheet, this overrides any existing project defined sheet when used",
+     "long": "--drawing-sheet",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-D"
+     ],
+     "default": "{}",
+     "flags": [
+      "-D",
+      "--define-var"
+     ],
+     "help": "Overrides or adds project variables, can be used multiple times to declare multiple variables. Use in the format of '--define-var key=value' or '-D key=value'",
+     "long": "--define-var",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": "{}",
+     "flags": [
+      "--variant"
+     ],
+     "help": "The variant name(s) to output, can be used multiple times to specify multiple variants. When specifying multiple variants, use ${VARIANT} in the output path to generate separate files for each variant. When no --variant argument is provided, the default variant is output.",
+     "long": "--variant",
+     "repeatable": true,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to schematic settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-b"
+     ],
+     "default": null,
+     "flags": [
+      "-b",
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-e"
+     ],
+     "default": null,
+     "flags": [
+      "-e",
+      "--exclude-drawing-sheet"
+     ],
+     "help": "No drawing sheet",
+     "long": "--exclude-drawing-sheet",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--default-font"
+     ],
+     "help": "Default font name",
+     "long": "--default-font",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--draw-hop-over"
+     ],
+     "help": "Draw hop over at wire crossings",
+     "long": "--draw-hop-over",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [
+      "-n"
+     ],
+     "default": null,
+     "flags": [
+      "-n",
+      "--no-background-color"
+     ],
+     "help": "Avoid setting a background color (regardless of theme)",
+     "long": "--no-background-color",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": "",
+     "flags": [
+      "--pages"
+     ],
+     "help": "List of page numbers separated by comma to print, blank or unspecified is equivalent to all pages",
+     "long": "--pages",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export svg [--help] [--output OUTPUT_DIR] [--drawing-sheet SHEET_PATH] [--define-var KEY=VALUE]... [--variant VAR]... [--theme THEME_NAME] [--black-and-white] [--exclude-drawing-sheet] [--default-font VAR] [--draw-hop-over] [--no-background-color] [--pages PAGE_LIST] INPUT_FILE"
+  },
+  "sch upgrade": {
+   "description": "Upgrade the schematic file's format to the latest one",
+   "options": [
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--force"
+     ],
+     "help": "Forces the schematic file to be resaved regardless of versioning",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "sch upgrade [--help] [--force] INPUT_FILE"
+  },
+  "sym export svg": {
+   "description": "Exports the symbol or entire symbol library to SVG",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-t"
+     ],
+     "default": "",
+     "flags": [
+      "-t",
+      "--theme"
+     ],
+     "help": "Color theme to use (will default to symbol editor settings)",
+     "long": "--theme",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [
+      "-s"
+     ],
+     "default": "",
+     "flags": [
+      "-s",
+      "--symbol"
+     ],
+     "help": "Specific symbol to export within the library",
+     "long": "--symbol",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--black-and-white"
+     ],
+     "help": "Black and white only",
+     "long": "--black-and-white",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-hidden-pins"
+     ],
+     "help": "Include hidden pins",
+     "long": "--include-hidden-pins",
+     "repeatable": false,
+     "takes_value": false
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--include-hidden-fields"
+     ],
+     "help": "Include hidden fields",
+     "long": "--include-hidden-fields",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file",
+     "name": "INPUT_FILE"
+    }
+   ],
+   "subcommands": [],
+   "usage": "export svg [--help] [--output OUTPUT_DIR] [--theme THEME_NAME] [--symbol SYMBOL] [--black-and-white] [--include-hidden-pins] [--include-hidden-fields] INPUT_FILE"
+  },
+  "sym upgrade": {
+   "description": "Upgrades the symbol library to the current kicad version format",
+   "options": [
+    {
+     "aliases": [
+      "-o"
+     ],
+     "default": "",
+     "flags": [
+      "-o",
+      "--output"
+     ],
+     "help": "Output file or directory",
+     "long": "--output",
+     "repeatable": false,
+     "takes_value": true
+    },
+    {
+     "aliases": [],
+     "default": null,
+     "flags": [
+      "--force"
+     ],
+     "help": "Forces the symbol library to be resaved regardless of versioning",
+     "long": "--force",
+     "repeatable": false,
+     "takes_value": false
+    }
+   ],
+   "positionals": [
+    {
+     "help": "Input file or directory",
+     "name": "INPUT_FILE_OR_DIR"
+    }
+   ],
+   "subcommands": [],
+   "usage": "sym upgrade [--help] [--output OUTPUT_FILE_OR_DIR] [--force] INPUT_FILE_OR_DIR"
+  },
+  "version": {
+   "description": "Reports the version info in various formats",
+   "options": [
+    {
+     "aliases": [],
+     "default": "plain",
+     "flags": [
+      "--format"
+     ],
+     "help": "version info format (plain, commit, about)",
+     "long": "--format",
+     "repeatable": false,
+     "takes_value": true
+    }
+   ],
+   "positionals": [],
+   "subcommands": [],
+   "usage": "kicad-cli version [--help] [--format VAR]"
+  }
+ },
+ "kicad_cli_version": "10.0.7"
+}

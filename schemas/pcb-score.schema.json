@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "kce pcb score",
+  "description": "Deterministically sorted placement measurements. All coordinates and lengths are millimetres; overlap area is mm²; density is mm/mm². JSON numbers must be finite. Missing or open outlines have error set and CLI exit 3.",
+  "type": "object",
+  "required": ["schema_version", "path", "units", "net_filter", "outline", "error", "hpwl", "courtyard_overlaps", "courtyard_fallback_refs", "outside_outline", "ratsnest_crossings", "congestion"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "path": {"type": "string"},
+    "units": {"const": "mm"},
+    "net_filter": {"type": ["string", "null"]},
+    "error": {"type": ["string", "null"]},
+    "outline": {
+      "type": "object", "required": ["present", "closed", "method"],
+      "properties": {"present": {"type": "boolean"}, "closed": {"type": "boolean"}, "method": {"type": "string"}}
+    },
+    "hpwl": {
+      "type": "object", "required": ["total", "nets"],
+      "properties": {
+        "total": {"type": "number", "minimum": 0},
+        "nets": {"type": "array", "items": {
+          "type": "object", "required": ["net", "pads", "hpwl", "min", "max"],
+          "properties": {"net": {"type": "string"}, "pads": {"type": "integer", "minimum": 1},
+            "hpwl": {"type": "number", "minimum": 0}, "min": {"$ref": "#/$defs/point"}, "max": {"$ref": "#/$defs/point"}}
+        }}
+      }
+    },
+    "courtyard_overlaps": {
+      "type": "object", "required": ["count", "pairs", "method"],
+      "properties": {"count": {"type": "integer", "minimum": 0}, "method": {"type": "string"},
+        "pairs": {"type": "array", "items": {"type": "object", "required": ["a", "b", "area"],
+          "properties": {"a": {"type": "string"}, "b": {"type": "string"}, "area": {"type": "number", "minimum": 0}}}}}
+    },
+    "courtyard_fallback_refs": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "outside_outline": {"type": "object", "required": ["count", "footprints"], "properties": {
+      "count": {"type": "integer", "minimum": 0}, "footprints": {"type": "array", "items": {
+        "type": "object", "required": ["reference", "bbox"], "properties": {"reference": {"type": "string"},
+          "bbox": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4}}}}}},
+    "ratsnest_crossings": {"type": "object", "required": ["count", "pairs"], "properties": {
+      "count": {"type": "integer", "minimum": 0}, "pairs": {"type": "array"}}},
+    "congestion": {"type": "object", "required": ["bin_size", "grid", "total_length", "max_density", "mean_density", "hot_bins", "hottest"],
+      "properties": {
+        "bin_size": {"type": "number", "exclusiveMinimum": 0},
+        "grid": {"type": "array", "items": {"type": "integer", "minimum": 1}, "minItems": 2, "maxItems": 2},
+        "total_length": {"type": "number", "minimum": 0}, "max_density": {"type": "number", "minimum": 0},
+        "mean_density": {"type": "number", "minimum": 0}, "hot_bins": {"type": "integer", "minimum": 0},
+        "hottest": {"type": "array", "maxItems": 10, "items": {"type": "object", "required": ["x", "y", "length", "density"],
+          "properties": {"x": {"type": "number"}, "y": {"type": "number"}, "length": {"type": "number", "minimum": 0}, "density": {"type": "number", "minimum": 0}}}}
+      }
+    }
+  },
+  "$defs": {"point": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}}
+}

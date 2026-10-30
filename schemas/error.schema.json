@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hybirdss/kicad-cli-extended/schemas/error.schema.json",
+  "title": "kce failure object (stderr, --json)",
+  "description": "The single JSON object kce writes to stderr when a command fails. `category` and the exit code tell a caller whether the input, the design, the saved file, KiCad itself or kce is at fault.",
+  "type": "object",
+  "required": [
+    "error",
+    "type",
+    "category",
+    "hint"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "error": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable message; it names what to run next."
+    },
+    "type": {
+      "$ref": "#/$defs/type"
+    },
+    "category": {
+      "$ref": "#/$defs/category"
+    },
+    "hint": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The next command to run."
+    },
+    "details": {
+      "type": "object",
+      "description": "Category-specific data: kicad-cli stderr/returncode, merged nets for NetMergeError, ..."
+    }
+  },
+  "$defs": {
+    "category": {
+      "description": "input=2, design=3, validation=4, crash=5, timeout=6, environment=7, internal=1.",
+      "enum": [
+        "input",
+        "design",
+        "validation",
+        "crash",
+        "timeout",
+        "environment",
+        "internal"
+      ]
+    },
+    "type": {
+      "description": "Stable failure name (see the table in README's JSON output contract section).",
+      "enum": [
+        "NetMergeError",
+        "RouteBlocked",
+        "ValidationError",
+        "KicadTimeout",
+        "KicadCrash",
+        "KicadInputError",
+        "KicadCheckFailed",
+        "ToolTimeout",
+        "UsageError",
+        "KicadNotFound",
+        "ItemLocked",
+        "RuntimeError",
+        "FileNotFoundError",
+        "FileExistsError",
+        "KeyError",
+        "ValueError",
+        "TypeError",
+        "IndexError",
+        "OSError",
+        "SexprError",
+        "InternalError",
+        "DesignMismatch",
+        "KicadError",
+        "JobsetFailed",
+        "AcceptanceFailed",
+        "PlacementBlocked",
+        "NetSplitError"
+      ]
+    },
+    "exitCodes": {
+      "description": "The complete set of exit codes a failed command can return.",
+      "enum": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  }
+}

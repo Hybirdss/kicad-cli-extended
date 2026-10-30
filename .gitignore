@@ -1,0 +1,27 @@
+# local fixtures (KiCad demo projects, third-party sources)
+/.fixtures/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# outputs that tools write next to KiCad projects (never commit test runs)
+outputs/
+jobset-out/
+.kicad-cli-extended/
+*-backups/
+fp-info-cache
+*.kicad_prl
+*.lck
+~*.kicad_*
+
+# benchmark scratch (third-party servers are fetched, not vendored)
+/bench/.work/

@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hybirdss/kicad-cli-extended/schemas/sch-nets.schema.json",
+  "title": "kce sch nets --json",
+  "description": "Connectivity of a KiCad schematic as KiCad's own netlister reports it. Nets are sorted by name; pins by reference and pin number in natural order, so an unchanged project always produces the same document.",
+  "type": "object",
+  "required": [
+    "components",
+    "net_count",
+    "nets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "components": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of components in KiCad's netlist (power symbols excluded by KiCad)."
+    },
+    "net_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of nets, before --net filtering."
+    },
+    "nets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/net"
+      }
+    }
+  },
+  "$defs": {
+    "pinType": {
+      "description": "KiCad electrical type of the pin.",
+      "enum": [
+        "input",
+        "output",
+        "bidirectional",
+        "tri_state",
+        "passive",
+        "free",
+        "unspecified",
+        "power_in",
+        "power_out",
+        "open_collector",
+        "open_emitter",
+        "no_connect"
+      ]
+    },
+    "pin": {
+      "type": "object",
+      "required": [
+        "ref",
+        "pin",
+        "pin_name",
+        "pin_type",
+        "no_connect"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Reference designator."
+        },
+        "pin": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Pin number as KiCad writes it (may be alphanumeric, e.g. A1)."
+        },
+        "pin_name": {
+          "type": "string",
+          "description": "Pin name from the library symbol; empty when the pin has no name."
+        },
+        "pin_type": {
+          "$ref": "#/$defs/pinType"
+        },
+        "no_connect": {
+          "type": "boolean",
+          "description": "True when a no-connect flag sits on the pin (KiCad reports its type as e.g. \"passive+no_connect\"; pin_type keeps the base type)."
+        }
+      }
+    },
+    "net": {
+      "type": "object",
+      "required": [
+        "name",
+        "code",
+        "sheet_path",
+        "class",
+        "pins",
+        "nodes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "code": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "description": "KiCad's net code; null when the netlist gave none."
+        },
+        "sheet_path": {
+          "type": "string",
+          "pattern": "^/",
+          "description": "Hierarchical sheet path exactly as KiCad names it, e.g. \"/\" or \"/Power/\"; the sheet of the first pin in sorted order when the net spans sheets."
+        },
+        "class": {
+          "type": "string",
+          "description": "Net class name."
+        },
+        "pins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pin"
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Legacy view kept for existing callers: \"REF:PIN(pinfunction)\" in netlist order."
+        }
+      }
+    }
+  }
+}

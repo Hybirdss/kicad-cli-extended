@@ -1,0 +1,26 @@
+{
+  "note": "Most-starred public KiCad MCP servers (gh search repos \"kicad mcp\" --sort stars, 2026-10-28), pinned.",
+  "servers": [
+    {
+      "id": "mixelpixx",
+      "repo": "https://github.com/mixelpixx/KiCAD-MCP-Server",
+      "ref": "v2.8.3",
+      "commit": "1d204fe3384eb73c890bbe531538a6e735c40fe0",
+      "stars_at_selection": 2995,
+      "kind": "node+python",
+      "configs": {
+        "default": {"env": {}},
+        "core-toolbox": {"env": {"KICAD_MCP_TOOLBOXES": "core"}}
+      }
+    },
+    {
+      "id": "lamaalrajih",
+      "repo": "https://github.com/lamaalrajih/kicad-mcp",
+      "ref": "main",
+      "commit": "98c9ea41cb393393a8bafd157a93e84431e00afb",
+      "stars_at_selection": 531,
+      "kind": "python-uv",
+      "configs": {"default": {"env": {}}}
+    }
+  ]
+}

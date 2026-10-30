@@ -1,0 +1,438 @@
+{
+  "prompt": "Increase the I2C pull-ups to 10k and regenerate the outputs. If it makes anything worse, return to this release.",
+  "chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "symbols",
+      "--no-power"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "nets"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints",
+      "--pads"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "score"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "jobset",
+      "list"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "jobset",
+      "show",
+      "RELEASE_JOBSET"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "erc",
+      "--fail-on",
+      "none",
+      "--output",
+      "P/release-erc.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "drc",
+      "--fail-on",
+      "none",
+      "--output",
+      "P/release-drc.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "archive",
+      "--include-outputs",
+      "--output",
+      "B/current-release.zip"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "current-release",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "B/schematic-stage.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "B/schematic-stage.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "pcb",
+      "update",
+      "--keep-extra",
+      "--lock-existing",
+      "--stable-uuids"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "B/sync-and-output-stage.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "B/sync-and-output-stage.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "compare",
+      "checkpoint:current-release",
+      "--allow",
+      "R_SDA,R_SCL",
+      "--geometry",
+      "--fail-on-unexpected"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "preview",
+      "diff",
+      "--against",
+      "checkpoint:current-release",
+      "--root-dir",
+      "B/previews"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "pullups-10k-accepted",
+      "--immutable"
+    ]
+  ],
+  "plans": {
+    "B/schematic-stage.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "sch",
+            "set-value",
+            "R_SDA",
+            "10k"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-value",
+            "R_SCL",
+            "10k"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "show",
+            "R_SDA"
+          ],
+          "expect": [
+            {
+              "path": "value",
+              "op": "eq",
+              "value": "10k"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "show",
+            "R_SCL"
+          ],
+          "expect": [
+            {
+              "path": "value",
+              "op": "eq",
+              "value": "10k"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "verify",
+            "--expect",
+            "expected-intent.json",
+            "--strict",
+            "--check-lib-id",
+            "--check-uuid",
+            "--check-net-names"
+          ],
+          "expect": [
+            {
+              "path": "match",
+              "op": "true"
+            }
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--baseline",
+            "release-erc.json",
+            "--fail-on",
+            "warning"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            "compare",
+            "checkpoint:current-release",
+            "--allow",
+            "R_SDA,R_SCL",
+            "--geometry",
+            "--fail-on-unexpected"
+          ]
+        }
+      ]
+    },
+    "B/sync-and-output-stage.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "update",
+            "--keep-extra",
+            "--lock-existing",
+            "--stable-uuids"
+          ],
+          "expect": [
+            {
+              "path": "unmatched_pins",
+              "op": "empty"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "verify",
+            "--expect",
+            "expected-intent.json",
+            "--strict",
+            "--check-lib-id",
+            "--check-uuid",
+            "--check-net-names"
+          ],
+          "expect": [
+            {
+              "path": "match",
+              "op": "true"
+            }
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--baseline",
+            "release-erc.json",
+            "--fail-on",
+            "warning"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "drc",
+            "--baseline",
+            "release-drc.json",
+            "--fail-on",
+            "warning"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            "compare",
+            "checkpoint:current-release",
+            "--allow",
+            "R_SDA,R_SCL",
+            "--geometry",
+            "--fail-on-unexpected"
+          ]
+        },
+        {
+          "args": [
+            "fab",
+            "package",
+            "--preset",
+            "RELEASE_PRESET",
+            "--fail-on-drc",
+            "--manifest",
+            "--output-dir",
+            "outputs/pullups-10k-candidate"
+          ],
+          "expect": [
+            {
+              "path": "complete",
+              "op": "true"
+            },
+            {
+              "path": "failed_steps",
+              "op": "empty"
+            },
+            {
+              "path": "files",
+              "op": "nonempty"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "failure_chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "restore",
+      "current-release"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "compare",
+      "checkpoint:current-release",
+      "--geometry"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "nets"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints",
+      "--pads"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "score"
+    ]
+  ],
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n -A 12 -B 4 'regenerat|release|jobset|baseline|project compare|check erc|check drc|archive|outputs' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '430,515p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe project compare",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe check erc",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe fab package"
+  ],
+  "notes": [
+    "이 파일은 실행 계획뿐이다. 실제 프로젝트 및 릴리스 출력은 변경하지 않았다. 제공된 두 배포 문서와 info describe만 조회했다.",
+    "P는 프로젝트, B는 프로젝트 밖의 새 작업 디렉터리다. R_SDA/R_SCL은 sch symbols와 sch nets를 대조해 각각 I2C 신호와 전원 사이에 연결된 실제 풀업 저항으로 치환한다. 복수 버스나 병렬 풀업이 있으면 실제 해당 참조 전체로 확장한다. 참조와 출력 구성은 추측하지 않는다.",
+    "기존 RELEASE_JOBSET이 존재할 때만 jobset show를 실행하고 기존 산출물 목록과 설정을 확인한다. 존재하지 않으면 생략하고 현재 릴리스 산출물/manifest로 구성을 확인한다. RELEASE_PRESET은 확인된 기존 설정이다. 기존 출력이 fab package 범위를 넘으면 그 export 명령을 동일한 단계의 새 candidate 하위 경로에 추가하고 outputs[]의 경로·크기·형식도 확인한다. 이번 변경에서 출력 종류나 공급사를 새로 정하지 않는다.",
+    "기준 sch nets/footprints/score 및 전체 ERC/DRC JSON은 B에도 보존한다. 승인된 기존 회로의 구성·핀 네트·UUID·lib_id·net names를 바탕으로 expected-intent.json을 만들고 값만 10k로 수정한다. 검토한 독립 사본은 B에 보존하며 P/expected-intent.json은 current-release 체크포인트 전에 둔다. 기대값을 변경 후 결과에서 역으로 만들지 않는다. 기준 보고서는 P 안에 두어 run의 외부 입력 경로 제한을 지킨다.",
+    "archive와 immutable checkpoint가 모두 성공했음을 확인한 뒤 첫 ECO를 실행한다. 체크포인트는 outputs/를 포함하지 않으므로 기존 릴리스 출력은 덮어쓰지 않고 candidate 디렉터리만 사용한다. archive는 기존 outputs까지 보존하는 별도 안전 사본이다.",
+    "각 명령과 단계는 순차 실행하고 실패 시 다음 성공 경로로 진행하지 않는다. schematic dry-run 결과를 검토한 다음에만 실제 schematic run을 실행한다. PCB update dry-run에서 의도하지 않은 제거·교체·패드 이동·배선 종단 영향·배치·unmatched_pins가 있으면 거부한다. 두 번째 dry-run의 출력 목록도 검토한다.",
+    "동일 참조에 대한 allow는 값 변경 이외의 모든 변경을 자동 승인하지 않는다. compare의 전체 결과에서 값 이외의 필드·연결 변경이 없는지, 기준과 핀 네트·좌표·UUID·배선·outline·zones·rules 및 score가 유지되는지 확인한다. 새로운 ERC/DRC warning도 거부한다. 10k의 전기적 적합성은 기존 버스 속도·전압·버스 용량과 부품 사양/기존 검증이 있을 때 함께 확인하고 입증할 자료가 없으면 전기 성능까지 검증됐다고 주장하지 않는다.",
+    "모든 검증과 출력 files[]/manifest 검사 및 preview 검토가 통과할 때만 마지막 accepted 체크포인트를 만든다. candidate 출력은 기존 릴리스를 대체하지 않는 새 릴리스 결과다.",
+    "변경 이후 어떤 단계든 실패하거나 회귀가 보이면 failure_chain을 즉시 실행한다. 앞선 run의 자동 rollback은 그 run만 되돌릴 수 있으므로 전체 릴리스 복구를 생략하지 않는다. restore 이후 compare identical, 기준 netlist/footprint/score와 기존 출력 보존을 확인한다. candidate는 실패 결과로 격리하며 릴리스로 전달하지 않는다. checkpoint 밖 출력 원본에 이상이 있으면 보존한 archive의 outputs를 복구한다. commit_state unknown 또는 rolled_back false는 성공으로 취급하지 않고 저장소 복구 후 accepted checkpoint를 복원한다."
+  ]
+}
