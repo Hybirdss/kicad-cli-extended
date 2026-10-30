@@ -46,7 +46,8 @@ jobs:
 
   e2e-linux:
     name: e2e · ubuntu (full suite, real KiCad)
-    runs-on: ubuntu-24.04
+    # PLY export needs OCCT 7.7+; Ubuntu 24.04 supplies 7.6.
+    runs-on: ubuntu-26.04
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
