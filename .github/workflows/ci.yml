@@ -57,10 +57,12 @@ jobs:
       - name: Install KiCad 10 (PPA kicad/kicad-10.0-releases)
         run: |
           sudo add-apt-repository --yes ppa:kicad/kicad-10.0-releases
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends \
+          sudo apt-get -o APT::Architecture-Variants= update
+          sudo apt-get -o APT::Architecture-Variants= install --yes --no-install-recommends \
             kicad kicad-symbols kicad-footprints kicad-templates xvfb
-          kicad-cli version
+          version=$(kicad-cli version)
+          echo "$version"
+          test "${version%%.*}" = 10
           /usr/bin/python3 -c "import pcbnew; print('pcbnew', pcbnew.Version())"
       - run: python -m pip install ".[test]"
       - run: python scripts/fetch_fixtures.py --tag "$KICAD_TAG"
