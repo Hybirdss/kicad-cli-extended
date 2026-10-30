@@ -664,7 +664,7 @@ class TestIsolatedDryRun:
             {'args': ['sch', 'show', 'R1']}]})
         result = kcej(['--dry-run', 'run', plan])
         assert result['dry_run'] and result['saved'] == []
-        assert os.path.join(proj, 'tx.kicad_sch') in result['would_write']
+        assert str(Path(proj, 'tx.kicad_sch').resolve()) in result['would_write']
         assert result['steps'][1]['result']['value'] == '470'
         assert before == all_bytes()
 
