@@ -16,7 +16,7 @@ def test_required_lcsc_fails_before_export_and_keeps_accepted(package_session, t
     monkeypatch.setattr(bom, 'components', lambda *a, **kw: parts)
     out = tmp_path / 'accepted'
     out.mkdir()
-    (out / 'approved').write_text('accepted')
+    (out / 'approved').write_text('accepted', encoding='utf-8')
     with patch.object(fab.kb, 'run_kicad_cli') as call:
         result = fab.make_package(package_session, 'jlcpcb', str(out), run_drc=False, require_lcsc=True)
     call.assert_not_called()
@@ -42,7 +42,7 @@ def test_actual_bom_retains_mpn_and_missing_lcsc(tmp_path):
     rj(['--project', project, 'sch', 'set-field', 'C2', 'MPN', 'EEU-FR1V221'])
     result = rj(['--project', project, 'fab', 'package', '--preset', 'jlcpcb', '--no-drc', '--no-step'])
     assert result['complete'] and 'C2' in result['bom']['missing_lcsc'] and result['warnings']
-    rows = list(csv.DictReader((Path(result['output_dir']) / 'pic_programmer-bom.csv').open()))
+    rows = list(csv.DictReader((Path(result['output_dir']) / 'pic_programmer-bom.csv').open(encoding='utf-8')))
     assert any(r['MPN'] == 'EEU-FR1V221' for r in rows)
 
 
@@ -53,10 +53,10 @@ def test_bom_check_cost_delta_missing_and_unpriced(package_session, tmp_path, mo
     monkeypatch.setattr(diff, 'resolve_side', lambda *a: (package_session.project, None))
     monkeypatch.setattr(bom, 'components', lambda sess, variant=None: current if sess is package_session else baseline)
     prices = tmp_path / 'prices.csv'
-    prices.write_text('LCSC,unit_price_usd\nOLD,1.00\nNEW,1.15\n')
+    prices.write_text('LCSC,unit_price_usd\nOLD,1.00\nNEW,1.15\n', encoding='utf-8')
     result = bom.check(package_session, prices_file=str(prices), against='git:HEAD', max_delta_pct=10)
     assert result['delta_pct'] == 15.0 and result['over_budget'] and not result['ok']
-    prices.write_text('LCSC,unit_price_usd\nOLD,1.00\n')
+    prices.write_text('LCSC,unit_price_usd\nOLD,1.00\n', encoding='utf-8')
     result = bom.check(package_session, prices_file=str(prices))
     assert result['unpriced'] == [{'ref': 'C2', 'key': 'NEW'}] and result['cost_usd'] is None and not result['ok']
     current[0]['fields'].pop('MPN')

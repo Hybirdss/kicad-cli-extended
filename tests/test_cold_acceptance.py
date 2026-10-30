@@ -125,7 +125,7 @@ def test_recorder_forwards_a_reply_before_stdin_eof(tmp_path):
     env = dict(os.environ, KCE_AUDIT_CLI=sys.executable, KCE_AUDIT_LOG=str(log))
     child = "import sys; [print(line.strip(), flush=True) for line in sys.stdin]"
     process = subprocess.Popen([sys.executable, str(REPO / "scripts/record_cold_cli.py"), "-u", "-c", child],
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", env=env)
     with ThreadPoolExecutor(max_workers=1) as executor:
         try:
             process.stdin.write("first request\n")
