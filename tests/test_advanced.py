@@ -231,7 +231,7 @@ class TestSimulation:
         assert "v(/out)" in wrong["warnings"][0]["available"]
         good = rj(P + ["sim", "run", "--analysis", ".ac dec 200 10 100k", "--probe", "v(/out)"])
         assert good["warnings"] == [] and good["errors"] == []
-        with open(good["plots"][0]["csv"], newline="") as f:
+        with open(good["plots"][0]["csv"], encoding="utf-8", newline="") as f:
             rows = list(csv.DictReader(f))
         corner = min(rows, key=lambda row: abs(abs(complex(row["v(/out)"])) - 1 / math.sqrt(2)))
         assert complex(corner["frequency"]).real == pytest.approx(994.7, rel=0.02)
