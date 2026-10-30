@@ -1816,6 +1816,12 @@ def a_autoroute_builtin(b, a):
             path.append(n)
             n = came[n]
         path.reverse()
+        if len(path) == 1:
+            # Distinct, disconnected pads can round to the same grid cell.
+            # No geometry would be emitted below; let auto-grid refine instead
+            # of reporting a route that disappears when the board is reopened.
+            failed.append(dict(c, reason="endpoints share a grid cell; refine grid"))
+            continue
         # emit segments: compress collinear runs, vias on layer change
         net = pa.GetNet()
         segs = 0
@@ -1844,6 +1850,13 @@ def a_autoroute_builtin(b, a):
                 v.SetDrill(MM(via_drill))
                 v.SetNet(net)
                 b.Add(v)
+                # A through-via occupies copper on every routing layer, not
+                # just the thin track cells at the layer transition. Reserve
+                # its full diameter now so later nets cannot cross its annulus.
+                vx, vy = xy(pc[1])
+                vr = via_d / 2 + halo
+                for li in range(L):
+                    mark_rect(li, vx - vr, vy - vr, vx + vr, vy + vr, code)
                 vias += 1
                 continue
             pts = [xy(pc[0])]
