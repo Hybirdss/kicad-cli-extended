@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 REPO_URL = "https://github.com/KiCad/kicad-source-mirror.git"
-TEST_DEMOS = ["pic_programmer", "video", "complex_hierarchy", "interf_u"]
+TEST_DEMOS = ["pic_programmer", "video", "complex_hierarchy", "interf_u", "vme-wren"]
 # Real Altium boards from KiCad's importer tests.
 TEST_QA = [
     "qa/data/pcbnew/plugins/altium/eDP_adapter_dvt1_source/",
