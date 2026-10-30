@@ -42,10 +42,10 @@ def test_import_requires_fresh_readable_output(tmp_path, produce, rc):
 def test_import_rejects_source_membership_change(tmp_path):
     source = tmp_path / 'source' / 'board.PcbDoc'
     source.parent.mkdir()
-    source.write_text('source')
+    source.write_text('source', encoding='utf-8')
     target = tmp_path / 'target' / 'p.kicad_pcb'
     def mutate(args, **kw):
-        (source.parent / 'board.kicad_pcb').write_text('unexpected')
+        (source.parent / 'board.kicad_pcb').write_text('unexpected', encoding='utf-8')
         return dict(returncode=0, stdout='', stderr='')
     with patch.object(kb, 'run_kicad_cli', side_effect=mutate):
         with pytest.raises(kb.KicadError, match='changed the source tree'):
@@ -96,7 +96,7 @@ def test_import_after_unsaved_edit_in_plan_and_dry_run(tmp_path):
     plan.write_text(json.dumps({'version': 1, 'steps': [
         {'args': ['pcb', 'outline', 'rect', '--at', '0,0', '--size', '1,1']},
         {'args': ['pcb', 'import', str(source), '--format', 'altium']},
-        {'args': ['pcb', 'info']}]}))
+        {'args': ['pcb', 'info']}]}), encoding='utf-8')
     preview = rj(['--project', target, '--dry-run', 'run', plan])
     assert preview['dry_run'] and preview['steps'][2]['result']['footprints'] > 0
     assert board.read_bytes() == before

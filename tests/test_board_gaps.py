@@ -18,9 +18,9 @@ def package_session(tmp_path, monkeypatch):
     monkeypatch.setattr(fab.bom_mod, "components", lambda *a, **kw: [])
     root = tmp_path / 'project'
     root.mkdir()
-    (root / 'p.kicad_pro').write_text('{}')
-    (root / 'p.kicad_pcb').write_text('(kicad_pcb (layers (0 "F.Cu" signal) (31 "B.Cu" signal)))')
-    (root / 'p.kicad_sch').write_text('(kicad_sch)')
+    (root / 'p.kicad_pro').write_text('{}', encoding='utf-8')
+    (root / 'p.kicad_pcb').write_text('(kicad_pcb (layers (0 "F.Cu" signal) (31 "B.Cu" signal)))', encoding='utf-8')
+    (root / 'p.kicad_sch').write_text('(kicad_sch)', encoding='utf-8')
     sess = Session()
     sess.set_project(KicadProject(str(root / 'p.kicad_pro')))
     return sess
@@ -34,13 +34,13 @@ def exporter(fail=None, omit=None):
             if name == 'gerbers':
                 target.mkdir(exist_ok=True)
                 for layer in ('F_Cu', 'B_Cu'):
-                    (target / (layer + '.gbr')).write_text('G04 test*\n%FSLAX46Y46*%\n')
+                    (target / (layer + '.gbr')).write_text('G04 test*\n%FSLAX46Y46*%\n', encoding='utf-8')
             elif name == 'drill':
-                (target / 'p.drl').write_text('M48\nMETRIC\n')
+                (target / 'p.drl').write_text('M48\nMETRIC\n', encoding='utf-8')
             elif name == 'pos':
-                target.write_text('Ref,PosX,PosY,Rot,Side,Package,Val\nD1,1,2,0,top,LED,red\n')
+                target.write_text('Ref,PosX,PosY,Rot,Side,Package,Val\nD1,1,2,0,top,LED,red\n', encoding='utf-8')
             elif name == 'bom':
-                target.write_text('Comment,Designator,Footprint,LCSC Part #\nred,D1,LED,C123\n')
+                target.write_text('Comment,Designator,Footprint,LCSC Part #\nred,D1,LED,C123\n', encoding='utf-8')
         return {'returncode': int(name == fail), 'stderr': 'forced failure' if name == fail else '', 'stdout': ''}
     return call
 
@@ -62,7 +62,7 @@ def test_package_preserves_accepted_and_discards_staging(package_session, tmp_pa
 def test_package_success_replaces_generation(package_session, tmp_path):
     out = tmp_path / 'accepted'
     out.mkdir()
-    (out / 'stale').write_text('old')
+    (out / 'stale').write_text('old', encoding='utf-8')
     with patch.object(fab.kb, 'run_kicad_cli', side_effect=exporter()):
         result = fab.make_package(package_session, 'jlcpcb', str(out), run_drc=False)
     assert result['complete'] and result['failed_steps'] == []
@@ -91,7 +91,7 @@ def test_route_uses_effective_netclass_width(tmp_path, custom):
         run(P + ['pcb', 'add-footprint', 'Resistor_SMD:R_0805_2012Metric', '--ref', ref, '--at', at])
         run(P + ['pcb', 'set-pad-net', ref + ':1', 'SIGNAL'])
     path = project / 'route.kicad_pro'
-    data = json.loads(path.read_text())
+    data = json.loads(path.read_text(encoding='utf-8'))
     data['net_settings']['meta'] = {'version': 5}
     data['net_settings']['classes'] = [{'name': 'Default', 'track_width': 0.2}]
     if custom:
@@ -101,7 +101,7 @@ def test_route_uses_effective_netclass_width(tmp_path, custom):
         width = 0.42
     else:
         width = data['net_settings']['classes'][0]['track_width']
-    path.write_text(json.dumps(data))
+    path.write_text(json.dumps(data), encoding='utf-8')
     before = rj(P + ['pcb', 'connectivity'])
     result = rj(P + ['pcb', 'route', 'R1:1', 'R2:1'])
     assert result['width'] == pytest.approx(width)
@@ -116,11 +116,11 @@ def test_publish_preserves_accepted_when_exchange_is_unavailable(tmp_path, monke
     stage, target = tmp_path / 'stage', tmp_path / 'target'
     stage.mkdir()
     target.mkdir()
-    (target / 'accepted').write_text('keep')
+    (target / 'accepted').write_text('keep', encoding='utf-8')
     monkeypatch.setattr(fab.sys, 'platform', 'unsupported')
     with pytest.raises(FileExistsError, match='fresh --output-dir'):
         fab._publish(str(stage), str(target))
-    assert (target / 'accepted').read_text() == 'keep'
+    assert (target / 'accepted').read_text(encoding='utf-8') == 'keep'
     fresh = tmp_path / 'fresh'
     fab._publish(str(stage), str(fresh))
     assert fresh.is_dir() and not stage.exists()

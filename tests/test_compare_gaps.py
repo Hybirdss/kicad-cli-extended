@@ -31,8 +31,8 @@ def test_compare_reads_replaced_pad_geometry(sync_board, tmp_path):
     baseline = tmp_path / 'baseline'
     baseline.mkdir()
     shutil.copyfile(board, baseline / 'p.kicad_pcb')
-    (baseline / 'p.kicad_pro').write_text('{}')
-    Path(board).with_suffix('.kicad_pro').write_text('{}')
+    (baseline / 'p.kicad_pro').write_text('{}', encoding='utf-8')
+    Path(board).with_suffix('.kicad_pro').write_text('{}', encoding='utf-8')
     kb.run_pcbnew('edit', {'path': board, 'out': board, 'actions': [sync_action(lib)]})
     result = diff.board_diff(KicadProject(str(baseline / 'p.kicad_pro')), KicadProject(str(Path(board).with_suffix('.kicad_pro'))))
     assert result['footprints_changed'][0]['pads_moved'][0]['dist_mm'] == 21.5
@@ -48,11 +48,11 @@ def test_eco_gate_detects_equal_count_geometry_and_project_rules(tmp_path, monke
     def project(name, x=10, track_width=0.25, edge=0, rule=0.2):
         root = tmp_path / name
         root.mkdir()
-        (root / 'p.kicad_pro').write_text(json.dumps({'board': {'design_settings': {'rules': {'min_clearance': rule}}}}))
+        (root / 'p.kicad_pro').write_text(json.dumps({'board': {'design_settings': {'rules': {'min_clearance': rule}}}}), encoding='utf-8')
         (root / 'p.kicad_pcb').write_text(f'''(kicad_pcb (footprint "R:R" (layer "F.Cu") (at {x} 10)
           (property "Reference" "R3") (property "Value" "1k"))
           (net 1 "OTHER") (segment (start 0 0) (end 3 4) (width {track_width}) (layer "F.Cu") (net 1))
-          (gr_rect (start {edge} 0) (end 20 20) (layer "Edge.Cuts")))''')
+          (gr_rect (start {edge} 0) (end 20 20) (layer "Edge.Cuts")))''', encoding='utf-8')
         return KicadProject(str(root / 'p.kicad_pro'))
     before, moved = project('before'), project('moved', x=11)
     result = diff.compare(before.pro_path, moved.pro_path, allow=['C2', 'C10', 'net:VCC', 'net:GND'])
@@ -75,10 +75,10 @@ def test_compare_identifies_anonymous_footprints_by_uuid(tmp_path):
     from kicad_cli_extended.core.project import KicadProject
     root = tmp_path / 'anonymous'
     root.mkdir()
-    (root / 'p.kicad_pro').write_text('{}')
+    (root / 'p.kicad_pro').write_text('{}', encoding='utf-8')
     (root / 'p.kicad_pcb').write_text('''(kicad_pcb
       (footprint "L:F" (layer "F.Cu") (at 1 1) (property "Reference" "") (uuid "one"))
-      (footprint "L:F" (layer "F.Cu") (at 2 2) (property "Reference" "") (uuid "two")))''')
+      (footprint "L:F" (layer "F.Cu") (at 2 2) (property "Reference" "") (uuid "two")))''', encoding='utf-8')
     project = KicadProject(str(root / 'p.kicad_pro'))
     result = diff.board_diff(project, project)
     assert result['totals']['footprints'] == [2, 2]

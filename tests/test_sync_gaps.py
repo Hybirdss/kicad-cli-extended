@@ -17,7 +17,7 @@ def sync_board(tmp_path):
     for name, gap in [('Old', 2.54), ('New', 24.04)]:
         (lib / (name + '.kicad_mod')).write_text(f'''(footprint "{name}" (version 20241229) (generator "pcbnew") (layer "F.Cu")
         (pad "1" thru_hole circle (at 0 0) (size 1.6 1.6) (drill 0.8) (layers "*.Cu" "*.Mask"))
-        (pad "2" thru_hole circle (at {gap} 0) (size 1.6 1.6) (drill 0.8) (layers "*.Cu" "*.Mask")))''')
+        (pad "2" thru_hole circle (at {gap} 0) (size 1.6 1.6) (drill 0.8) (layers "*.Cu" "*.Mask")))''', encoding='utf-8')
     board = str(tmp_path / 'p.kicad_pcb')
     kb.run_pcbnew('new_board', {'path': board})
     kb.run_pcbnew('edit', {'path': board, 'out': board, 'actions': [

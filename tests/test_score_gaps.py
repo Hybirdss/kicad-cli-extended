@@ -18,7 +18,7 @@ def test_score_schema_determinism_and_missing_outline_gate(tmp_path, monkeypatch
     missing = kb.run_pcbnew('score', {'path': board})
     assert missing['outline']['present'] is False and missing['error']
     pro = tmp_path / 'p.kicad_pro'
-    pro.write_text('{}')
+    pro.write_text('{}', encoding='utf-8')
     sess = Session()
     sess.set_project(KicadProject(str(pro)))
     monkeypatch.setattr(cli, '_session', sess)
@@ -30,6 +30,6 @@ def test_score_schema_determinism_and_missing_outline_gate(tmp_path, monkeypatch
     second = kb.run_pcbnew('score', {'path': board})
     assert json.dumps(first, allow_nan=False) == json.dumps(second, allow_nan=False)
     assert first['outline']['closed'] and first['error'] is None
-    schema = json.loads((Path(__file__).parents[1] / 'schemas/pcb-score.schema.json').read_text())
+    schema = json.loads((Path(__file__).parents[1] / 'schemas/pcb-score.schema.json').read_text(encoding='utf-8'))
     jsonschema.validate(first, schema)
     jsonschema.validate(missing, schema)

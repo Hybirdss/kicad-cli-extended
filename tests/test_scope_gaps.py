@@ -15,7 +15,7 @@ pytestmark = pytest.mark.e2e
 
 def test_eco_scopes_lock_near_legalize_and_routing(sync_board, monkeypatch):
     board, lib = sync_board
-    Path(board).with_suffix('.kicad_pro').write_text('{}')
+    Path(board).with_suffix('.kicad_pro').write_text('{}', encoding='utf-8')
     kb.run_pcbnew('edit', {'path': board, 'out': board, 'actions': [
         {'action': 'outline_rect', 'x': 0, 'y': 0, 'width': 40, 'height': 40},
         {'action': 'add_fp', 'lib_path': lib, 'name': 'Old', 'ref': 'C10', 'x': 10, 'y': 10, 'pad_nets': {'1': 'VCC'}}]})

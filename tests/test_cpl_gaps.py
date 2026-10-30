@@ -15,10 +15,10 @@ def test_cpl_rotation_changes_only_cpl_and_reports_review(package_session, tmp_p
         return result, Path(result['output_dir'])
     a, before = build('before')
     corrections = tmp_path / 'rotations.json'
-    corrections.write_text('{"LED":180}')
+    corrections.write_text('{"LED":180}', encoding='utf-8')
     b, after = build('after', str(corrections))
     assert b['cpl']['review'] == [{'ref': 'D1', 'why': 'polarised', 'kicad_rotation': 0.0, 'check_in_jlc_viewer': True}]
-    with (after / b['cpl']['path']).open() as f:
+    with (after / b['cpl']['path']).open(encoding='utf-8') as f:
         assert list(csv.DictReader(f))[0]['Rotation'] == '180.00'
     for p in before.rglob('*'):
         if p.is_file() and p.suffix != '.zip' and 'cpl-jlcpcb' not in p.name:
