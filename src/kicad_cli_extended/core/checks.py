@@ -6,6 +6,8 @@ import collections
 import json
 import os
 import re
+import tempfile
+from contextlib import contextmanager
 from typing import Any, Dict, List, Optional
 
 from .workspace import materialize, remap
@@ -148,24 +150,52 @@ def summarize(report: Dict[str, Any], kind: str) -> Dict[str, Any]:
     return res
 
 
+@contextmanager
+def _fresh_report(kind, output):
+    """Never let a previous report stand in for the current engine run."""
+    if output:
+        fd, path = tempfile.mkstemp(prefix=f".{kind}-", suffix=".json",
+                                    dir=os.path.dirname(os.path.abspath(output)))
+        os.close(fd)
+    else:
+        path = kb.mkstemp(kind, ".json")
+    try:
+        yield path
+        if output:
+            os.replace(path, os.path.abspath(output))
+    finally:
+        if os.path.exists(path):
+            os.unlink(path)
+
+
+def _read_check_report(path, result, kind, extra):
+    code = result["returncode"]
+    detail = result.get("stderr") or result.get("stdout") or "(no engine output)"
+    # KiCad uses 5 only when explicitly asked to fail on rule violations.
+    if code != 0 and not (code == 5 and "--exit-code-violations" in (extra or [])):
+        raise kb.KicadError(f"{kind.upper()} failed: kicad-cli exited with code {code}: {detail}", result)
+    try:
+        with open(path, encoding="utf-8") as stream:
+            report = json.load(stream)
+        key = "sheets" if kind == "erc" else "violations"
+        if not isinstance(report, dict) or not isinstance(report.get(key), list):
+            raise ValueError(f"missing {key} array")
+    except (OSError, ValueError) as exc:
+        raise kb.KicadError(f"{kind.upper()} produced no valid fresh report: {exc}; {detail}", result) from exc
+    return report
+
+
 def run_erc(sess, output: Optional[str] = None, severity: str = "all", units: str = "mm",
             extra: Optional[List[str]] = None) -> Dict[str, Any]:
     proj = sess.require_project()
-    out = os.path.abspath(output) if output else kb.mkstemp("erc", ".json")
-    with materialize(sess) as ws:
+    with _fresh_report("erc", output) as out, materialize(sess) as ws:
         sch = remap(proj.sch_path, proj.dir, ws)
         args = ["sch", "erc", "--format", "json", "--units", units, "-o", out]
         args += _severity_args(severity)
         args += extra or []
         res = kb.run_kicad_cli(args + [sch], check=False)
-    if not os.path.exists(out):
-        raise kb.KicadError(f"ERC produced no report: {res['stderr'] or res['stdout']}")
-    report = json.load(open(out, encoding="utf-8"))
-    s = summarize(report, "erc")
-    s["report"] = out
-    if not output:
-        os.unlink(out)
-        s["report"] = None
+        s = summarize(_read_check_report(out, res, "erc", extra), "erc")
+    s["report"] = os.path.abspath(output) if output else None
     return s
 
 
@@ -173,8 +203,7 @@ def run_drc(sess, output: Optional[str] = None, severity: str = "all", units: st
             parity: bool = True, refill: bool = True, save_board: bool = False,
             extra: Optional[List[str]] = None) -> Dict[str, Any]:
     proj = sess.require_project()
-    out = os.path.abspath(output) if output else kb.mkstemp("drc", ".json")
-    with materialize(sess, force=save_board) as ws:
+    with _fresh_report("drc", output) as out, materialize(sess, force=save_board) as ws:
         pcb_path = remap(proj.pcb_path, proj.dir, ws)
         args = ["pcb", "drc", "--format", "json", "--units", units, "-o", out]
         args += _severity_args(severity)
@@ -186,16 +215,11 @@ def run_drc(sess, output: Optional[str] = None, severity: str = "all", units: st
                 args.append("--save-board")
         args += extra or []
         res = kb.run_kicad_cli(args + [pcb_path], check=False)
+        s = summarize(_read_check_report(out, res, "drc", extra), "drc")
         if save_board and refill:
             sess.snapshot("DRC refill zones (save board)", [proj.pcb_path])
             sess.doc(proj.pcb_path).set_text(open(pcb_path, encoding="utf-8").read())
-    if not os.path.exists(out):
-        raise kb.KicadError(f"DRC produced no report: {res['stderr'] or res['stdout']}")
-    report = json.load(open(out, encoding="utf-8"))
-    s = summarize(report, "drc")
-    s["report"] = out if output else None
-    if not output:
-        os.unlink(out)
+    s["report"] = os.path.abspath(output) if output else None
     return s
 
 
