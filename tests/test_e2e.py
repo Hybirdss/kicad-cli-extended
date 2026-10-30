@@ -805,7 +805,7 @@ class TestLibraries:
         P = ["--project", blink]
         step = Path(blink, "vendor", "BODY.step")
         step.parent.mkdir()
-        step.write_text("ISO-10303-21;")
+        step.write_text("ISO-10303-21;", encoding="utf-8")
         rj(P + ["lib", "fp", "new", os.path.join(blink, "mod.pretty"), "BODY", "--kind", "chip",
                 "--pads", "2", "--pitch", "1.6", "--pad-size", "0.9,1.0", "--add-to-table", "mod"])
         rj(P + ["sch", "set-footprint", "R1", "mod:BODY"])
