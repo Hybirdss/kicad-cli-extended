@@ -40,6 +40,17 @@ def tmp_dir():
         yield d
 
 
+@pytest.fixture
+def empty_global_lib_tables(tmp_path, monkeypatch):
+    config = tmp_path / "kicad-config"
+    version = config / "10.0"
+    version.mkdir(parents=True)
+    for kind in ("sym", "fp"):
+        (version / f"{kind}-lib-table").write_text(
+            f"({kind}_lib_table (version 7))\n", encoding="utf-8")
+    monkeypatch.setenv("KICAD_CONFIG_HOME", str(config))
+
+
 def make_project(d, name="p"):
     pro = os.path.join(d, name + ".kicad_pro")
     with open(pro, "w", encoding="utf-8") as f:
@@ -695,7 +706,7 @@ class TestLibrary:
            '(uri "${KIPRJMOD}/parts.kicad_sym") (options "") (descr "")))')
         return session_for(d, "partsproj")
 
-    def test_footprint_check_without_a_board(self, tmp_dir):
+    def test_footprint_check_without_a_board(self, tmp_dir, empty_global_lib_tables):
         sess = self._parts_project(tmp_dir)
         r = library.footprint_check(sess, "parts:TDFN")
         assert r["ok"] is False
@@ -708,7 +719,7 @@ class TestLibrary:
         assert r["courtyard"] == {"present": True, "size": [2.5, 1.8], "margin_to_pads": 0.25}
         assert r["missing_fab_layers"] == [] and r["models"] == []
 
-    def test_link_check_reports_pin_without_pad(self, tmp_dir):
+    def test_link_check_reports_pin_without_pad(self, tmp_dir, empty_global_lib_tables):
         sess = self._parts_project(tmp_dir)
         r = library.link_check(sess.project, "parts:CHIP")
         assert r["fpid"] == "parts:TDFN" and r["ok"] is False
@@ -717,7 +728,7 @@ class TestLibrary:
         assert r["mechanical_pads"] == []
         assert r["sym_pins"] == ["1", "2", "10"]
 
-    def test_update_reports_pins_without_a_pad(self, tmp_dir):
+    def test_update_reports_pins_without_a_pad(self, tmp_dir, empty_global_lib_tables):
         sess = self._parts_project(tmp_dir)
         comps = [{"ref": "U1", "lib_id": "parts:CHIP", "footprint": "parts:TDFN"},
                  {"ref": "R1", "lib_id": "parts:CHIP", "footprint": ""}]
@@ -1128,18 +1139,6 @@ class TestSafetyBoundary:
     def test_global_options_after_leaf_match_global_first(self):
         from kicad_cli_extended.cli import run_in_process
         assert run_in_process(['fab', 'presets', '--json']) == run_in_process(['--json', 'fab', 'presets'])
-
-    def test_dry_run_creates_project_only_on_isolated_copy(self, tmp_path, monkeypatch):
-        from kicad_cli_extended import cli as m
-        from kicad_cli_extended.core.session import Session
-        monkeypatch.setattr(m, '_session', Session())
-        monkeypatch.setattr(m, 'validate_files', lambda *a: [])
-        target = tmp_path / 'new project'
-        result = m.run_in_process(['--no-validate', '--dry-run', 'project', 'new', str(target), '--name', 'demo'])
-        assert result['dry_run'] and result['would_write']
-        assert not target.exists()
-        assert all(str(target) in p for p in result['would_write'])
-
 
 class TestSessionLocation:
     def test_first_write_hides_state_and_external_state_separates_projects(self, tmp_path, monkeypatch):
@@ -1844,7 +1843,8 @@ class TestModelCopyTransactions:
     @pytest.mark.parametrize('registered', [False, True])
     @pytest.mark.parametrize('external_copy', [False, True])
     def test_dry_run_isolates_library_identifiers_and_model_destinations(self, tmp_path, monkeypatch,
-                                                                       registered, external_copy):
+                                                                       registered, external_copy,
+                                                                       empty_global_lib_tables):
         from kicad_cli_extended import cli as m
         root = tmp_path / 'project'
         root.mkdir()
@@ -1868,29 +1868,6 @@ class TestModelCopyTransactions:
         assert mod.read_bytes() == before and not destination.exists()
         assert str(mod) in result['would_write']
         assert str(destination / source.name) in result['would_write']
-
-    def test_copy_dry_run_failure_and_undo(self, tmp_dir, monkeypatch):
-        from kicad_cli_extended import cli as cli_mod
-        sess = session_for(tmp_dir)
-        mod = Path(tmp_dir, "BODY.kicad_mod")
-        mod.write_text(sexpr.dumps(library.make_footprint("BODY", library.generate_pads("chip", 2, 2))), encoding="utf-8")
-        before = mod.read_bytes()
-        source = Path(tmp_dir, "vendor.step")
-        source.write_bytes(b"vendor STEP bytes\x00\xff")
-        dest = Path(tmp_dir, "3d", source.name)
-        args = ["lib", "fp", "model", "set", str(mod), str(source), "--copy-into", "3d"]
-        dry = cli_mod.run_in_process(["--dry-run", *args], session=sess)
-        assert dry["dry_run"] and not dest.exists() and mod.read_bytes() == before
-        with pytest.raises(ValueError):
-            cli_mod.run_in_process([*args, "--offset", "bad"], session=sess)
-        assert not dest.exists() and mod.read_bytes() == before
-        # Exercise actual session publication and undo; KiCad parsing is covered by e2e.
-        monkeypatch.setattr(cli_mod, "validate_files", lambda paths: [])
-        cli_mod.run_in_process(args, session=sess)
-        assert dest.read_bytes() == source.read_bytes()
-        cli_mod.run_in_process(["session", "undo"], session=sess)
-        assert not dest.exists() and mod.read_bytes() == before
-
 
 class TestProjectlessSafety:
     def test_import_preview_keeps_existing_target_overwrite_guard(self, tmp_path, monkeypatch):

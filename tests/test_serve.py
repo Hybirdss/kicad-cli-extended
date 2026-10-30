@@ -844,3 +844,36 @@ def test_projectless_import_dry_run_preserves_source_and_target(tmp_path, outsid
     assert result['source'] == str(source)
     assert result['would_write'] and all(str(target) in p for p in result['would_write'])
     assert digest(str(tmp_path)) == before
+
+
+@pytest.mark.smoke
+def test_dry_run_creates_project_only_on_isolated_copy(tmp_path):
+    target = tmp_path / 'new project'
+    result = kcej(['--dry-run', 'project', 'new', target, '--name', 'demo'])
+    assert result['dry_run'] and result['would_write']
+    assert not target.exists()
+    assert all(str(target) in p for p in result['would_write'])
+
+
+@pytest.mark.smoke
+def test_model_copy_dry_run_failure_and_undo(tmp_path):
+    from kicad_cli_extended.core import library, sexpr
+    project = tmp_path / 'p.kicad_pro'
+    project.write_text('{}', encoding='utf-8')
+    mod = tmp_path / 'BODY.kicad_mod'
+    mod.write_text(sexpr.dumps(library.make_footprint('BODY', library.generate_pads('chip', 2, 2))),
+                   encoding='utf-8')
+    before = mod.read_bytes()
+    source = tmp_path / 'vendor.step'
+    source.write_bytes(b'vendor STEP bytes\x00\xff')
+    dest = tmp_path / '3d' / source.name
+    args = ['lib', 'fp', 'model', 'set', mod, source, '--copy-into', '3d']
+    dry = kcej(['--dry-run', *args], project=project)
+    assert dry['dry_run'] and not dest.exists() and mod.read_bytes() == before
+    failed, error = kce_err([*args, '--offset', 'bad'], project=project)
+    assert failed.returncode == 2 and error['category'] == 'input'
+    assert not dest.exists() and mod.read_bytes() == before
+    kcej(args, project=project)
+    assert dest.read_bytes() == source.read_bytes()
+    kcej(['session', 'undo'], project=project)
+    assert not dest.exists() and mod.read_bytes() == before
