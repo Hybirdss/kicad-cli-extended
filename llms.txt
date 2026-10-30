@@ -1,0 +1,29 @@
+# kicad-cli-extended (`kce`)
+
+> `kce` extends KiCad's official `kicad-cli` for AI agents: every kicad-cli command and option,
+> plus schematic editing, PCB update and routing, fabrication packages, previews and diffs, with
+> JSON output on every command and a bundled agent skill. It drives the real KiCad 10 (kicad-cli
+> and KiCad's pcbnew Python module) and re-loads every file it writes through kicad-cli.
+
+## Docs
+
+- [README](https://github.com/Hybirdss/kicad-cli-extended/blob/main/README.md): what kce adds over kicad-cli, install, quickstart, command groups, JSON output contract, configuration
+- [Agent skill](https://github.com/Hybirdss/kicad-cli-extended/blob/main/skills/kicad-cli-extended/SKILL.md): setup check, workflows per task (schematic, PCB, routing, fab, diffs, undo) and advanced features
+- [Command reference](https://github.com/Hybirdss/kicad-cli-extended/blob/main/skills/kicad-cli-extended/COMMANDS.md): every command path, argument and option
+- [Architecture](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/ARCHITECTURE.md): modules, KiCad backend discovery, sessions and validation model
+- [Testing](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/TESTING.md): unit and end-to-end suites, KiCad demo fixtures, CI commands
+- [Recipe details](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/AGENT-RECIPES.md): twelve trigger-to-chain recipes with acceptance and recovery; use intent apply/verify, atomic plans, checkpoints, resident search, custom parts, SPICE, high-speed routing and panels without waiting for the user to name commands
+- [Public schemas](https://github.com/Hybirdss/kicad-cli-extended/tree/main/schemas): netlist intent, sch nets, apply/verify, plans/results, placement score, RPC and errors; available offline with kce info schema NAME
+- [Hardware CI examples](https://github.com/Hybirdss/kicad-cli-extended/tree/main/docs/examples): pinned PR checks and release artifacts; rehearse with a real project before use
+
+## Contracts and companion
+
+Use kce --json info commands --full and kce --json info describe COMMAND for the installed
+command tree. Gate checks explicitly: report-only ERC/DRC can exit zero on a dirty design.
+Errors carry category and hint. Exits: input 2, design 3, validation 4, crash 5, timeout 6,
+environment 7, internal 1. Plans accept pre-commit predicates; preserve accepted checkpoints
+and restore after any unknown mutation outcome. A fabrication result needs complete:true.
+
+[altium-cli-extended (ace)](https://github.com/Hybirdss/altium-cli-extended) is the companion
+for native Altium inputs. Both ace and kce use GPL-3.0-or-later. Neither a board import nor
+verification of a supplied intent establishes independent source equivalence.

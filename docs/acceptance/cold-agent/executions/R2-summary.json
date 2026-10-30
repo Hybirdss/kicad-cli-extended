@@ -1,0 +1,754 @@
+{
+  "prompt": "대표 두 저항 회로에서 첫 계획의 초기 회로도 및 PCB 동기화 단계 실행 검증",
+  "project": "/home/example/.omo/waves/kce-p4/cold-agent/live-R2",
+  "first_plan_sha256": "f447f02a5dafd3acabc4f58e1c402e2a0c9f3564215f9e984f7be33ba74d82bc",
+  "assertions": [
+    {
+      "name": "exit 0: info doctor",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: info doctor",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "doctor.ok",
+      "passed": true,
+      "actual": true
+    },
+    {
+      "name": "exit 0: info commands --full",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: info commands --full",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: skill status",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: skill status",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: lib sym search R --lib Device --pins 2 --limit 3",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: lib sym search R --lib Device --pins 2 --limit 3",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: lib sym show Device:R",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: lib sym show Device:R",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: lib suggest-footprints Device:R --size 0805",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: lib suggest-footprints Device:R --size 0805",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: lib fp show Resistor_SMD:R_0805_2012Metric",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: lib fp show Resistor_SMD:R_0805_2012Metric",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: lib link-check Device:R Resistor_SMD:R_0805_2012Metric",
+      "passed": false,
+      "actual": {
+        "exit": 2,
+        "stderr": "{\n  \"error\": \"lib link-check needs a project (--project)\",\n  \"type\": \"RuntimeError\",\n  \"category\": \"input\",\n  \"hint\": \"kce lib link-check --help\"\n}\n"
+      }
+    },
+    {
+      "name": "exit 0: project new /home/example/.omo/waves/kce-p4/cold-agent/live-R2 --name sensor-representative --title R2 representative intent validation",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: project new /home/example/.omo/waves/kce-p4/cold-agent/live-R2 --name sensor-representative --title R2 representative intent validation",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: project info",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: project info",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: lib link-check Device:R Resistor_SMD:R_0805_2012Metric",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: lib link-check Device:R Resistor_SMD:R_0805_2012Metric",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: session checkpoint initial --immutable",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: session checkpoint initial --immutable",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: --dry-run sch apply /home/example/.omo/waves/kce-p4/cold-agent/live-R2/intent.json --power-flags",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: --dry-run sch apply /home/example/.omo/waves/kce-p4/cold-agent/live-R2/intent.json --power-flags",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: --dry-run run /home/example/.omo/waves/kce-p4/cold-agent/R2-schematic-stage.json",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: --dry-run run /home/example/.omo/waves/kce-p4/cold-agent/R2-schematic-stage.json",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: run /home/example/.omo/waves/kce-p4/cold-agent/R2-schematic-stage.json",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: run /home/example/.omo/waves/kce-p4/cold-agent/R2-schematic-stage.json",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: sch nets",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: sch nets",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: sch show R1",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: sch show R1",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: sch show R2",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: sch show R2",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "dry apply reports dry_run and match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "dry plan reports dry_run",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "schematic plan all steps accepted",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "strict intent verify match",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "ERC errors=warnings=0 and clean",
+      "passed": true,
+      "actual": {
+        "kind": "erc",
+        "total": 0,
+        "errors": 0,
+        "warnings": 0,
+        "by_severity": {},
+        "by_type": {},
+        "hints": {},
+        "violations": [],
+        "clean": true,
+        "kicad_version": "10.0.7",
+        "report": null,
+        "new_violations": 0,
+        "fixed_violations": 0,
+        "exit_if_strict": 0
+      }
+    },
+    {
+      "name": "exact intended net partitions",
+      "passed": true,
+      "actual": {
+        "components": 2,
+        "net_count": 2,
+        "nets": [
+          {
+            "name": "/A",
+            "code": 1,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:1",
+              "R2:1"
+            ]
+          },
+          {
+            "name": "/B",
+            "code": 2,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:2",
+              "R2:2"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "exact component fields R1",
+      "passed": true,
+      "actual": {
+        "value": "330",
+        "lib_id": "Device:R",
+        "footprint": "Resistor_SMD:R_0805_2012Metric"
+      }
+    },
+    {
+      "name": "exact component fields R2",
+      "passed": true,
+      "actual": {
+        "value": "330",
+        "lib_id": "Device:R",
+        "footprint": "Resistor_SMD:R_0805_2012Metric"
+      }
+    },
+    {
+      "name": "exit 0: session checkpoint schematic-ok --immutable",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: session checkpoint schematic-ok --immutable",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: pcb outline rect --at 0,0 --size 100,100",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: pcb outline rect --at 0,0 --size 100,100",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: --dry-run pcb update --stable-uuids",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: --dry-run pcb update --stable-uuids",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "PCB preview dry_run",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "PCB preview has no missing footprints or unmatched pins",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "PCB preview all footprints placed inside outline",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "100x100 rectangle requested and accepted",
+      "passed": true,
+      "actual": {
+        "outline": "rect",
+        "x": 0.0,
+        "y": 0.0,
+        "width": 100.0,
+        "height": 100.0,
+        "corner_radius": 0,
+        "dry_run": false,
+        "would_write": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R2/sensor-representative.kicad_pcb"
+        ]
+      }
+    },
+    {
+      "name": "exit 0: run /home/example/.omo/waves/kce-p4/cold-agent/R2-sync-stage.json",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: run /home/example/.omo/waves/kce-p4/cold-agent/R2-sync-stage.json",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "sync plan every step accepted",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "actual PCB update contains both intended refs/footprints",
+      "passed": true,
+      "actual": [
+        {
+          "ref": "R1",
+          "footprint": "Resistor_SMD:R_0805_2012Metric"
+        },
+        {
+          "ref": "R2",
+          "footprint": "Resistor_SMD:R_0805_2012Metric"
+        }
+      ]
+    },
+    {
+      "name": "actual PCB has two nets and four assigned pads",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "actual PCB score accepted",
+      "passed": true,
+      "actual": {
+        "path": "/home/example/.cache/agent-tmp/kce-gaps-fix4/kicad-cli-extended-ws-z_t5utmp/sensor-representative.kicad_pcb",
+        "schema_version": "1.0",
+        "units": "mm",
+        "net_filter": null,
+        "outline": {
+          "present": true,
+          "closed": true,
+          "method": "KiCad GetBoardPolygonOutlines"
+        },
+        "error": null,
+        "courtyard_fallback_refs": [],
+        "hpwl": {
+          "total": 8.9,
+          "nets": [
+            {
+              "net": "/A",
+              "pads": 2,
+              "hpwl": 4.45,
+              "min": [
+                2.7625,
+                2.945
+              ],
+              "max": [
+                7.2125,
+                2.945
+              ]
+            },
+            {
+              "net": "/B",
+              "pads": 2,
+              "hpwl": 4.45,
+              "min": [
+                4.5875,
+                2.945
+              ],
+              "max": [
+                9.0375,
+                2.945
+              ]
+            }
+          ]
+        },
+        "courtyard_overlaps": {
+          "count": 0,
+          "pairs": [],
+          "method": "courtyard polygon intersection; body bounding box fallback"
+        },
+        "outside_outline": {
+          "count": 0,
+          "footprints": []
+        },
+        "ratsnest_crossings": {
+          "count": 0,
+          "pairs": []
+        },
+        "congestion": {
+          "bin_size": 5.0,
+          "grid": [
+            20,
+            20
+          ],
+          "total_length": 8.9,
+          "max_density": 0.267,
+          "mean_density": 0.00089,
+          "hot_bins": 2,
+          "hottest": [
+            {
+              "x": 7.5,
+              "y": 2.5,
+              "length": 6.675,
+              "density": 0.267
+            },
+            {
+              "x": 2.5,
+              "y": 2.5,
+              "length": 2.225,
+              "density": 0.089
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "exit 0: pcb connectivity",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: pcb connectivity",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: pcb footprints",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: pcb footprints",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: pcb info",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: pcb info",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "PCB net memberships read back match approved intent",
+      "passed": true,
+      "actual": {
+        "/A": [
+          "R1:1",
+          "R2:1"
+        ],
+        "/B": [
+          "R1:2",
+          "R2:2"
+        ]
+      }
+    },
+    {
+      "name": "PCB footprint fields and pad counts read back",
+      "passed": true,
+      "actual": [
+        {
+          "reference": "R2",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 8.125,
+          "y": 2.945,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/6a17367b-de0d-4375-b8c5-c03a35ff0345",
+          "uuid": "36adc414-beec-53d1-897f-05b86c40d91e",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              6.4,
+              1.95
+            ],
+            "max": [
+              9.85,
+              3.94
+            ]
+          },
+          "bbox": {
+            "min": [
+              6.42,
+              1.97
+            ],
+            "max": [
+              9.83,
+              3.92
+            ]
+          }
+        },
+        {
+          "reference": "R1",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 3.675,
+          "y": 2.945,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/7eb1662e-f0bb-4844-843d-e1e51c19009b",
+          "uuid": "5ce5b10c-1585-551c-902e-07b21d13feb8",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              1.95,
+              1.95
+            ],
+            "max": [
+              5.4,
+              3.94
+            ]
+          },
+          "bbox": {
+            "min": [
+              1.97,
+              1.97
+            ],
+            "max": [
+              5.38,
+              3.92
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PCB remains explicitly unrouted",
+      "passed": true,
+      "actual": {
+        "unrouted": 2,
+        "fully_routed": false,
+        "tracks": 0,
+        "vias": 0
+      }
+    },
+    {
+      "name": "PCB has four rectangular outline edges",
+      "passed": true,
+      "actual": 4
+    },
+    {
+      "name": "PCB outline stroke bounds match 100mm rectangle with 0.1mm stroke",
+      "passed": true,
+      "actual": {
+        "min": [
+          -0.05,
+          -0.05
+        ],
+        "max": [
+          100.05,
+          100.05
+        ],
+        "width": 100.1,
+        "height": 100.1
+      }
+    },
+    {
+      "name": "first plan unchanged",
+      "passed": true,
+      "actual": null
+    },
+    {
+      "name": "exit 0: session checkpoint synced-ok --immutable",
+      "passed": true,
+      "actual": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "stdout JSON: session checkpoint synced-ok --immutable",
+      "passed": true,
+      "actual": null
+    }
+  ],
+  "limitations": [
+    "Device:R 두 개로 된 대표 회로만 검증한다. ESP32/BME280 회로의 정확성이나 완성을 의미하지 않는다.",
+    "배치 최적화, 배선, DRC 및 제조 출력은 검증 범위 밖이다.",
+    "미사용 핀이 없는 대표 입력이므로 명시적 sch no-connect 단계는 첫 계획의 조건대로 생략한다.",
+    "outline_bbox는 0.1mm 외곽선 스트로크를 포함하여 100.1mm로 반환된다. 명령 결과의 외곽선 중심선 치수는 100x100mm이다."
+  ],
+  "verdict": "representative-schematic-and-sync-passed-after-one-initial-plan-order-correction",
+  "initial_plan_issue": {
+    "command": "lib link-check before project new",
+    "observed": "exit 2, needs a project (--project)",
+    "correction": "Deferred link-check until immediately after project new/project info; original first plan preserved."
+  },
+  "original_plan_executable_as_written": false,
+  "representative_execution_passed": true,
+  "all_assertions_passed": false,
+  "expected_initial_failure_count": 1,
+  "result": "회로도 strict 검증/ERC 및 PCB 동기화·score 게이트 통과. 초기 계획의 프로젝트 없는 link-check는 실제로 실패했으며, 프로젝트 생성 직후로 옮긴 뒤 실행 완료. 원본 계획은 수정하지 않음.",
+  "audit_log": "/home/example/.omo/waves/kce-p4/cold-agent/R2-execution.jsonl"
+}

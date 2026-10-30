@@ -1,0 +1,754 @@
+{
+  "scope": "대표 R1 330→470 ECO 실행·검증·PCB 동기화·원래 세대 복구. 전체 C2/U2 ECO 검증 아님.",
+  "status": "passed_with_path_correction",
+  "original_plan_preserved": true,
+  "audit_log": "/home/example/.omo/waves/kce-p4/cold-agent/R5-execution.jsonl",
+  "results": "/home/example/.omo/waves/kce-p4/cold-agent/R5-execution-state.json",
+  "assertions": [
+    {
+      "name": "update preview added",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "name": "update preview removed",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "name": "update preview replaced",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "name": "update preview unmatched_pins",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "name": "update preview unmatched_pads",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "name": "update preview would_remove",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "name": "update preview would_place",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "name": "update preview existing_moved",
+      "actual": 0,
+      "expected": 0,
+      "passed": true
+    },
+    {
+      "name": "stable UUID preview writes",
+      "actual": [],
+      "expected": [],
+      "passed": true
+    },
+    {
+      "name": "same references",
+      "actual": [
+        "R1",
+        "R2"
+      ],
+      "expected": [
+        "R1",
+        "R2"
+      ],
+      "passed": true
+    },
+    {
+      "name": "R1 board value",
+      "actual": "470",
+      "expected": "470",
+      "passed": true
+    },
+    {
+      "name": "R2 footprint complete JSON unchanged",
+      "actual": {
+        "reference": "R2",
+        "value": "330",
+        "fpid": "Resistor_SMD:R_0805_2012Metric",
+        "x": 30.0,
+        "y": 20.0,
+        "rotation": 0.0,
+        "side": "top",
+        "locked": false,
+        "layer": "F.Cu",
+        "pad_count": 2,
+        "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+        "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+        "dnp": false,
+        "exclude_from_bom": false,
+        "exclude_from_pos": false,
+        "courtyard": {
+          "min": [
+            28.275,
+            19.005
+          ],
+          "max": [
+            31.725,
+            20.995
+          ]
+        },
+        "bbox": {
+          "min": [
+            28.295,
+            19.025
+          ],
+          "max": [
+            31.705,
+            20.975
+          ]
+        }
+      },
+      "expected": {
+        "reference": "R2",
+        "value": "330",
+        "fpid": "Resistor_SMD:R_0805_2012Metric",
+        "x": 30.0,
+        "y": 20.0,
+        "rotation": 0.0,
+        "side": "top",
+        "locked": false,
+        "layer": "F.Cu",
+        "pad_count": 2,
+        "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+        "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+        "dnp": false,
+        "exclude_from_bom": false,
+        "exclude_from_pos": false,
+        "courtyard": {
+          "min": [
+            28.275,
+            19.005
+          ],
+          "max": [
+            31.725,
+            20.995
+          ]
+        },
+        "bbox": {
+          "min": [
+            28.295,
+            19.025
+          ],
+          "max": [
+            31.705,
+            20.975
+          ]
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "R1 footprint only value changed",
+      "actual": {
+        "reference": "R1",
+        "value": "470",
+        "fpid": "Resistor_SMD:R_0805_2012Metric",
+        "x": 20.0,
+        "y": 20.0,
+        "rotation": 0.0,
+        "side": "top",
+        "locked": false,
+        "layer": "F.Cu",
+        "pad_count": 2,
+        "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+        "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+        "dnp": false,
+        "exclude_from_bom": false,
+        "exclude_from_pos": false,
+        "courtyard": {
+          "min": [
+            18.275,
+            19.005
+          ],
+          "max": [
+            21.725,
+            20.995
+          ]
+        },
+        "bbox": {
+          "min": [
+            18.295,
+            19.025
+          ],
+          "max": [
+            21.705,
+            20.975
+          ]
+        }
+      },
+      "expected": {
+        "reference": "R1",
+        "value": "470",
+        "fpid": "Resistor_SMD:R_0805_2012Metric",
+        "x": 20.0,
+        "y": 20.0,
+        "rotation": 0.0,
+        "side": "top",
+        "locked": false,
+        "layer": "F.Cu",
+        "pad_count": 2,
+        "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+        "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+        "dnp": false,
+        "exclude_from_bom": false,
+        "exclude_from_pos": false,
+        "courtyard": {
+          "min": [
+            18.275,
+            19.005
+          ],
+          "max": [
+            21.725,
+            20.995
+          ]
+        },
+        "bbox": {
+          "min": [
+            18.295,
+            19.025
+          ],
+          "max": [
+            21.705,
+            20.975
+          ]
+        }
+      },
+      "passed": true
+    },
+    {
+      "name": "board pad UUIDs positions nets and tracks unchanged",
+      "actual": {
+        "pads": [
+          {
+            "ref": "R1",
+            "pad": "1",
+            "uuid": "db193fa4-cca4-497f-a0ae-7a6290cbadb3",
+            "x": 19087500,
+            "y": 20000000,
+            "net": "/A"
+          },
+          {
+            "ref": "R1",
+            "pad": "2",
+            "uuid": "e411761b-09f6-46ad-b657-0d3d29601256",
+            "x": 20912500,
+            "y": 20000000,
+            "net": "/B"
+          },
+          {
+            "ref": "R2",
+            "pad": "1",
+            "uuid": "254ea73f-35eb-47ad-a45e-463b07c556ec",
+            "x": 29087500,
+            "y": 20000000,
+            "net": "/A"
+          },
+          {
+            "ref": "R2",
+            "pad": "2",
+            "uuid": "2ec2e6fe-89b3-4beb-8e97-17cefe911819",
+            "x": 30912500,
+            "y": 20000000,
+            "net": "/B"
+          }
+        ],
+        "tracks": []
+      },
+      "expected": {
+        "pads": [
+          {
+            "ref": "R1",
+            "pad": "1",
+            "uuid": "db193fa4-cca4-497f-a0ae-7a6290cbadb3",
+            "x": 19087500,
+            "y": 20000000,
+            "net": "/A"
+          },
+          {
+            "ref": "R1",
+            "pad": "2",
+            "uuid": "e411761b-09f6-46ad-b657-0d3d29601256",
+            "x": 20912500,
+            "y": 20000000,
+            "net": "/B"
+          },
+          {
+            "ref": "R2",
+            "pad": "1",
+            "uuid": "254ea73f-35eb-47ad-a45e-463b07c556ec",
+            "x": 29087500,
+            "y": 20000000,
+            "net": "/A"
+          },
+          {
+            "ref": "R2",
+            "pad": "2",
+            "uuid": "2ec2e6fe-89b3-4beb-8e97-17cefe911819",
+            "x": 30912500,
+            "y": 20000000,
+            "net": "/B"
+          }
+        ],
+        "tracks": []
+      },
+      "passed": true
+    },
+    {
+      "name": "schematic nets unchanged",
+      "actual": {
+        "components": 2,
+        "net_count": 2,
+        "nets": [
+          {
+            "name": "/A",
+            "code": 1,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:1",
+              "R2:1"
+            ]
+          },
+          {
+            "name": "/B",
+            "code": 2,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:2",
+              "R2:2"
+            ]
+          }
+        ]
+      },
+      "expected": {
+        "components": 2,
+        "net_count": 2,
+        "nets": [
+          {
+            "name": "/A",
+            "code": 1,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:1",
+              "R2:1"
+            ]
+          },
+          {
+            "name": "/B",
+            "code": 2,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:2",
+              "R2:2"
+            ]
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "name": "schematic bytes changed",
+      "actual": false,
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "PCB bytes changed",
+      "actual": false,
+      "expected": false,
+      "passed": true
+    },
+    {
+      "name": "board.kicad_pro bytes unchanged during ECO",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "board.kicad_prl bytes unchanged during ECO",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "intent.json bytes unchanged during ECO",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "all original files restored byte for byte",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "R1 schematic restored to330",
+      "actual": "330",
+      "expected": "330",
+      "passed": true
+    },
+    {
+      "name": "footprints restored to initial JSON",
+      "actual": [
+        {
+          "reference": "R1",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 20.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+          "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              18.275,
+              19.005
+            ],
+            "max": [
+              21.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              18.295,
+              19.025
+            ],
+            "max": [
+              21.705,
+              20.975
+            ]
+          }
+        },
+        {
+          "reference": "R2",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 30.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+          "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              28.275,
+              19.005
+            ],
+            "max": [
+              31.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              28.295,
+              19.025
+            ],
+            "max": [
+              31.705,
+              20.975
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "reference": "R1",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 20.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+          "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              18.275,
+              19.005
+            ],
+            "max": [
+              21.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              18.295,
+              19.025
+            ],
+            "max": [
+              21.705,
+              20.975
+            ]
+          }
+        },
+        {
+          "reference": "R2",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 30.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+          "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              28.275,
+              19.005
+            ],
+            "max": [
+              31.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              28.295,
+              19.025
+            ],
+            "max": [
+              31.705,
+              20.975
+            ]
+          }
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "original intent matches after restore",
+      "actual": true,
+      "expected": true,
+      "passed": true
+    },
+    {
+      "name": "board.kicad_sch full-file hash equals exactly one 330→470 byte substitution",
+      "actual": 1,
+      "expected": 1,
+      "passed": true,
+      "matching_offsets": [
+        2729
+      ]
+    },
+    {
+      "name": "board.kicad_pcb full-file hash equals exactly one 330→470 byte substitution",
+      "actual": 1,
+      "expected": 1,
+      "passed": true,
+      "matching_offsets": [
+        5637
+      ]
+    }
+  ],
+  "dry_run_original_files_unchanged": {
+    "board.kicad_pro": true,
+    "board.kicad_prl": true,
+    "intent.json": true,
+    "board.kicad_sch": true,
+    "board.kicad_pcb": true
+  },
+  "corrected_dry_run_original_files_unchanged": {
+    "board.kicad_pro": true,
+    "board.kicad_prl": true,
+    "intent.json": true,
+    "board.kicad_sch": true,
+    "board.kicad_pcb": true
+  },
+  "failed_run_original_files_unchanged": {
+    "board.kicad_pro": true,
+    "board.kicad_prl": true,
+    "intent.json": true,
+    "board.kicad_sch": true,
+    "board.kicad_pcb": true
+  },
+  "preview_board_bytes_unchanged": true,
+  "restored_files": {
+    "board.kicad_pro": {
+      "equal": true,
+      "sha256": "bd2bf2195f3c5e74695b6e8b88d2af27774341e7d5bd07ea5d22e2bc20b9608c"
+    },
+    "board.kicad_prl": {
+      "equal": true,
+      "sha256": "17fd2530bde826c57486affa122d0a9446a8a4fe73175fb09efea655f55b1903"
+    },
+    "intent.json": {
+      "equal": true,
+      "sha256": "0dffbbf3911ca5f8547bd3bdd5e5726551aca17c958bd36eb635d22338788c48"
+    },
+    "board.kicad_sch": {
+      "equal": true,
+      "sha256": "d089f22c7de959b77be956b5a2f353b6ae552d5e36f02544597a9a9aeedd45be"
+    },
+    "board.kicad_pcb": {
+      "equal": true,
+      "sha256": "89e874b8572549305aadda6d8419ad8aadad35f0513e430ffcc47dcac1345e8b"
+    }
+  },
+  "byte_evidence": {
+    "board.kicad_pro": {
+      "before_sha256": "bd2bf2195f3c5e74695b6e8b88d2af27774341e7d5bd07ea5d22e2bc20b9608c",
+      "after_sha256": "bd2bf2195f3c5e74695b6e8b88d2af27774341e7d5bd07ea5d22e2bc20b9608c",
+      "same_bytes": true,
+      "before_bytes": 552,
+      "after_bytes": 552
+    },
+    "board.kicad_prl": {
+      "before_sha256": "17fd2530bde826c57486affa122d0a9446a8a4fe73175fb09efea655f55b1903",
+      "after_sha256": "17fd2530bde826c57486affa122d0a9446a8a4fe73175fb09efea655f55b1903",
+      "same_bytes": true,
+      "before_bytes": 2292,
+      "after_bytes": 2292
+    },
+    "intent.json": {
+      "before_sha256": "0dffbbf3911ca5f8547bd3bdd5e5726551aca17c958bd36eb635d22338788c48",
+      "after_sha256": "0dffbbf3911ca5f8547bd3bdd5e5726551aca17c958bd36eb635d22338788c48",
+      "same_bytes": true,
+      "before_bytes": 354,
+      "after_bytes": 354
+    },
+    "board.kicad_sch": {
+      "before_sha256": "d089f22c7de959b77be956b5a2f353b6ae552d5e36f02544597a9a9aeedd45be",
+      "after_sha256": "92de62a18807d14300305c5d8290f518a1d158ce3c0a093fd21cd2bf0c94e1e0",
+      "same_bytes": false,
+      "before_bytes": 6199,
+      "after_bytes": 6199,
+      "unified_diff": "--- before/board.kicad_sch\n+++ after/board.kicad_sch\n@@ -170,7 +170,7 @@\n \t\t\t\t)\n \t\t\t)\n \t\t)\n-\t\t(property \"Value\" \"330\"\n+\t\t(property \"Value\" \"470\"\n \t\t\t(at 60 60 90)\n \t\t\t(show_name no)\n \t\t\t(do_not_autoplace no)\n"
+    },
+    "board.kicad_pcb": {
+      "before_sha256": "89e874b8572549305aadda6d8419ad8aadad35f0513e430ffcc47dcac1345e8b",
+      "after_sha256": "db301741060203cbe59e7410999b07f3ba4fdd4764b8878fa3023f5bd5f6fcd6",
+      "same_bytes": false,
+      "before_bytes": 8762,
+      "after_bytes": 8762,
+      "unified_diff": "--- before/board.kicad_pcb\n+++ after/board.kicad_pcb\n@@ -253,7 +253,7 @@\n \t\t\t\t)\n \t\t\t)\n \t\t)\n-\t\t(property \"Value\" \"330\"\n+\t\t(property \"Value\" \"470\"\n \t\t\t(at 0 1.65 0)\n \t\t\t(layer \"F.Fab\")\n \t\t\t(uuid \"ab81f6d0-5447-4158-a967-39f1b8535fc8\")\n"
+    }
+  },
+  "observed_issue": {
+    "command": "run R5-live-eco.json",
+    "expected_argument": "expected-eco.json (project-local relative path)",
+    "dry_run_exit": 0,
+    "actual_run_exit": 2,
+    "actual_error": "Plan path must stay inside the project: expected-eco.json",
+    "correction": "별도 R5-live-eco-absolute.json에서 기대 파일을 프로젝트 내부의 절대 경로로 지정. 재 dry-run 및 실제 run 성공."
+  },
+  "limitations": [
+    "이 fixture에는 R1/R2와 /A,/B 두 net만 있고 tracks/vias/zones가 없다. 따라서 기존 실제 copper의 보존이나 C2 footprint 교체/새 decoupling cap 배치/배선은 검증하지 않았다.",
+    "ERC errors=0, endpoint_off_grid warnings=6이며 clean=false였다. fail-on error만 통과했다. DRC 및 제조 적합성을 주장하지 않는다.",
+    "원래 존재한 비숨김 파일 5개는 바이트 단위 복구를 확인했다. 실행 관련 session metadata와 새 expected-eco.json은 체크포인트 세대의 일부로 남는다.",
+    ".gitignore와 세션 메타데이터의 초기 바이트는 캡처하지 않았다. 원본 KiCad 파일, intent, local settings에 대한 assertion만 수행했다."
+  ]
+}

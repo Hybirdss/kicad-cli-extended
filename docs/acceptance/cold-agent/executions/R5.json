@@ -1,0 +1,2241 @@
+{
+  "recipe": "R5",
+  "source_plan": "R5.json",
+  "raw_log": "/home/example/.omo/waves/kce-p4/cold-agent/R5-execution.jsonl",
+  "raw_log_sha256": "cf196bf87e76aa11df337e868f923e493527446093ed2db1556a69bc41c35ac4",
+  "calls": [
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "project",
+        "info"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "42b479a3c359e6df5cc820172ee824eeab89566f733d78be676de63186289fc2",
+      "stdout_bytes": 893,
+      "result": {
+        "name": "board",
+        "dir": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "pro": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pro",
+        "sch": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch",
+        "pcb": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb",
+        "exists": true,
+        "files": [
+          {
+            "path": "board.kicad_pcb",
+            "kind": "board",
+            "bytes": 8762
+          },
+          {
+            "path": "board.kicad_prl",
+            "kind": "local-settings",
+            "bytes": 2292
+          },
+          {
+            "path": "board.kicad_pro",
+            "kind": "project",
+            "bytes": 552
+          },
+          {
+            "path": "board.kicad_sch",
+            "kind": "schematic",
+            "bytes": 6199
+          }
+        ],
+        "text_variables": {},
+        "net_classes": [],
+        "kicad_version": "10.0.7",
+        "schematic": {
+          "version": "20260306",
+          "generator_version": "10.0",
+          "symbols": 2,
+          "sheets": 0,
+          "wires": 4,
+          "labels": 4,
+          "title_block": {
+            "title": "board"
+          }
+        },
+        "board": {
+          "version": "20260206",
+          "generator_version": "10.0",
+          "footprints": 2,
+          "tracks": 0,
+          "vias": 0,
+          "zones": 0,
+          "nets": 0,
+          "copper_layers": 2
+        }
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "sch",
+        "show",
+        "R1"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "15eb3e3c544b5d28beed35477cdcf82fd55475a6a45f54ce172562e5cd70e0de",
+      "stdout_bytes": 778,
+      "result": {
+        "reference": "R1",
+        "value": "330",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "lib_id": "Device:R",
+        "x": 60.0,
+        "y": 60.0,
+        "angle": 0.0,
+        "mirror": null,
+        "unit": 1,
+        "uuid": "aa6a98f6-855a-4df4-8475-9c2e47669b90",
+        "in_bom": true,
+        "on_board": true,
+        "dnp": false,
+        "exclude_from_sim": false,
+        "fields": {
+          "Datasheet": "",
+          "Description": "Resistor"
+        },
+        "power": false,
+        "pins": [
+          {
+            "number": "1",
+            "name": "",
+            "type": "passive",
+            "shape": "line",
+            "unit": 1,
+            "body_style": 1,
+            "x": 60.0,
+            "y": 56.19,
+            "orientation": 270.0,
+            "length": 1.27,
+            "hidden": false,
+            "lib_x": 0.0,
+            "lib_y": 3.81,
+            "outward": [
+              0,
+              -1
+            ]
+          },
+          {
+            "number": "2",
+            "name": "",
+            "type": "passive",
+            "shape": "line",
+            "unit": 1,
+            "body_style": 1,
+            "x": 60.0,
+            "y": 63.81,
+            "orientation": 90.0,
+            "length": 1.27,
+            "hidden": false,
+            "lib_x": 0.0,
+            "lib_y": -3.81,
+            "outward": [
+              0,
+              1
+            ]
+          }
+        ],
+        "instances": {
+          "/d4a0ffd2-2b2d-4786-a8a2-3d02ec66afa2": "R1"
+        }
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "sch",
+        "nets"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "fa5cdb0c2a9a4b4c8273acc62954cc746dbeb282eeecf5be75fa4b0a2cd6dc91",
+      "stdout_bytes": 530,
+      "result": {
+        "components": 2,
+        "net_count": 2,
+        "nets": [
+          {
+            "name": "/A",
+            "code": 1,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:1",
+              "R2:1"
+            ]
+          },
+          {
+            "name": "/B",
+            "code": 2,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:2",
+              "R2:2"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "pcb",
+        "footprints"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "8d2eac85cc6755f85618e8fa021ab16018232b87004112c0b90dd0848c5a4d6a",
+      "stdout_bytes": 860,
+      "result": [
+        {
+          "reference": "R2",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 30.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+          "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              28.275,
+              19.005
+            ],
+            "max": [
+              31.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              28.295,
+              19.025
+            ],
+            "max": [
+              31.705,
+              20.975
+            ]
+          }
+        },
+        {
+          "reference": "R1",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 20.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+          "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              18.275,
+              19.005
+            ],
+            "max": [
+              21.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              18.295,
+              19.025
+            ],
+            "max": [
+              21.705,
+              20.975
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "raw",
+        "pcbnew",
+        "--readonly",
+        "--code",
+        "result={'pads':sorted([{'ref':f.GetReference(),'pad':q.GetNumber(),'uuid':q.m_Uuid.AsString(),'x':q.GetPosition().x,'y':q.GetPosition().y,'net':q.GetNetname()} for f in board.GetFootprints() for q in f.Pads()],key=lambda x:(x['ref'],x['pad'])),'tracks':sorted([t.m_Uuid.AsString() for t in board.GetTracks()])}"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "2f7aca21f78c78f5c845ad82d8a6058d1de1520f53d2d504f2cd96000a734011",
+      "stdout_bytes": 507,
+      "result": {
+        "result": {
+          "pads": [
+            {
+              "ref": "R1",
+              "pad": "1",
+              "uuid": "db193fa4-cca4-497f-a0ae-7a6290cbadb3",
+              "x": 19087500,
+              "y": 20000000,
+              "net": "/A"
+            },
+            {
+              "ref": "R1",
+              "pad": "2",
+              "uuid": "e411761b-09f6-46ad-b657-0d3d29601256",
+              "x": 20912500,
+              "y": 20000000,
+              "net": "/B"
+            },
+            {
+              "ref": "R2",
+              "pad": "1",
+              "uuid": "254ea73f-35eb-47ad-a45e-463b07c556ec",
+              "x": 29087500,
+              "y": 20000000,
+              "net": "/A"
+            },
+            {
+              "ref": "R2",
+              "pad": "2",
+              "uuid": "2ec2e6fe-89b3-4beb-8e97-17cefe911819",
+              "x": 30912500,
+              "y": 20000000,
+              "net": "/B"
+            }
+          ],
+          "tracks": []
+        },
+        "modified": true,
+        "dry_run": false,
+        "would_write": []
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "session",
+        "checkpoint",
+        "r5-live-pre-eco",
+        "--immutable"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "d00ff90f409e39414d4a4b5da9c223eda416e4c7ba0c4e138c0fc7a2afa26648",
+      "stdout_bytes": 478,
+      "result": {
+        "checkpoint": "r5-live-pre-eco",
+        "dir": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/.kicad-cli-extended/checkpoints/r5-live-pre-eco",
+        "created": 1793314380.2851815,
+        "files": [
+          ".gitignore",
+          "board.kicad_pcb",
+          "board.kicad_prl",
+          "board.kicad_pro",
+          "board.kicad_sch",
+          "expected-eco.json",
+          "intent.json"
+        ],
+        "bytes": 18824,
+        "generation": "99ae24e9ada446cb8ebb7712f6927a6e",
+        "content_sha256": "552fd0062eba519d6485691ee9390f545bee503ecba391f7778731b936b9e807",
+        "dry_run": false,
+        "would_write": []
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "--dry-run",
+        "run",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R5-live-eco.json"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "a66b23810b416fe21e6a85c5846753fe549c1528b67321e671bf870df59ffa1d",
+      "stdout_bytes": 5014,
+      "result": {
+        "version": 1,
+        "project": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pro",
+        "steps": [
+          {
+            "step": 1,
+            "args": [
+              "sch",
+              "set-value",
+              "R1",
+              "470"
+            ],
+            "ok": true,
+            "result": {
+              "reference": "R1",
+              "value": "470",
+              "dry_run": true,
+              "would_write": [
+                "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+              ]
+            },
+            "elapsed_ms": 4.494
+          },
+          {
+            "step": 2,
+            "args": [
+              "sch",
+              "show",
+              "R1"
+            ],
+            "ok": true,
+            "result": {
+              "reference": "R1",
+              "value": "470",
+              "footprint": "Resistor_SMD:R_0805_2012Metric",
+              "lib_id": "Device:R",
+              "x": 60.0,
+              "y": 60.0,
+              "angle": 0.0,
+              "mirror": null,
+              "unit": 1,
+              "uuid": "aa6a98f6-855a-4df4-8475-9c2e47669b90",
+              "in_bom": true,
+              "on_board": true,
+              "dnp": false,
+              "exclude_from_sim": false,
+              "fields": {
+                "Datasheet": "",
+                "Description": "Resistor"
+              },
+              "power": false,
+              "pins": [
+                {
+                  "number": "1",
+                  "name": "",
+                  "type": "passive",
+                  "shape": "line",
+                  "unit": 1,
+                  "body_style": 1,
+                  "x": 60.0,
+                  "y": 56.19,
+                  "orientation": 270.0,
+                  "length": 1.27,
+                  "hidden": false,
+                  "lib_x": 0.0,
+                  "lib_y": 3.81,
+                  "outward": [
+                    0,
+                    -1
+                  ]
+                },
+                {
+                  "number": "2",
+                  "name": "",
+                  "type": "passive",
+                  "shape": "line",
+                  "unit": 1,
+                  "body_style": 1,
+                  "x": 60.0,
+                  "y": 63.81,
+                  "orientation": 90.0,
+                  "length": 1.27,
+                  "hidden": false,
+                  "lib_x": 0.0,
+                  "lib_y": -3.81,
+                  "outward": [
+                    0,
+                    1
+                  ]
+                }
+              ],
+              "instances": {
+                "/d4a0ffd2-2b2d-4786-a8a2-3d02ec66afa2": "R1"
+              }
+            },
+            "elapsed_ms": 2.077
+          },
+          {
+            "step": 3,
+            "args": [
+              "sch",
+              "verify",
+              "--expect",
+              "expected-eco.json",
+              "--strict"
+            ],
+            "ok": true,
+            "result": {
+              "match": true,
+              "missing_components": [],
+              "extra_components": [],
+              "field_mismatches": [],
+              "symbol_mismatches": [],
+              "identity_mismatches": [],
+              "name_mismatches": [],
+              "attribute_mismatches": [],
+              "remove_present": [],
+              "missing_nets": [],
+              "extra_nets": [],
+              "renamed": [
+                {
+                  "name": "A",
+                  "actual": "/A",
+                  "pins": [
+                    "R1:1",
+                    "R2:1"
+                  ]
+                },
+                {
+                  "name": "B",
+                  "actual": "/B",
+                  "pins": [
+                    "R1:2",
+                    "R2:2"
+                  ]
+                }
+              ],
+              "merged": [],
+              "split": [],
+              "unconnected_pins": [],
+              "no_connects_missing": [],
+              "no_connects_extra": [],
+              "power_flags_missing": []
+            },
+            "elapsed_ms": 760.472
+          },
+          {
+            "step": 4,
+            "args": [
+              "check",
+              "erc",
+              "--fail-on",
+              "error"
+            ],
+            "ok": true,
+            "result": {
+              "kind": "erc",
+              "total": 6,
+              "errors": 0,
+              "warnings": 6,
+              "by_severity": {
+                "warning": 6
+              },
+              "by_type": {
+                "endpoint_off_grid": 6
+              },
+              "hints": {
+                "endpoint_off_grid": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default)."
+              },
+              "violations": [
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Symbol R1 Pin 1 [Passive, Line]",
+                      "pos": {
+                        "x": 60.0,
+                        "y": 56.19
+                      },
+                      "uuid": "7d7f58f4-e856-44e6-bbf9-d02429fa0bc6"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 60.0,
+                        "y": 56.19
+                      },
+                      "uuid": "fd9e992c-8b71-4ce6-be14-ea1b5af40e29"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 60.0,
+                        "y": 63.81
+                      },
+                      "uuid": "b68563e3-36e2-49ba-b657-4a791da8c700"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Symbol R2 Pin 1 [Passive, Line]",
+                      "pos": {
+                        "x": 80.0,
+                        "y": 56.19
+                      },
+                      "uuid": "4c8577a5-008a-4b49-8580-8e2effafaec0"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 80.0,
+                        "y": 56.19
+                      },
+                      "uuid": "a4debd99-a7b0-4fcb-aba9-8cd06a2774bc"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 80.0,
+                        "y": 63.81
+                      },
+                      "uuid": "583898fd-5d26-435c-b1b9-1371c1d7d216"
+                    }
+                  ],
+                  "known": false
+                }
+              ],
+              "clean": false,
+              "kicad_version": "10.0.7",
+              "report": null,
+              "new_violations": 6,
+              "fixed_violations": 0,
+              "exit_if_strict": 3,
+              "next": "kce check diagnose --only erc"
+            },
+            "elapsed_ms": 2665.03
+          }
+        ],
+        "dry_run": true,
+        "saved": [],
+        "validation": [
+          {
+            "file": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch",
+            "check": "kicad-cli sch export netlist",
+            "ok": true
+          }
+        ],
+        "would_write": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+        ],
+        "would_save": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "run",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R5-live-eco.json"
+      ],
+      "exit": 2,
+      "stderr": "{\n  \"error\": \"Plan path must stay inside the project: expected-eco.json; use `kce run --help`.\",\n  \"type\": \"ValueError\",\n  \"category\": \"input\",\n  \"hint\": \"kce run --help\"\n}\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 0,
+      "result": null
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "--dry-run",
+        "run",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R5-live-eco-absolute.json"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "e4031712217999ae6fa7e10f3e9f63bcdd42b895c714cd7e84a6a4a3f2281bce",
+      "stdout_bytes": 5067,
+      "result": {
+        "version": 1,
+        "project": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pro",
+        "steps": [
+          {
+            "step": 1,
+            "args": [
+              "sch",
+              "set-value",
+              "R1",
+              "470"
+            ],
+            "ok": true,
+            "result": {
+              "reference": "R1",
+              "value": "470",
+              "dry_run": true,
+              "would_write": [
+                "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+              ]
+            },
+            "elapsed_ms": 3.534
+          },
+          {
+            "step": 2,
+            "args": [
+              "sch",
+              "show",
+              "R1"
+            ],
+            "ok": true,
+            "result": {
+              "reference": "R1",
+              "value": "470",
+              "footprint": "Resistor_SMD:R_0805_2012Metric",
+              "lib_id": "Device:R",
+              "x": 60.0,
+              "y": 60.0,
+              "angle": 0.0,
+              "mirror": null,
+              "unit": 1,
+              "uuid": "aa6a98f6-855a-4df4-8475-9c2e47669b90",
+              "in_bom": true,
+              "on_board": true,
+              "dnp": false,
+              "exclude_from_sim": false,
+              "fields": {
+                "Datasheet": "",
+                "Description": "Resistor"
+              },
+              "power": false,
+              "pins": [
+                {
+                  "number": "1",
+                  "name": "",
+                  "type": "passive",
+                  "shape": "line",
+                  "unit": 1,
+                  "body_style": 1,
+                  "x": 60.0,
+                  "y": 56.19,
+                  "orientation": 270.0,
+                  "length": 1.27,
+                  "hidden": false,
+                  "lib_x": 0.0,
+                  "lib_y": 3.81,
+                  "outward": [
+                    0,
+                    -1
+                  ]
+                },
+                {
+                  "number": "2",
+                  "name": "",
+                  "type": "passive",
+                  "shape": "line",
+                  "unit": 1,
+                  "body_style": 1,
+                  "x": 60.0,
+                  "y": 63.81,
+                  "orientation": 90.0,
+                  "length": 1.27,
+                  "hidden": false,
+                  "lib_x": 0.0,
+                  "lib_y": -3.81,
+                  "outward": [
+                    0,
+                    1
+                  ]
+                }
+              ],
+              "instances": {
+                "/d4a0ffd2-2b2d-4786-a8a2-3d02ec66afa2": "R1"
+              }
+            },
+            "elapsed_ms": 1.747
+          },
+          {
+            "step": 3,
+            "args": [
+              "sch",
+              "verify",
+              "--expect",
+              "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/expected-eco.json",
+              "--strict"
+            ],
+            "ok": true,
+            "result": {
+              "match": true,
+              "missing_components": [],
+              "extra_components": [],
+              "field_mismatches": [],
+              "symbol_mismatches": [],
+              "identity_mismatches": [],
+              "name_mismatches": [],
+              "attribute_mismatches": [],
+              "remove_present": [],
+              "missing_nets": [],
+              "extra_nets": [],
+              "renamed": [
+                {
+                  "name": "A",
+                  "actual": "/A",
+                  "pins": [
+                    "R1:1",
+                    "R2:1"
+                  ]
+                },
+                {
+                  "name": "B",
+                  "actual": "/B",
+                  "pins": [
+                    "R1:2",
+                    "R2:2"
+                  ]
+                }
+              ],
+              "merged": [],
+              "split": [],
+              "unconnected_pins": [],
+              "no_connects_missing": [],
+              "no_connects_extra": [],
+              "power_flags_missing": []
+            },
+            "elapsed_ms": 770.063
+          },
+          {
+            "step": 4,
+            "args": [
+              "check",
+              "erc",
+              "--fail-on",
+              "error"
+            ],
+            "ok": true,
+            "result": {
+              "kind": "erc",
+              "total": 6,
+              "errors": 0,
+              "warnings": 6,
+              "by_severity": {
+                "warning": 6
+              },
+              "by_type": {
+                "endpoint_off_grid": 6
+              },
+              "hints": {
+                "endpoint_off_grid": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default)."
+              },
+              "violations": [
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Symbol R1 Pin 1 [Passive, Line]",
+                      "pos": {
+                        "x": 60.0,
+                        "y": 56.19
+                      },
+                      "uuid": "7d7f58f4-e856-44e6-bbf9-d02429fa0bc6"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 60.0,
+                        "y": 56.19
+                      },
+                      "uuid": "fd9e992c-8b71-4ce6-be14-ea1b5af40e29"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 60.0,
+                        "y": 63.81
+                      },
+                      "uuid": "b68563e3-36e2-49ba-b657-4a791da8c700"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Symbol R2 Pin 1 [Passive, Line]",
+                      "pos": {
+                        "x": 80.0,
+                        "y": 56.19
+                      },
+                      "uuid": "4c8577a5-008a-4b49-8580-8e2effafaec0"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 80.0,
+                        "y": 56.19
+                      },
+                      "uuid": "a4debd99-a7b0-4fcb-aba9-8cd06a2774bc"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 80.0,
+                        "y": 63.81
+                      },
+                      "uuid": "583898fd-5d26-435c-b1b9-1371c1d7d216"
+                    }
+                  ],
+                  "known": false
+                }
+              ],
+              "clean": false,
+              "kicad_version": "10.0.7",
+              "report": null,
+              "new_violations": 6,
+              "fixed_violations": 0,
+              "exit_if_strict": 3,
+              "next": "kce check diagnose --only erc"
+            },
+            "elapsed_ms": 2615.557
+          }
+        ],
+        "dry_run": true,
+        "saved": [],
+        "validation": [
+          {
+            "file": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch",
+            "check": "kicad-cli sch export netlist",
+            "ok": true
+          }
+        ],
+        "would_write": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+        ],
+        "would_save": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "run",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R5-live-eco-absolute.json"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "0f464aaa9a76f78d2aa6c6da231d942dd4ca454540e9a8573afdb89fd9281e92",
+      "stdout_bytes": 5052,
+      "result": {
+        "version": 1,
+        "project": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pro",
+        "steps": [
+          {
+            "step": 1,
+            "args": [
+              "sch",
+              "set-value",
+              "R1",
+              "470"
+            ],
+            "ok": true,
+            "result": {
+              "reference": "R1",
+              "value": "470",
+              "dry_run": false,
+              "would_write": [
+                "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+              ]
+            },
+            "elapsed_ms": 4.18
+          },
+          {
+            "step": 2,
+            "args": [
+              "sch",
+              "show",
+              "R1"
+            ],
+            "ok": true,
+            "result": {
+              "reference": "R1",
+              "value": "470",
+              "footprint": "Resistor_SMD:R_0805_2012Metric",
+              "lib_id": "Device:R",
+              "x": 60.0,
+              "y": 60.0,
+              "angle": 0.0,
+              "mirror": null,
+              "unit": 1,
+              "uuid": "aa6a98f6-855a-4df4-8475-9c2e47669b90",
+              "in_bom": true,
+              "on_board": true,
+              "dnp": false,
+              "exclude_from_sim": false,
+              "fields": {
+                "Datasheet": "",
+                "Description": "Resistor"
+              },
+              "power": false,
+              "pins": [
+                {
+                  "number": "1",
+                  "name": "",
+                  "type": "passive",
+                  "shape": "line",
+                  "unit": 1,
+                  "body_style": 1,
+                  "x": 60.0,
+                  "y": 56.19,
+                  "orientation": 270.0,
+                  "length": 1.27,
+                  "hidden": false,
+                  "lib_x": 0.0,
+                  "lib_y": 3.81,
+                  "outward": [
+                    0,
+                    -1
+                  ]
+                },
+                {
+                  "number": "2",
+                  "name": "",
+                  "type": "passive",
+                  "shape": "line",
+                  "unit": 1,
+                  "body_style": 1,
+                  "x": 60.0,
+                  "y": 63.81,
+                  "orientation": 90.0,
+                  "length": 1.27,
+                  "hidden": false,
+                  "lib_x": 0.0,
+                  "lib_y": -3.81,
+                  "outward": [
+                    0,
+                    1
+                  ]
+                }
+              ],
+              "instances": {
+                "/d4a0ffd2-2b2d-4786-a8a2-3d02ec66afa2": "R1"
+              }
+            },
+            "elapsed_ms": 2.032
+          },
+          {
+            "step": 3,
+            "args": [
+              "sch",
+              "verify",
+              "--expect",
+              "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/expected-eco.json",
+              "--strict"
+            ],
+            "ok": true,
+            "result": {
+              "match": true,
+              "missing_components": [],
+              "extra_components": [],
+              "field_mismatches": [],
+              "symbol_mismatches": [],
+              "identity_mismatches": [],
+              "name_mismatches": [],
+              "attribute_mismatches": [],
+              "remove_present": [],
+              "missing_nets": [],
+              "extra_nets": [],
+              "renamed": [
+                {
+                  "name": "A",
+                  "actual": "/A",
+                  "pins": [
+                    "R1:1",
+                    "R2:1"
+                  ]
+                },
+                {
+                  "name": "B",
+                  "actual": "/B",
+                  "pins": [
+                    "R1:2",
+                    "R2:2"
+                  ]
+                }
+              ],
+              "merged": [],
+              "split": [],
+              "unconnected_pins": [],
+              "no_connects_missing": [],
+              "no_connects_extra": [],
+              "power_flags_missing": []
+            },
+            "elapsed_ms": 740.305
+          },
+          {
+            "step": 4,
+            "args": [
+              "check",
+              "erc",
+              "--fail-on",
+              "error"
+            ],
+            "ok": true,
+            "result": {
+              "kind": "erc",
+              "total": 6,
+              "errors": 0,
+              "warnings": 6,
+              "by_severity": {
+                "warning": 6
+              },
+              "by_type": {
+                "endpoint_off_grid": 6
+              },
+              "hints": {
+                "endpoint_off_grid": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default)."
+              },
+              "violations": [
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Symbol R1 Pin 1 [Passive, Line]",
+                      "pos": {
+                        "x": 60.0,
+                        "y": 56.19
+                      },
+                      "uuid": "7d7f58f4-e856-44e6-bbf9-d02429fa0bc6"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 60.0,
+                        "y": 56.19
+                      },
+                      "uuid": "fd9e992c-8b71-4ce6-be14-ea1b5af40e29"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 60.0,
+                        "y": 63.81
+                      },
+                      "uuid": "b68563e3-36e2-49ba-b657-4a791da8c700"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Symbol R2 Pin 1 [Passive, Line]",
+                      "pos": {
+                        "x": 80.0,
+                        "y": 56.19
+                      },
+                      "uuid": "4c8577a5-008a-4b49-8580-8e2effafaec0"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 80.0,
+                        "y": 56.19
+                      },
+                      "uuid": "a4debd99-a7b0-4fcb-aba9-8cd06a2774bc"
+                    }
+                  ],
+                  "known": false
+                },
+                {
+                  "type": "endpoint_off_grid",
+                  "severity": "warning",
+                  "description": "Symbol pin or wire end off connection grid",
+                  "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+                  "fix": null,
+                  "sheet": "/",
+                  "category": null,
+                  "excluded": false,
+                  "items": [
+                    {
+                      "description": "Vertical Wire, length 2.54 mm",
+                      "pos": {
+                        "x": 80.0,
+                        "y": 63.81
+                      },
+                      "uuid": "583898fd-5d26-435c-b1b9-1371c1d7d216"
+                    }
+                  ],
+                  "known": false
+                }
+              ],
+              "clean": false,
+              "kicad_version": "10.0.7",
+              "report": null,
+              "new_violations": 6,
+              "fixed_violations": 0,
+              "exit_if_strict": 3,
+              "next": "kce check diagnose --only erc"
+            },
+            "elapsed_ms": 2661.997
+          }
+        ],
+        "dry_run": false,
+        "saved": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+        ],
+        "validation": [
+          {
+            "file": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch",
+            "check": "kicad-cli sch export netlist",
+            "ok": true
+          }
+        ],
+        "would_write": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "sch",
+        "nets"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "fa5cdb0c2a9a4b4c8273acc62954cc746dbeb282eeecf5be75fa4b0a2cd6dc91",
+      "stdout_bytes": 530,
+      "result": {
+        "components": 2,
+        "net_count": 2,
+        "nets": [
+          {
+            "name": "/A",
+            "code": 1,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:1",
+              "R2:1"
+            ]
+          },
+          {
+            "name": "/B",
+            "code": 2,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:2",
+              "R2:2"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "--dry-run",
+        "pcb",
+        "update",
+        "--stable-uuids",
+        "--lock-existing",
+        "--no-place"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "d87c2770723c38dc2bf91303814c4994473fec7436411390601c4f5f8d6a9c29",
+      "stdout_bytes": 882,
+      "result": {
+        "added": [],
+        "removed": [],
+        "updated": [
+          {
+            "ref": "R1",
+            "changes": [
+              "value 330->470"
+            ]
+          }
+        ],
+        "replaced": [],
+        "nets_assigned": 0,
+        "unmatched_pads": [],
+        "missing_footprints": [],
+        "kept_extra": [],
+        "adopted": [],
+        "tracks_ending_on_old_pads": [],
+        "unmatched_pins": [],
+        "unrouted": 2,
+        "existing_moved": 0,
+        "existing_unchanged": 2,
+        "would_remove": [],
+        "unrouted_connections": [
+          {
+            "net": "/A",
+            "from": "R1:1",
+            "to": "R2:1",
+            "from_xy": [
+              19.0875,
+              20.0
+            ],
+            "to_xy": [
+              29.0875,
+              20.0
+            ],
+            "length": 10.0
+          },
+          {
+            "net": "/B",
+            "from": "R1:2",
+            "to": "R2:2",
+            "from_xy": [
+              20.9125,
+              20.0
+            ],
+            "to_xy": [
+              30.9125,
+              20.0
+            ],
+            "length": 10.0
+          }
+        ],
+        "noise": false,
+        "stable_uuids": {
+          "namespace": "6ba7b811-9dad-11d1-80b4-00c04fd430c8",
+          "written": []
+        },
+        "would_place": [],
+        "schematic_problems": [],
+        "components": 2,
+        "nets": 2,
+        "dry_run": true,
+        "would_write": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb"
+        ],
+        "would_save": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb"
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "run",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R5-live-sync.json"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "fc7da0aca24c2b7a52d4396f95fd7190036189c0b0d44c9f4c283c789e084ae9",
+      "stdout_bytes": 1349,
+      "result": {
+        "version": 1,
+        "project": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pro",
+        "steps": [
+          {
+            "step": 1,
+            "args": [
+              "pcb",
+              "update",
+              "--stable-uuids",
+              "--lock-existing",
+              "--no-place"
+            ],
+            "ok": true,
+            "result": {
+              "added": [],
+              "removed": [],
+              "updated": [
+                {
+                  "ref": "R1",
+                  "changes": [
+                    "value 330->470"
+                  ]
+                }
+              ],
+              "replaced": [],
+              "nets_assigned": 0,
+              "unmatched_pads": [],
+              "missing_footprints": [],
+              "kept_extra": [],
+              "adopted": [],
+              "tracks_ending_on_old_pads": [],
+              "unmatched_pins": [],
+              "unrouted": 2,
+              "existing_moved": 0,
+              "existing_unchanged": 2,
+              "would_remove": [],
+              "unrouted_connections": [
+                {
+                  "net": "/A",
+                  "from": "R1:1",
+                  "to": "R2:1",
+                  "from_xy": [
+                    19.0875,
+                    20.0
+                  ],
+                  "to_xy": [
+                    29.0875,
+                    20.0
+                  ],
+                  "length": 10.0
+                },
+                {
+                  "net": "/B",
+                  "from": "R1:2",
+                  "to": "R2:2",
+                  "from_xy": [
+                    20.9125,
+                    20.0
+                  ],
+                  "to_xy": [
+                    30.9125,
+                    20.0
+                  ],
+                  "length": 10.0
+                }
+              ],
+              "noise": false,
+              "stable_uuids": {
+                "namespace": "6ba7b811-9dad-11d1-80b4-00c04fd430c8",
+                "written": []
+              },
+              "would_place": [],
+              "schematic_problems": [],
+              "components": 2,
+              "nets": 2,
+              "dry_run": false,
+              "would_write": [
+                "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb"
+              ]
+            },
+            "elapsed_ms": 3217.501
+          }
+        ],
+        "dry_run": false,
+        "saved": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb"
+        ],
+        "validation": [
+          {
+            "file": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb",
+            "check": "kicad-cli pcb export stats",
+            "ok": true
+          }
+        ],
+        "would_write": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb"
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "pcb",
+        "footprints"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "3327348031c52f83ababc60b76fcdf41cf43b17ecb4eb0a08c49f78d3e5b5c91",
+      "stdout_bytes": 860,
+      "result": [
+        {
+          "reference": "R2",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 30.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+          "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              28.275,
+              19.005
+            ],
+            "max": [
+              31.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              28.295,
+              19.025
+            ],
+            "max": [
+              31.705,
+              20.975
+            ]
+          }
+        },
+        {
+          "reference": "R1",
+          "value": "470",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 20.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+          "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              18.275,
+              19.005
+            ],
+            "max": [
+              21.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              18.295,
+              19.025
+            ],
+            "max": [
+              21.705,
+              20.975
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "raw",
+        "pcbnew",
+        "--readonly",
+        "--code",
+        "result={'pads':sorted([{'ref':f.GetReference(),'pad':q.GetNumber(),'uuid':q.m_Uuid.AsString(),'x':q.GetPosition().x,'y':q.GetPosition().y,'net':q.GetNetname()} for f in board.GetFootprints() for q in f.Pads()],key=lambda x:(x['ref'],x['pad'])),'tracks':sorted([t.m_Uuid.AsString() for t in board.GetTracks()])}"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "2f7aca21f78c78f5c845ad82d8a6058d1de1520f53d2d504f2cd96000a734011",
+      "stdout_bytes": 507,
+      "result": {
+        "result": {
+          "pads": [
+            {
+              "ref": "R1",
+              "pad": "1",
+              "uuid": "db193fa4-cca4-497f-a0ae-7a6290cbadb3",
+              "x": 19087500,
+              "y": 20000000,
+              "net": "/A"
+            },
+            {
+              "ref": "R1",
+              "pad": "2",
+              "uuid": "e411761b-09f6-46ad-b657-0d3d29601256",
+              "x": 20912500,
+              "y": 20000000,
+              "net": "/B"
+            },
+            {
+              "ref": "R2",
+              "pad": "1",
+              "uuid": "254ea73f-35eb-47ad-a45e-463b07c556ec",
+              "x": 29087500,
+              "y": 20000000,
+              "net": "/A"
+            },
+            {
+              "ref": "R2",
+              "pad": "2",
+              "uuid": "2ec2e6fe-89b3-4beb-8e97-17cefe911819",
+              "x": 30912500,
+              "y": 20000000,
+              "net": "/B"
+            }
+          ],
+          "tracks": []
+        },
+        "modified": true,
+        "dry_run": false,
+        "would_write": []
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "project",
+        "compare",
+        "checkpoint:r5-live-pre-eco",
+        "--geometry"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "eb4635f98053ff6f04f60855443a6871816f272f0d637f4437deb3c2f02466d4",
+      "stdout_bytes": 1764,
+      "result": {
+        "before": {
+          "name": "board",
+          "dir": "/home/example/.cache/agent-tmp/kce-gaps-fix4/kicad-cli-extended-checkpoint-dlhm84e1",
+          "pro": "/home/example/.cache/agent-tmp/kce-gaps-fix4/kicad-cli-extended-checkpoint-dlhm84e1/board.kicad_pro",
+          "sch": "/home/example/.cache/agent-tmp/kce-gaps-fix4/kicad-cli-extended-checkpoint-dlhm84e1/board.kicad_sch",
+          "pcb": "/home/example/.cache/agent-tmp/kce-gaps-fix4/kicad-cli-extended-checkpoint-dlhm84e1/board.kicad_pcb"
+        },
+        "after": {
+          "name": "board",
+          "dir": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+          "pro": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pro",
+          "sch": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch",
+          "pcb": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb"
+        },
+        "schematic": {
+          "available": true,
+          "components_added": [],
+          "components_removed": [],
+          "components_changed": [
+            {
+              "ref": "R1",
+              "changes": {
+                "value": [
+                  "330",
+                  "470"
+                ]
+              }
+            }
+          ],
+          "connection_changes": [],
+          "net_changes": [],
+          "nets_added": [],
+          "nets_removed": [],
+          "counts": {
+            "before": {
+              "components": 2,
+              "nets": 2
+            },
+            "after": {
+              "components": 2,
+              "nets": 2
+            }
+          }
+        },
+        "board": {
+          "available": true,
+          "footprints_added": [],
+          "footprints_removed": [],
+          "footprints_moved": [],
+          "footprints_changed": [
+            {
+              "ref": "R1",
+              "changes": {
+                "value": [
+                  "330",
+                  "470"
+                ],
+                "details_changed": true
+              }
+            }
+          ],
+          "routing_changes": [],
+          "zones": null,
+          "outline_changed": false,
+          "zones_changed": false,
+          "rules_changed": false,
+          "totals": {
+            "segments": [
+              0,
+              0
+            ],
+            "vias": [
+              0,
+              0
+            ],
+            "footprints": [
+              2,
+              2
+            ]
+          }
+        },
+        "project_files_changed": [],
+        "coverage": {
+          "included": [
+            "schematic components and net endpoints",
+            "footprints",
+            "routing geometry",
+            "zones",
+            "outline",
+            "board rules/layers",
+            "project JSON and rule/lib tables"
+          ],
+          "excluded": [
+            "source-format equivalence",
+            "external library contents",
+            "models",
+            "schematic drawing geometry"
+          ]
+        },
+        "identical": false,
+        "unexpected": [],
+        "ok": true
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "session",
+        "restore",
+        "r5-live-pre-eco"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "e163de06fba53e63774678089ff627d2d5b355e307ba58761f96a2729057da4c",
+      "stdout_bytes": 947,
+      "result": {
+        "checkpoint": "r5-live-pre-eco",
+        "generation": "99ae24e9ada446cb8ebb7712f6927a6e",
+        "content_sha256": "552fd0062eba519d6485691ee9390f545bee503ecba391f7778731b936b9e807",
+        "files": [
+          ".gitignore",
+          "board.kicad_pcb",
+          "board.kicad_prl",
+          "board.kicad_pro",
+          "board.kicad_sch",
+          "expected-eco.json",
+          "intent.json"
+        ],
+        "dry_run": false,
+        "restored": [
+          "board.kicad_pcb",
+          "board.kicad_sch"
+        ],
+        "deleted": [],
+        "saved": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb",
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+        ],
+        "validation": [
+          {
+            "file": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb",
+            "check": "kicad-cli pcb export stats",
+            "ok": true
+          },
+          {
+            "file": "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch",
+            "check": "kicad-cli sch export netlist",
+            "ok": true
+          }
+        ],
+        "would_write": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_pcb",
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/board.kicad_sch"
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "sch",
+        "show",
+        "R1"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "15eb3e3c544b5d28beed35477cdcf82fd55475a6a45f54ce172562e5cd70e0de",
+      "stdout_bytes": 778,
+      "result": {
+        "reference": "R1",
+        "value": "330",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "lib_id": "Device:R",
+        "x": 60.0,
+        "y": 60.0,
+        "angle": 0.0,
+        "mirror": null,
+        "unit": 1,
+        "uuid": "aa6a98f6-855a-4df4-8475-9c2e47669b90",
+        "in_bom": true,
+        "on_board": true,
+        "dnp": false,
+        "exclude_from_sim": false,
+        "fields": {
+          "Datasheet": "",
+          "Description": "Resistor"
+        },
+        "power": false,
+        "pins": [
+          {
+            "number": "1",
+            "name": "",
+            "type": "passive",
+            "shape": "line",
+            "unit": 1,
+            "body_style": 1,
+            "x": 60.0,
+            "y": 56.19,
+            "orientation": 270.0,
+            "length": 1.27,
+            "hidden": false,
+            "lib_x": 0.0,
+            "lib_y": 3.81,
+            "outward": [
+              0,
+              -1
+            ]
+          },
+          {
+            "number": "2",
+            "name": "",
+            "type": "passive",
+            "shape": "line",
+            "unit": 1,
+            "body_style": 1,
+            "x": 60.0,
+            "y": 63.81,
+            "orientation": 90.0,
+            "length": 1.27,
+            "hidden": false,
+            "lib_x": 0.0,
+            "lib_y": -3.81,
+            "outward": [
+              0,
+              1
+            ]
+          }
+        ],
+        "instances": {
+          "/d4a0ffd2-2b2d-4786-a8a2-3d02ec66afa2": "R1"
+        }
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "pcb",
+        "footprints"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "8d2eac85cc6755f85618e8fa021ab16018232b87004112c0b90dd0848c5a4d6a",
+      "stdout_bytes": 860,
+      "result": [
+        {
+          "reference": "R2",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 30.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+          "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              28.275,
+              19.005
+            ],
+            "max": [
+              31.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              28.295,
+              19.025
+            ],
+            "max": [
+              31.705,
+              20.975
+            ]
+          }
+        },
+        {
+          "reference": "R1",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 20.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+          "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              18.275,
+              19.005
+            ],
+            "max": [
+              21.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              18.295,
+              19.025
+            ],
+            "max": [
+              21.705,
+              20.975
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5",
+        "sch",
+        "verify",
+        "--expect",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R5/intent.json",
+        "--strict"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "700328b6b232af8bbab796e0596c7cb84cd9934a54d73be89cb0fdb2fe11a8a8",
+      "stdout_bytes": 462,
+      "result": {
+        "match": true,
+        "missing_components": [],
+        "extra_components": [],
+        "field_mismatches": [],
+        "symbol_mismatches": [],
+        "identity_mismatches": [],
+        "name_mismatches": [],
+        "attribute_mismatches": [],
+        "remove_present": [],
+        "missing_nets": [],
+        "extra_nets": [],
+        "renamed": [
+          {
+            "name": "A",
+            "actual": "/A",
+            "pins": [
+              "R1:1",
+              "R2:1"
+            ]
+          },
+          {
+            "name": "B",
+            "actual": "/B",
+            "pins": [
+              "R1:2",
+              "R2:2"
+            ]
+          }
+        ],
+        "merged": [],
+        "split": [],
+        "unconnected_pins": [],
+        "no_connects_missing": [],
+        "no_connects_extra": [],
+        "power_flags_missing": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hybirdss/kicad-cli-extended/schemas/netlist-intent.schema.json",
+  "title": "kce netlist intent",
+  "description": "A schematic described by its netlist: which components exist with which fields, which pins belong on which net, which pins are unconnected, and which nets need a power flag. `kce sch apply` makes a schematic match this file; `kce sch verify --expect` compares KiCad's own netlist with it. Nets are matched by their pin sets, so KiCad's auto-generated net names do not matter. The no_connect, power_flags and remove keys are optional additions to version 1.",
+  "type": "object",
+  "required": [
+    "version",
+    "components",
+    "nets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 1,
+      "description": "Intent format version."
+    },
+    "components": {
+      "type": "array",
+      "description": "Every component in the design, by reference designator. Power symbols and PWR_FLAGs are not components.",
+      "items": {
+        "$ref": "#/$defs/component"
+      }
+    },
+    "nets": {
+      "type": "array",
+      "description": "Nets by pin membership. A pin may belong to one net only.",
+      "items": {
+        "$ref": "#/$defs/net"
+      }
+    },
+    "no_connect": {
+      "type": "array",
+      "description": "Pins that must carry a no-connect flag (REF:PIN). A no-connect pin belongs to no net. `sch apply` places the flags idempotently.",
+      "items": {
+        "type": "string",
+        "pattern": "^[^:]+:[^:]+$"
+      }
+    },
+    "power_flags": {
+      "type": "array",
+      "description": "Pins whose nets need a PWR_FLAG. `sch apply` places the flag on that pin, idempotently.",
+      "items": {
+        "$ref": "#/$defs/power_flag"
+      }
+    },
+    "remove": {
+      "type": "array",
+      "description": "References the design must not contain. `sch apply` deletes them unless --patch is given; `sch verify` reports any that are still present.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "required": [
+        "ref",
+        "lib_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Reference designator, e.g. R1."
+        },
+        "lib_id": {
+          "type": "string",
+          "pattern": "^[^:]+:[^:]+$",
+          "description": "Library symbol, e.g. Device:R."
+        },
+        "footprint": {
+          "type": "string",
+          "description": "Footprint id, e.g. Resistor_SMD:R_0805_2012Metric. Omitted: left as it is."
+        },
+        "value": {
+          "type": "string",
+          "description": "Value field. Omitted: left as it is."
+        },
+        "fields": {
+          "type": "object",
+          "description": "Extra symbol fields by name (MPN, LCSC, ...). Omitted fields are left as they are.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uuid": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          "description": "Symbol uuid; set on the placed symbol."
+        },
+        "at": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "Placement [x, y] in mm. Omitted: a deterministic free grid position."
+        },
+        "angle": {
+          "enum": [
+            0,
+            90,
+            180,
+            270
+          ],
+          "description": "Symbol rotation in degrees."
+        },
+        "unit": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Unit of a multi-unit symbol."
+        },
+        "sheet": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Sub-sheet file or sheet name on the root schematic; default is the root sheet."
+        },
+        "dnp": {
+          "type": "boolean",
+          "description": "Do not populate. Omitted: left as it is."
+        },
+        "in_bom": {
+          "type": "boolean",
+          "description": "Include in the BOM. Omitted: left as it is."
+        },
+        "on_board": {
+          "type": "boolean",
+          "description": "Include on the PCB. Omitted: left as it is."
+        }
+      }
+    },
+    "power_flag": {
+      "type": "object",
+      "required": [
+        "pin"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "pin": {
+          "type": "string",
+          "pattern": "^[^:]+:[^:]+$",
+          "description": "REF:PIN the PWR_FLAG is placed on."
+        }
+      }
+    },
+    "net": {
+      "type": "object",
+      "required": [
+        "name",
+        "pins"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Net name, used as the label text when applying."
+        },
+        "pins": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[^:]+:[^:]+$",
+            "description": "REF:PIN, where PIN is the pin number (a pin name is accepted too)."
+          }
+        },
+        "kind": {
+          "enum": [
+            "local",
+            "global"
+          ],
+          "description": "local = net label on this sheet; global = global label across the hierarchy."
+        }
+      }
+    }
+  }
+}

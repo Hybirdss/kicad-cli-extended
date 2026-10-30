@@ -1,0 +1,7 @@
+* text=auto eol=lf
+# Generated contracts use identical bytes on every platform.
+scripts/skill_template.md text eol=lf
+skills/kicad-cli-extended/*.md text eol=lf
+src/kicad_cli_extended/skill_data/*.md text eol=lf
+schemas/*.json text eol=lf
+src/kicad_cli_extended/schema_data/*.json text eol=lf

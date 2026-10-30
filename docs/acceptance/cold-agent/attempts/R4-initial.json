@@ -1,0 +1,446 @@
+{
+  "prompt": "Increase the I2C pull-ups to 10k and regenerate the outputs. If it makes anything worse, return to this release.",
+  "chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "before-i2c-10k",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "archive",
+      "--output",
+      "A/current-release.zip",
+      "--include-outputs"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "symbols",
+      "--no-power"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "nets"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "score"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "rules",
+      "show"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "jobset",
+      "list"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "erc",
+      "--fail-on",
+      "none",
+      "--output",
+      "A/baseline-erc.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "drc",
+      "--fail-on",
+      "none",
+      "--output",
+      "A/baseline-drc.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "A/i2c-schematic.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "A/i2c-schematic.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "pcb",
+      "update",
+      "--stable-uuids",
+      "--lock-existing"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "A/i2c-sync.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "A/i2c-sync.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "compare",
+      "checkpoint:before-i2c-10k",
+      "--geometry",
+      "--allow",
+      "R_SCL,R_SDA",
+      "--fail-on-unexpected"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "preview",
+      "diff",
+      "--against",
+      "checkpoint:before-i2c-10k",
+      "--root-dir",
+      "A/previews"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "A/i2c-outputs.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "A/i2c-outputs.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "accepted-i2c-10k",
+      "--immutable"
+    ]
+  ],
+  "plans": {
+    "A/i2c-schematic.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "sch",
+            "set-value",
+            "R_SCL",
+            "10k"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-value",
+            "R_SDA",
+            "10k"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "show",
+            "R_SCL"
+          ],
+          "expect": [
+            {
+              "path": "value",
+              "op": "eq",
+              "value": "10k"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "show",
+            "R_SDA"
+          ],
+          "expect": [
+            {
+              "path": "value",
+              "op": "eq",
+              "value": "10k"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "verify",
+            "--expect",
+            "A/expected-i2c.json",
+            "--strict"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--baseline",
+            "A/baseline-erc.json",
+            "--fail-on",
+            "warning"
+          ]
+        }
+      ]
+    },
+    "A/i2c-sync.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "update",
+            "--stable-uuids",
+            "--lock-existing"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "verify",
+            "--expect",
+            "A/expected-i2c.json",
+            "--strict"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--baseline",
+            "A/baseline-erc.json",
+            "--fail-on",
+            "warning"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "drc",
+            "--baseline",
+            "A/baseline-drc.json",
+            "--fail-on",
+            "warning"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            "compare",
+            "checkpoint:before-i2c-10k",
+            "--geometry",
+            "--allow",
+            "R_SCL,R_SDA",
+            "--fail-on-unexpected"
+          ]
+        }
+      ]
+    },
+    "A/i2c-outputs.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "check",
+            "erc",
+            "--fail-on",
+            "error"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "drc",
+            "--fail-on",
+            "error"
+          ]
+        },
+        {
+          "args": [
+            "fab",
+            "package",
+            "--preset",
+            "PRESET",
+            "--output-dir",
+            "P/outputs/i2c-10k-candidate",
+            "--fail-on-drc",
+            "--manifest"
+          ],
+          "expect": [
+            {
+              "path": "complete",
+              "op": "true"
+            },
+            {
+              "path": "files",
+              "op": "nonempty"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '330,520p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "sed -n '1,95p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '520,680p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe run",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe fab package",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe project compare",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe check erc",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe check drc"
+  ],
+  "notes": {
+    "execution": "실제 프로젝트 명령은 실행하지 않았다. chain은 검사 결과에 따라 중단하는 조건부 계획이며 마지막 checkpoint는 모든 수용 조건이 통과했을 때만 실행한다.",
+    "placeholders": "P는 프로젝트, A는 프로젝트 밖의 기록 디렉터리. R_SCL/R_SDA는 sch symbols와 sch nets에서 실제 I2C 신호와 공급 레일 사이의 풀업으로 확인한 참조로 대체한다. 추가 I2C 풀업이 있으면 같은 패턴으로 포함한다. PRESET은 기존 릴리스에서 확인한 프리셋이다.",
+    "intent": "A/expected-i2c.json은 변경 전 전체 부품과 연결을 sch nets로 확인하여 작성하되 확인한 풀업 값만 10k로 바꾼 기대 intent이다. 출력 종류와 프리셋은 project info, 기존 산출물 목록, jobset list 및 필요한 jobset show로 확인한다. 기존 릴리스가 fab package 이외의 PDF 등도 포함하면 같은 출력 계획 안에 기존 설정의 export 단계를 추가한다. 알려지지 않은 jobset을 무작정 실행하지 않는다.",
+    "inspection": "doctor 실패 시 중단한다. checkpoint와 아카이브 생성 결과를 확인한다. PCB update preview의 would_remove, replaced, pads_moved, tracks_ending_on_old_pads, unmatched_pins를 검사하고 값 변경 외 동작이 있으면 거절한다. ERC/DRC는 새 경고 이상을 baseline으로 거절하며 전체 출력 제조 게이트도 통과해야 한다. 비교에서 허용된 두 참조 안에서도 위치, 풋프린트, 연결, 라우팅 변화가 없는지 확인한다.",
+    "electrical": "10k로 올리면 I2C 상승 시간이 늘 수 있으므로 확인된 공급전압, 버스 속도, 정전용량 및 기기 사양에 대해 타이밍 여유를 비교한다. ERC/DRC만으로 통신 악화가 없다고 판정하지 않는다. 기존 검증 자료 또는 실제 통신 측정으로 평가할 수 없으면 수용 checkpoint를 만들지 않고 원래 릴리스로 돌아간다.",
+    "outputs": "새 후보 디렉터리를 사용해 기존 릴리스 출력은 보존한다. complete:true 및 비어 있지 않은 files, manifest 해시, 필요한 출력 종류와 BOM 값 10k를 확인한다. checkpoint에는 outputs가 포함되지 않으므로 session restore만으로 산출물까지 복구된다고 주장하지 않는다. 아카이브는 출력까지 보존하는 보조 복구본이다.",
+    "failure_chain": [
+      [
+        "--json",
+        "--project",
+        "P",
+        "session",
+        "restore",
+        "before-i2c-10k"
+      ],
+      [
+        "--json",
+        "--project",
+        "P",
+        "project",
+        "compare",
+        "checkpoint:before-i2c-10k"
+      ],
+      [
+        "--json",
+        "--project",
+        "P",
+        "sch",
+        "nets"
+      ],
+      [
+        "--json",
+        "--project",
+        "P",
+        "check",
+        "erc",
+        "--baseline",
+        "A/baseline-erc.json",
+        "--fail-on",
+        "warning"
+      ],
+      [
+        "--json",
+        "--project",
+        "P",
+        "check",
+        "drc",
+        "--baseline",
+        "A/baseline-drc.json",
+        "--fail-on",
+        "warning"
+      ]
+    ],
+    "failure_policy": "어느 단계든 실패하거나 성능·연결·레이아웃·산출물이 악화되면 즉시 이후 실행을 멈추고 failure_chain을 실행한다. compare.identical 및 원래 부품 값/연결을 확인하고 기존 릴리스 산출물을 계속 사용한다. 후보 산출물은 거절 상태로 남기고 배포하지 않는다. 복원 실패나 commit_state unknown은 완료로 처리하지 않는다."
+  }
+}

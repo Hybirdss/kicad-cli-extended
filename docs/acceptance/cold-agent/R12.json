@@ -1,0 +1,444 @@
+{
+  "prompt": "The D-PHY lanes: make sure every pair is 100 Ω differential, routed, matched to 50 µm skew, with a GND fence on lane 0 and stitching around it. Add teardrops on the vias. Then 2 rows by 3 columns, V-score, rails top and bottom, give me a file I can send to the fab.",
+  "chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "ratsnest"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "netclass",
+      "list"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "rules",
+      "show"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "stackup"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "diffpair",
+      "list"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "length",
+      "report"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "zones"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "pre-hs",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "HS_RULES_PLAN.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "HS_RULES_PLAN.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "HS_ROUTE_PLAN.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "HS_ROUTE_PLAN.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "length",
+      "report"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "HS_FINISH_PLAN.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "HS_FINISH_PLAN.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "diffpair",
+      "list"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "length",
+      "report"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "erc",
+      "--fail-on",
+      "error"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "drc",
+      "--fail-on",
+      "error"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "panelize",
+      "--rows",
+      "2",
+      "--cols",
+      "3",
+      "--mode",
+      "vscore",
+      "--spacing",
+      "0",
+      "--rails",
+      "tb",
+      "--strict",
+      "--drc",
+      "--output",
+      "P/outputs/panel/dphy-panel.kicad_pcb"
+    ],
+    [
+      "--json",
+      "--project",
+      "P/outputs/panel/dphy-panel.kicad_pcb",
+      "check",
+      "drc",
+      "--fail-on",
+      "error"
+    ],
+    [
+      "--json",
+      "--project",
+      "P/outputs/panel/dphy-panel.kicad_pcb",
+      "fab",
+      "package",
+      "--preset",
+      "generic",
+      "--fail-on-drc",
+      "--manifest",
+      "--output-dir",
+      "P/outputs/releases/dphy-panel-RELEASE"
+    ]
+  ],
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n -A 70 -B 8 'High.speed|diffpair|impedance|panelize|fab package|fence' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "rg -n 'diffpair|impedance|fence|fab package' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb diffpair rule",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb diffpair route",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb length tune",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb panelize",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe fab package",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb stackup",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb fence",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb stitch",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --help",
+    "rg -n 'impedance|100|stackup|panel' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md"
+  ],
+  "notes": [
+    "실제 프로젝트에는 조회·변경을 실행하지 않았다. 첫 선택 체인은 R1, R12, R7 순서다. 계획 파일은 P 밖에 둔다.",
+    "PAIR_I, P/N 이름, 출발/도착 참조, 실제 GND 이름, 레이어, lane0 주변 영역은 조회 결과로 치환한다. pair마다 length rule, route, tune 단계를 펼친다. 모든 D-PHY 데이터·클럭 pair를 포함하고 목록과 netlist를 대조한다. 이미 완전히 라우팅된 pair에 중복 route를 적용하지 않는다.",
+    "W100_MM/G100_MM는 숫자를 임의로 정하지 않는다. 제공 문서와 describe에는 임피던스 계산/검증 명령이 없다. pcb stackup과 제조사 승인 스택업의 유전율·동박두께·층간거리로 100 Ω 차동을 만족하는 폭/간격을 외부 필드 솔버 또는 제조사로 확인하기 전 HS_RULES_PLAN 실행에서 멈춘다. 폭/간격 DRC와 길이 검사만으로 100 Ω 달성을 주장하지 않는다.",
+    "50 µm = 0.05 mm이고 각 pair 내 P/N skew 한계로 해석한다. route 후 측정한 짧은 leg만 긴 leg에 맞춘다. 튜닝 후 전체 pair의 skew <= 0.05와 미배선 0, DRC를 확인한다. pair 간 동길이 목표가 필요하면 추가 specification이 필요하다.",
+    "fence는 lane 0의 양 신호를 대상으로 하되 내부 충돌·접지 연결과 실효 배치를 DRC/실물 미리보기로 확인한다. stitching 전에 해당 영역의 GND pour 존재/충진을 확인하고 없으면 검증된 영역에 GND pour를 추가한다. pitch/offset/via 치수는 주파수·스택업·제조 한계에 맞게 확정한다. teardrops는 요청대로 vias 대상이다.",
+    "panelize 직전 source PCB의 SHA-256을 보존하고 반환 source_sha256 및 작업 후 파일 해시와 대조한다. panel은 별도 출력, 2행 3열, vscore, spacing 0, tb rails이다. 결과의 effective mode/spacing, 패널 DRC를 확인한다.",
+    "V-score 제조사 기능 검증은 구현되지 않았다고 문서에 명시돼 있다. 제조사 승인 조건·가공층/Cmts.User 전달·rails 폭·부품 이격을 확인하고 V-score 도면/제작 지시서를 패키지에 함께 제공해야 한다. 성공한 panel export/DRC를 제조 승인으로 해석하지 않는다.",
+    "fab package는 원본이 아니라 생성한 panel PCB를 project로 선택한다. 제조사가 지정되지 않아 generic preset을 사용한다. 신규 output-dir에서 complete:true, failed_steps 없음, files[]와 ZIP의 비어 있지 않은 실제 내용·해시, Gerber의 V-score 지시층 포함을 확인한 뒤만 납품한다. 제조 주문/결제는 하지 않는다.",
+    "이 JSON은 조사 후 치환이 필요한 첫 명령 체인의 제안이며 100 Ω 검증값과 실제 보드 응답 없이 그대로 실행 가능한 확정 계획은 아니다."
+  ],
+  "plans": {
+    "HS_RULES_PLAN.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "project",
+            "netclass",
+            "set",
+            "DPHY",
+            "--diff-pair-width",
+            "W100_MM",
+            "--diff-pair-gap",
+            "G100_MM"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            "netclass",
+            "assign",
+            "EXACT_DPHY_NET_PATTERN",
+            "DPHY"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "diffpair",
+            "rule",
+            "EXACT_DPHY_PAIR_PATTERN",
+            "--width",
+            "W100_MM",
+            "--gap",
+            "G100_MM",
+            "--max-skew",
+            "0.05"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "length",
+            "rule",
+            "DPHY-skew",
+            "--nets",
+            "PAIR_I_P,PAIR_I_N",
+            "--max-skew",
+            "0.05"
+          ]
+        }
+      ]
+    },
+    "HS_ROUTE_PLAN.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "diffpair",
+            "route",
+            "PAIR_I",
+            "--from",
+            "FROM_REF_I",
+            "--to",
+            "TO_REF_I",
+            "--layer",
+            "ROUTING_LAYER",
+            "--width",
+            "W100_MM",
+            "--gap",
+            "G100_MM"
+          ]
+        }
+      ]
+    },
+    "HS_FINISH_PLAN.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "length",
+            "tune",
+            "SHORTER_LEG_I",
+            "--match",
+            "LONGER_LEG_I",
+            "--tolerance",
+            "0.01",
+            "--layer",
+            "ROUTING_LAYER"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "fence",
+            "--net",
+            "LANE0_P",
+            "--fence-net",
+            "GROUND_NET"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "fence",
+            "--net",
+            "LANE0_N",
+            "--fence-net",
+            "GROUND_NET"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "zone",
+            "fill"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "stitch",
+            "--net",
+            "GROUND_NET",
+            "--rect",
+            "LANE0_SURROUNDING_XYWH"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "teardrops",
+            "add",
+            "--target",
+            "vias"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "zone",
+            "fill"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "length",
+            "report"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "drc",
+            "--fail-on",
+            "error"
+          ]
+        }
+      ]
+    }
+  }
+}

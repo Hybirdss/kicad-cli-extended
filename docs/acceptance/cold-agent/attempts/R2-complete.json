@@ -1,0 +1,152 @@
+{
+  "prompt": "Build a 50 by 40 mm, two-layer ESP32-S3-WROOM-1 sensor board with a BME280 on I2C. Use IO8 for SDA and IO9 for SCL, with 4.7k pull-ups. The BME280 uses address 0x76. J1 supplies regulated 3.3 V and GND. J2 is a 3.3 V UART programming header, ordered GND, module TX, module RX, EN. J3 is ordered 3V3, GND, SDA, SCL. Add RESET and BOOT buttons with 10k pull-ups, EN timing capacitance, supply bulk capacitance, and local bypass capacitors. Put the sensor away from the module. Use the module footprint's antenna keepout. Produce KiCad files and a JLCPCB package. Keep the electrical intent in JSON and recover automatically from failed edits.",
+  "chain": [
+    [
+      "--json",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "search",
+      "ESP32-S3-WROOM-1"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "search",
+      "BME280"
+    ],
+    [
+      "--json",
+      "lib",
+      "fp",
+      "search",
+      "ESP32-S3-WROOM-1"
+    ],
+    [
+      "--json",
+      "lib",
+      "fp",
+      "search",
+      "BME280"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "search",
+      "Conn_01x02"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "search",
+      "Conn_01x04"
+    ],
+    [
+      "--json",
+      "lib",
+      "sym",
+      "search",
+      "SW_Push"
+    ],
+    [
+      "--json",
+      "lib",
+      "suggest-footprints",
+      "Device:R",
+      "--size",
+      "0603"
+    ],
+    [
+      "--json",
+      "lib",
+      "suggest-footprints",
+      "Device:C",
+      "--size",
+      "0603"
+    ]
+  ],
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '285,500p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "sed -n '1,110p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe sch apply",
+    "sed -n '498,585p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe run",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb score",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb footprints"
+  ],
+  "notes": {
+    "scope": "선택한 첫 체인은 R1 환경 점검과 R2 부품 검색이다. 실제 kce 설계 명령은 실행하지 않았다. 소스·테스트·리뷰·다른 기록은 읽지 않았다. 검색 결과를 아직 관찰하지 않았으므로 심벌 ID, 핀 번호, land pattern, keepout 좌표를 추정한 제작 체인을 확정하지 않는다.",
+    "gates": [
+      "doctor.ok가 true일 때만 다음 단계로 진행한다. false면 환경 문제를 먼저 해결한다.",
+      "검색 결과의 정확한 ID를 lib sym show / lib fp show로 확인하고 lib link-check로 핀과 패드 대응을 점검한다. 모듈 footprint의 내장 안테나 keepout 및 방향을 확인한다."
+    ],
+    "intent_requirements": {
+      "board": {
+        "size_mm": [
+          50,
+          40
+        ],
+        "copper_layers": 2
+      },
+      "U1": "ESP32-S3-WROOM-1; IO8=SDA, IO9=SCL; 확인된 UART TX/RX 핀을 J2에 연결",
+      "U2": "BME280; VDD/VDDIO=3V3, GND=GND, CSB=3V3로 I2C 모드, SDO=GND로 주소 0x76",
+      "headers": {
+        "J1": [
+          "3V3",
+          "GND"
+        ],
+        "J2": [
+          "GND",
+          "module TX",
+          "module RX",
+          "EN"
+        ],
+        "J3": [
+          "3V3",
+          "GND",
+          "SDA",
+          "SCL"
+        ]
+      },
+      "passives": [
+        "SDA와 SCL 각각 3V3에 4.7k pull-up",
+        "EN과 BOOT(IO0) 각각 3V3에 10k pull-up",
+        "RESET 버튼: EN-GND",
+        "BOOT 버튼: IO0-GND",
+        "EN timing capacitor: EN-GND",
+        "3V3 공급 bulk capacitor",
+        "모듈과 센서 전원 핀 가까이 local bypass capacitors"
+      ],
+      "placement": "센서를 모듈에서 멀리 배치하고 모듈 안테나의 내장 keepout을 보존한다. 센서 bypass는 센서 가까이, 모듈 bypass는 모듈 전원 패드 가까이 배치한다.",
+      "oracle": "P/intent.json에 승인된 핀 매핑·부품·값·footprint·net·명시적 no_connect를 작성하고 독립 사본은 P 밖에 보관한다. 기대값은 검증되지 않은 실제 결과에서 역생성하지 않는다."
+    },
+    "continuation_after_discovery": [
+      "project new P --name sensor --title ESP32-S3 BME280 Sensor; project info; P/intent.json 작성 후 session checkpoint initial --immutable. 새 프로젝트 생성 이전에는 checkpoint가 불가능하므로 생성 직후 최초 편집 전에 checkpoint한다.",
+      "--dry-run sch apply P/intent.json --power-flags. 외부 stage-schematic.json의 run plan에서 sch apply, 명시적 sch no-connect, sch annotate, sch verify --expect P/intent.json --strict(match:true 기대), check erc --fail-on error를 묶어 dry-run 후 실행한다. 성공 시 schematic-ok checkpoint.",
+      "outline 50,40 및 copper layers 2를 설정하고 --dry-run pcb update --stable-uuids 결과의 unmatched_pins, 교체·제거 항목을 검토한 뒤 적용한다. 초기 grid 배치 및 pcb score courtyard_overlaps.count=0, outside_outline.count=0을 같은 승인 단계에서 게이트한 뒤 synced-ok checkpoint.",
+      "pre-place checkpoint. 안테나 방향·내장 keepout과 보드 가장자리를 확인해 모듈과 커넥터 anchor를 이동·lock한다. 센서를 멀리 놓고 local bypass는 pcb place near로 bounded 배치한다. --dry-run pcb legalize --strict, score의 두 count=0, 보드 preview 확인 후 placement checkpoint.",
+      "project rules show를 확인하고 선택한 제조 제약·netclass를 설정한다. 배선 단계에서 pcb autoroute의 failed 배열과 pcb connectivity를 확인하고 GND pour를 F.Cu/B.Cu에 만들고 fill한다. verify/ERC/DRC를 같은 run 단계의 승인 조건으로 묶는다. 성공한 routed checkpoint를 만든다.",
+      "sch verify --strict, check erc --fail-on error, check drc --fail-on error 후 fab package --preset jlcpcb --fail-on-drc --output-dir P/outputs/jlcpcb-release. complete:true 및 files[] 비어 있지 않음을 요구한다. BOM/CPL ref, orientation, pin 1을 확인하고 실제 KiCad 파일과 intent JSON도 인계한다. 확인하지 않은 vendor/LCSC 번호는 만들어 넣지 않는다."
+    ],
+    "recovery": "각 변경 단계는 P 밖의 version:1 run plan에 mutations와 expect acceptance를 함께 넣어 --dry-run run 다음 run으로 실행한다. 실패하면 run의 자동 project/history rollback을 검사하고 원인을 확인한다. rolled_back:false 또는 commit_state:unknown이면 마지막 승인 checkpoint로 session restore하고 intent/score를 재검증한 뒤만 재시도한다. PlacementBlocked에서 잠긴 anchor를 자동 해제하지 않는다. builtin autoroute가 부분 결과를 남기면 undo/승인 checkpoint 복원 후 더 촘촘한 grid로 제한된 재시도한다. 아직 관찰하지 않은 결과를 전제로 run plan을 작성하지 않았으므로 plans 객체는 없다."
+  }
+}

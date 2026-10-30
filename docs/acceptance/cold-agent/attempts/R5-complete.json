@@ -1,0 +1,654 @@
+{
+  "prompt": "C2 is EOL. Swap it for a Panasonic EEU-FR1V221, 220 µF/35 V radial, 8 mm can, 3.5 mm pitch. Put the MPN in the schematic. Also add a 100 nF decoupling cap on the 74HC125's supply. Update the PCB from the schematic. I don't want any placed part to move and I don't want the router touching existing copper. Put the new cap right next to U2's supply pins and route only what is missing.",
+  "chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "commands",
+      "--full"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "skill",
+      "status"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "symbols",
+      "--no-power"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "C2"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "pins",
+      "U2"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "net-of",
+      "U2:SUPPLY_PIN"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "net-of",
+      "U2:GROUND_PIN"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "nets"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "tracks"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "ratsnest"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "score"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "rules",
+      "show"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "erc",
+      "--fail-on",
+      "none"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "drc",
+      "--fail-on",
+      "none"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "lib",
+      "fp",
+      "show",
+      "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "lib",
+      "sym",
+      "show",
+      "Device:C"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "lib",
+      "suggest-footprints",
+      "Device:C",
+      "--size",
+      "0603"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "lib",
+      "fp",
+      "show",
+      "DECOUPLING_FOOTPRINT"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "pre-eco",
+      "--immutable"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/eco.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "pcb",
+      "update",
+      "--stable-uuids",
+      "--lock-existing",
+      "--no-place"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/sync.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/sync.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/place.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/place.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "ratsnest"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "tracks"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "--dry-run",
+      "run",
+      "OUTSIDE_P/route.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "run",
+      "OUTSIDE_P/route.json"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "compare",
+      "checkpoint:pre-eco",
+      "--geometry"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "footprints"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "tracks"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "pcb",
+      "connectivity"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "C2"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "sch",
+      "show",
+      "C_NEW"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "session",
+      "checkpoint",
+      "eco-ok",
+      "--immutable"
+    ]
+  ],
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '280,470p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "rg -n 'autoroute|geometry|preserve|lock-existing|decoupl|update|place near' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "sed -n '478,566p' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb update",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb autoroute",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe project compare",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb place near",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb route",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe pcb lock",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe sch verify"
+  ],
+  "notes": [
+    "R1→R5/R6. 실제 설계에는 명령을 실행하지 않았다. chain은 읽기 결과에 따라 자리표시자를 확정하는 조건부 첫 명령 체인이다. C_NEW는 사용되지 않는 다음 커패시터 참조, 공급/접지 핀과 실제 net 및 label kind는 U2 pins/nets 결과에서 결정한다. 74HC125 공급 핀 번호를 미리 가정하지 않는다. 새 C의 도면 좌표는 빈 곳으로 정하고 실제 부품 및 보드 환경에 적합한 100nF footprint를 검색·확인한다.",
+    "기준 sch nets/footprints/tracks/score/ERC/DRC 결과를 보존한다. check 결과 JSON을 P/outputs/erc-before.json 및 drc-before.json에 저장한다. 승인된 기존 전체 intent에 C2의 value, MPN, 제조사, voltage, footprint와 C_NEW 및 두 전원 연결만 반영한 expected-eco.json을 P 안에 만들고 독립본을 외부에 보존한다. baseline/expected 파일은 checkpoint 전에 준비한다.",
+    "eco dry-run 후 C2 read-back에서 MPN=EEU-FR1V221, Voltage=35V, footprint 및 극성/핀 네트 보존을 확인하고 C_NEW가 U2의 동일 공급/접지 net에 연결되는지 확인한다. strict verify match=true가 아니면 PCB 동기화를 하지 않는다.",
+    "PCB update는 --lock-existing으로 기존 footprint 위치 또는 pad displacement를 거부한다. --no-place로 새 부품 자동 배치를 하지 않는다. dry-run의 removed/replaced/pads_moved/unmatched_pins 및 기존 UUID를 모두 검사한다. C2의 새 8mm/3.5mm footprint가 기존 pad를 옮기면 여기서 중지하고 제약 충돌을 보고한다. 잠금 해제나 force로 우회하지 않는다. --stable-uuids가 기존 UUID를 바꾸는 경우도 승인하지 않는다.",
+    "새 cap만 U2 supply pad 주변 3mm 이내에 place near로 놓는다. 기존 부품 전부 잠그고 기존 부품의 실제 위치/회전/면을 기준과 대조한다. legal 위치가 없으면 PlacementBlocked로 중단하며 기존 부품을 이동하지 않는다. preview와 pad 위치를 보고 두 공급 경로가 짧은지 확인한다.",
+    "기존 copper를 건드리지 않기 위해 pcb route로 새 연결만 추가한다. 문서상 route는 obstacle avoidance가 없으므로 실제 pad/track/zone 기하를 보고 빈 경로 waypoints를 확정한 후 dry-run 및 DRC로 통과시킨다. 경유점이 불필요하면 --via-points를 생략한다. ratnest에서 이미 연결된 두 pin pair는 해당 route step을 생략한다. 다른 미연결은 ECO에 의한 것만 별도 route step을 같은 방식으로 추가한다. 전체 autoroute/freerouting/SES/zone refill을 실행하지 않는다.",
+    "모든 dry-run 결과에서 기존 footprint 위치/회전/면 및 pad 위치, net, UUID가 불변이고 기존 track/via/zone의 원래 항목들이 동일함을 외부 baseline과 비교한다. 허용하는 차이는 C2의 요청된 속성·footprint 교체와 새 cap 및 필요한 copper 추가뿐이다. 비교가 불명확하거나 기존 copper 변경이 있으면 실 실행하지 않는다. 실제 stage 후에도 같은 비교를 하고 불일치면 pre-eco로 restore한다. plan에서 알려진 schema 필드만 expect로 작성했으며 나머지 비교 판정은 결과 수동 검사이다.",
+    "기존 ERC/DRC를 baseline으로 새 오류가 없도록 gate한다. 모든 조건이 통과해야 eco-ok checkpoint를 만든다. 사용자가 제조·Git commit을 요청하지 않았으므로 실행하지 않는다."
+  ],
+  "plans": {
+    "OUTSIDE_P/eco.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "sch",
+            "set-value",
+            "C2",
+            "220uF"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-field",
+            "C2",
+            "MPN",
+            "EEU-FR1V221"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-field",
+            "C2",
+            "Manufacturer",
+            "Panasonic"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-field",
+            "C2",
+            "Voltage",
+            "35V"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "set-footprint",
+            "C2",
+            "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "add",
+            "Device:C",
+            "--ref",
+            "C_NEW",
+            "--at",
+            "SCH_FREE_X,SCH_FREE_Y",
+            "--value",
+            "100nF",
+            "--footprint",
+            "DECOUPLING_FOOTPRINT"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "label-pin",
+            "C_NEW:1",
+            "SUPPLY_NET",
+            "--kind",
+            "NET_LABEL_KIND"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "label-pin",
+            "C_NEW:2",
+            "GROUND_NET",
+            "--kind",
+            "NET_LABEL_KIND"
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "show",
+            "C2"
+          ],
+          "expect": [
+            {
+              "path": "value",
+              "op": "eq",
+              "value": "220uF"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "show",
+            "C_NEW"
+          ],
+          "expect": [
+            {
+              "path": "value",
+              "op": "eq",
+              "value": "100nF"
+            }
+          ]
+        },
+        {
+          "args": [
+            "sch",
+            "verify",
+            "--expect",
+            "expected-eco.json",
+            "--strict"
+          ],
+          "expect": [
+            {
+              "path": "match",
+              "op": "true"
+            }
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--baseline",
+            "outputs/erc-before.json",
+            "--fail-on",
+            "error"
+          ]
+        }
+      ]
+    },
+    "OUTSIDE_P/sync.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "update",
+            "--stable-uuids",
+            "--lock-existing",
+            "--no-place"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            "compare",
+            "checkpoint:pre-eco",
+            "--geometry"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "footprints"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "tracks"
+          ]
+        }
+      ]
+    },
+    "OUTSIDE_P/place.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "lock",
+            "--all",
+            "--except",
+            "C_NEW"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "place",
+            "near",
+            "C_NEW",
+            "--to",
+            "U2:SUPPLY_PIN",
+            "--max-dist",
+            "3",
+            "--grid",
+            "0.25",
+            "--rotation",
+            "auto"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "score"
+          ],
+          "expect": [
+            {
+              "path": "courtyard_overlaps.count",
+              "op": "eq",
+              "value": 0
+            },
+            {
+              "path": "outside_outline.count",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "footprints"
+          ]
+        }
+      ]
+    },
+    "OUTSIDE_P/route.json": {
+      "version": 1,
+      "steps": [
+        {
+          "args": [
+            "pcb",
+            "route",
+            "C_NEW:1",
+            "U2:SUPPLY_PIN",
+            "--width",
+            "auto",
+            "--via-points",
+            "POWER_CLEAR_WAYPOINTS"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "route",
+            "C_NEW:2",
+            "U2:GROUND_PIN",
+            "--width",
+            "auto",
+            "--via-points",
+            "GROUND_CLEAR_WAYPOINTS"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "connectivity"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "erc",
+            "--baseline",
+            "outputs/erc-before.json",
+            "--fail-on",
+            "error"
+          ]
+        },
+        {
+          "args": [
+            "check",
+            "drc",
+            "--baseline",
+            "outputs/drc-before.json",
+            "--fail-on",
+            "error"
+          ]
+        },
+        {
+          "args": [
+            "project",
+            "compare",
+            "checkpoint:pre-eco",
+            "--geometry"
+          ]
+        },
+        {
+          "args": [
+            "pcb",
+            "tracks"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "prompt": "If that's clean, regenerate the JLCPCB package. Don't commit; I'll review first.",
+  "chain": [
+    [
+      "--json",
+      "--project",
+      "P",
+      "info",
+      "doctor"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "project",
+      "info"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "check",
+      "diagnose",
+      "--fail-on",
+      "warning"
+    ],
+    [
+      "--json",
+      "--project",
+      "P",
+      "fab",
+      "package",
+      "--preset",
+      "jlcpcb",
+      "--fail-on-drc",
+      "--require-lcsc",
+      "--manifest",
+      "--output-dir",
+      "P/outputs/jlcpcb-review"
+    ]
+  ],
+  "reads": [
+    "cat /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "rg -n -A 24 -B 8 'fab package|check diagnose|check drc|Clean|clean|fabrication|JLCPCB' /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/SKILL.md /home/example/.omo/waves/kce-p4/cold-agent/skills/kicad-cli-extended/COMMANDS.md",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe fab package",
+    "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/kce --json info describe check diagnose"
+  ],
+  "notes": "계획만 기록했다. 명령은 순차 실행하며 doctor.ok가 true이고 각 명령이 성공한 경우에만 다음 단계로 간다. 선행 문맥의 that을 특정할 근거가 없으므로 ERC와 DRC 모두 경고까지 검사하고 findings가 있으면 패키지 생성을 중단한다. 기존 승인 패키지를 보존하도록 아직 없는 검토용 출력 디렉터리를 선택한다. 패키지 결과 complete:true, failed_steps 비어 있음, files 및 zip 경로와 SHA-256을 확인하고 BOM의 LCSC 및 CPL 회전 검토 항목을 사용자에게 전달한다. 실제 프로젝트 변경이나 패키지 생성, git commit은 수행하지 않았다. 실제 작업에서도 커밋하지 않는다."
+}

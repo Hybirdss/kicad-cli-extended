@@ -1,0 +1,3691 @@
+{
+  "recipe": "R9",
+  "source_plan": "R9.json",
+  "raw_log": "/home/example/.omo/waves/kce-p4/cold-agent/R9-execution.jsonl",
+  "raw_log_sha256": "98724b508c6717c7bdebb17a8eb2ccf03258cb300cfbe2f8e1db4d2a5ea26a55",
+  "calls": [
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "info",
+        "doctor"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "1fa732ec61aa09a9868ee158ee946178496de8de6c6efb1093f603d37aaa41cd",
+      "stdout_bytes": 1927,
+      "result": {
+        "tool": "kicad-cli-extended",
+        "version": "0.1.0",
+        "os": "Linux",
+        "platform": "linux",
+        "python": "/home/example/.omo/waves/kce-p4/cold-agent/venv/bin/python",
+        "python_version": "3.14.8",
+        "kicad_cli": "/usr/bin/kicad-cli",
+        "kicad_cli_source": "PATH",
+        "kicad_version": "10.0.7",
+        "supported": true,
+        "supported_majors": [
+          10
+        ],
+        "pcbnew_python": "/usr/bin/python3",
+        "pcbnew_version": "10.0.7",
+        "share_dir": "/usr/share/kicad",
+        "path_variables": {
+          "KICAD10_3DMODEL_DIR": "/usr/share/kicad/3dmodels",
+          "KICAD10_FOOTPRINT_DIR": "/usr/share/kicad/footprints",
+          "KICAD10_SYMBOL_DIR": "/usr/share/kicad/symbols",
+          "KICAD10_TEMPLATE_DIR": "/usr/share/kicad/template",
+          "KICAD_USER_TEMPLATE_DIR": "/home/example/.config/kicad/10.0/template"
+        },
+        "symbol_dir": "/usr/share/kicad/symbols",
+        "footprint_dir": "/usr/share/kicad/footprints",
+        "3dmodel_dir": null,
+        "template_dir": "/usr/share/kicad/template",
+        "symbol_libraries": 223,
+        "footprint_libraries": 155,
+        "templates": [
+          "API_Series-500",
+          "Arduino_Mega",
+          "Arduino_Micro",
+          "Arduino_Nano",
+          "Arduino_Pro_Mini",
+          "Arduino_Uno",
+          "BeagleBone-Black-Cape",
+          "Edgeberry_Cartridge",
+          "EuroCard160mmX100mm",
+          "Hammond_1593K_Enclosure",
+          "KiCad_MR_diagrams_large_parts",
+          "KiCad_MR_diagrams_small_parts",
+          "RaspberryPi-HAT",
+          "RaspberryPi-uHAT",
+          "STM32H7_DevEBox",
+          "STM32_Nucleo-64_Morpho",
+          "TI-LaunchPad-BoosterPack-20pin",
+          "TI-LaunchPad-BoosterPack-40pin",
+          "stm32f100-discovery-shield"
+        ],
+        "config_dir": "/home/example/.config/kicad/10.0",
+        "global_sym_lib_table": true,
+        "global_fp_lib_table": true,
+        "global_design_block_lib_table": true,
+        "freerouting": null,
+        "ngspice": {
+          "kind": "executable",
+          "path": "/usr/bin/ngspice"
+        },
+        "kicad_ipc_api": {
+          "kicad_python": null,
+          "hint": "optional: `pip install kicad-python` for `kce gui ...`"
+        },
+        "capabilities": {
+          "step": false,
+          "render": false,
+          "freerouting": false,
+          "ngspice": true,
+          "display": true
+        },
+        "warnings": [
+          {
+            "id": "3dmodels_missing",
+            "effect": "STEP/VRML/render can show a bare PCB",
+            "fix": "Install KiCad 3D packages (Linux: kicad-packages3d) and set KICAD10_3DMODEL_DIR"
+          }
+        ],
+        "ok": true
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "project",
+        "info"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "b1329bb83aaf3949ff88e0bab4d640cf3927f09d092d51327153f7b65d616831",
+      "stdout_bytes": 893,
+      "result": {
+        "name": "board",
+        "dir": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "pro": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pro",
+        "sch": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_sch",
+        "pcb": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+        "exists": true,
+        "files": [
+          {
+            "path": "board.kicad_pcb",
+            "kind": "board",
+            "bytes": 8762
+          },
+          {
+            "path": "board.kicad_prl",
+            "kind": "local-settings",
+            "bytes": 2292
+          },
+          {
+            "path": "board.kicad_pro",
+            "kind": "project",
+            "bytes": 552
+          },
+          {
+            "path": "board.kicad_sch",
+            "kind": "schematic",
+            "bytes": 6199
+          }
+        ],
+        "text_variables": {},
+        "net_classes": [],
+        "kicad_version": "10.0.7",
+        "schematic": {
+          "version": "20260306",
+          "generator_version": "10.0",
+          "symbols": 2,
+          "sheets": 0,
+          "wires": 4,
+          "labels": 4,
+          "title_block": {
+            "title": "board"
+          }
+        },
+        "board": {
+          "version": "20260206",
+          "generator_version": "10.0",
+          "footprints": 2,
+          "tracks": 0,
+          "vias": 0,
+          "zones": 0,
+          "nets": 0,
+          "copper_layers": 2
+        }
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "sch",
+        "symbols",
+        "--no-power"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "faf9ef00c1979670ffec2d03fca1b2dad0407a0675cf154ff967639c32a0cb82",
+      "stdout_bytes": 660,
+      "result": [
+        {
+          "reference": "R1",
+          "value": "330",
+          "footprint": "Resistor_SMD:R_0805_2012Metric",
+          "lib_id": "Device:R",
+          "x": 60.0,
+          "y": 60.0,
+          "angle": 0.0,
+          "mirror": null,
+          "unit": 1,
+          "uuid": "aa6a98f6-855a-4df4-8475-9c2e47669b90",
+          "in_bom": true,
+          "on_board": true,
+          "dnp": false,
+          "exclude_from_sim": false,
+          "fields": {
+            "Datasheet": "",
+            "Description": "Resistor"
+          },
+          "power": false
+        },
+        {
+          "reference": "R2",
+          "value": "330",
+          "footprint": "Resistor_SMD:R_0805_2012Metric",
+          "lib_id": "Device:R",
+          "x": 80.0,
+          "y": 60.0,
+          "angle": 0.0,
+          "mirror": null,
+          "unit": 1,
+          "uuid": "e258f2cc-365a-4ccf-8316-0491496dd9b9",
+          "in_bom": true,
+          "on_board": true,
+          "dnp": false,
+          "exclude_from_sim": false,
+          "fields": {
+            "Datasheet": "",
+            "Description": "Resistor"
+          },
+          "power": false
+        }
+      ]
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "sch",
+        "nets"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "fa5cdb0c2a9a4b4c8273acc62954cc746dbeb282eeecf5be75fa4b0a2cd6dc91",
+      "stdout_bytes": 530,
+      "result": {
+        "components": 2,
+        "net_count": 2,
+        "nets": [
+          {
+            "name": "/A",
+            "code": 1,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "1",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:1",
+              "R2:1"
+            ]
+          },
+          {
+            "name": "/B",
+            "code": 2,
+            "sheet_path": "/",
+            "class": "Default",
+            "pins": [
+              {
+                "ref": "R1",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              },
+              {
+                "ref": "R2",
+                "pin": "2",
+                "pin_name": "",
+                "pin_type": "passive",
+                "no_connect": false
+              }
+            ],
+            "nodes": [
+              "R1:2",
+              "R2:2"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "pcb",
+        "info"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "98f9b56ae2d0cb18cc398d12cc6121619a04d2c82fc8b07317327abfb15da901",
+      "stdout_bytes": 741,
+      "result": {
+        "path": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+        "copper_layers": 2,
+        "enabled_layers": [
+          "F.Cu",
+          "F.Mask",
+          "B.Cu",
+          "B.Mask",
+          "F.Silkscreen",
+          "B.Silkscreen",
+          "F.Adhesive",
+          "B.Adhesive",
+          "F.Paste",
+          "B.Paste",
+          "User.Drawings",
+          "User.Comments",
+          "User.Eco1",
+          "User.Eco2",
+          "Edge.Cuts",
+          "Margin",
+          "B.Courtyard",
+          "F.Courtyard",
+          "B.Fab",
+          "F.Fab",
+          "User.1",
+          "User.2",
+          "User.3",
+          "User.4"
+        ],
+        "footprints": 2,
+        "tracks": 0,
+        "vias": 0,
+        "zones": 0,
+        "drawings": 4,
+        "nets": 2,
+        "unrouted": 2,
+        "outline_bbox": {
+          "min": [
+            -0.05,
+            -0.05
+          ],
+          "max": [
+            100.05,
+            100.05
+          ],
+          "width": 100.1,
+          "height": 100.1
+        },
+        "thickness": 1.6,
+        "design": {
+          "min_track_width": 0.2,
+          "min_clearance": 0.0,
+          "min_via_diameter": 0.5,
+          "min_through_drill": 0.3,
+          "copper_edge_clearance": 0.5,
+          "hole_clearance": 0.25
+        },
+        "pcbnew_version": "10.0.7"
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "pcb",
+        "footprints",
+        "--pads"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "950c37961e0c7e64101df44e590842308c7ab6e42d9b2b4046a3963e6999f31f",
+      "stdout_bytes": 1846,
+      "result": [
+        {
+          "reference": "R2",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 30.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+          "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              28.275,
+              19.005
+            ],
+            "max": [
+              31.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              28.295,
+              19.025
+            ],
+            "max": [
+              31.705,
+              20.975
+            ]
+          },
+          "pads": [
+            {
+              "number": "1",
+              "net": "/A",
+              "x": 29.0875,
+              "y": 20.0,
+              "size": [
+                1.025,
+                1.4
+              ],
+              "drill": [
+                0.0,
+                0.0
+              ],
+              "attribute": 1,
+              "type": "smd",
+              "layers": [
+                "F.Cu",
+                "F.Mask",
+                "F.Paste"
+              ],
+              "pinfunction": "",
+              "pintype": ""
+            },
+            {
+              "number": "2",
+              "net": "/B",
+              "x": 30.9125,
+              "y": 20.0,
+              "size": [
+                1.025,
+                1.4
+              ],
+              "drill": [
+                0.0,
+                0.0
+              ],
+              "attribute": 1,
+              "type": "smd",
+              "layers": [
+                "F.Cu",
+                "F.Mask",
+                "F.Paste"
+              ],
+              "pinfunction": "",
+              "pintype": ""
+            }
+          ],
+          "fields": {
+            "Reference": "R2",
+            "Value": "330",
+            "Datasheet": "",
+            "Description": "Resistor",
+            "KiLib_Generator": "SMD_2terminal_chip_molded"
+          }
+        },
+        {
+          "reference": "R1",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 20.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+          "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              18.275,
+              19.005
+            ],
+            "max": [
+              21.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              18.295,
+              19.025
+            ],
+            "max": [
+              21.705,
+              20.975
+            ]
+          },
+          "pads": [
+            {
+              "number": "1",
+              "net": "/A",
+              "x": 19.0875,
+              "y": 20.0,
+              "size": [
+                1.025,
+                1.4
+              ],
+              "drill": [
+                0.0,
+                0.0
+              ],
+              "attribute": 1,
+              "type": "smd",
+              "layers": [
+                "F.Cu",
+                "F.Mask",
+                "F.Paste"
+              ],
+              "pinfunction": "",
+              "pintype": ""
+            },
+            {
+              "number": "2",
+              "net": "/B",
+              "x": 20.9125,
+              "y": 20.0,
+              "size": [
+                1.025,
+                1.4
+              ],
+              "drill": [
+                0.0,
+                0.0
+              ],
+              "attribute": 1,
+              "type": "smd",
+              "layers": [
+                "F.Cu",
+                "F.Mask",
+                "F.Paste"
+              ],
+              "pinfunction": "",
+              "pintype": ""
+            }
+          ],
+          "fields": {
+            "Reference": "R1",
+            "Value": "330",
+            "Datasheet": "",
+            "Description": "Resistor",
+            "KiLib_Generator": "SMD_2terminal_chip_molded"
+          }
+        }
+      ]
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "pcb",
+        "connectivity"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "91282d7a760dcae19d7ec64a657d1003def24e5e6d6b16987013cf90e8375ddc",
+      "stdout_bytes": 213,
+      "result": {
+        "unrouted_connections": 2,
+        "nets_incomplete": 2,
+        "nets": [
+          {
+            "net": "/A",
+            "clusters": [
+              [
+                "R1:1"
+              ],
+              [
+                "R2:1"
+              ]
+            ],
+            "missing_connections": 1
+          },
+          {
+            "net": "/B",
+            "clusters": [
+              [
+                "R1:2"
+              ],
+              [
+                "R2:2"
+              ]
+            ],
+            "missing_connections": 1
+          }
+        ],
+        "fully_routed": false
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "pcb",
+        "ratsnest"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "86481b38358eda0deecc804cb90c5c34d8585f44806ef7a85a3724ab2187fc54",
+      "stdout_bytes": 204,
+      "result": [
+        {
+          "net": "/A",
+          "from": "R1:1",
+          "to": "R2:1",
+          "from_xy": [
+            19.0875,
+            20.0
+          ],
+          "to_xy": [
+            29.0875,
+            20.0
+          ],
+          "length": 10.0
+        },
+        {
+          "net": "/B",
+          "from": "R1:2",
+          "to": "R2:2",
+          "from_xy": [
+            20.9125,
+            20.0
+          ],
+          "to_xy": [
+            30.9125,
+            20.0
+          ],
+          "length": 10.0
+        }
+      ]
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "sch",
+        "verify",
+        "--expect",
+        "intent.json",
+        "--strict"
+      ],
+      "exit": 2,
+      "stderr": "{\n  \"error\": \"Intent file not found: intent.json\",\n  \"type\": \"FileNotFoundError\",\n  \"category\": \"input\",\n  \"hint\": \"kce sch verify --help\"\n}\n",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 0,
+      "result": null
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "check",
+        "erc",
+        "--fail-on",
+        "error"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "939c512a72469e079158f61b64d242ffd56f3d54e9ef51addde44422faef53a9",
+      "stdout_bytes": 2822,
+      "result": {
+        "kind": "erc",
+        "total": 6,
+        "errors": 0,
+        "warnings": 6,
+        "by_severity": {
+          "warning": 6
+        },
+        "by_type": {
+          "endpoint_off_grid": 6
+        },
+        "hints": {
+          "endpoint_off_grid": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default)."
+        },
+        "violations": [
+          {
+            "type": "endpoint_off_grid",
+            "severity": "warning",
+            "description": "Symbol pin or wire end off connection grid",
+            "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+            "fix": null,
+            "sheet": "/",
+            "category": null,
+            "excluded": false,
+            "items": [
+              {
+                "description": "Symbol R1 Pin 1 [Passive, Line]",
+                "pos": {
+                  "x": 60.0,
+                  "y": 56.19
+                },
+                "uuid": "7d7f58f4-e856-44e6-bbf9-d02429fa0bc6"
+              }
+            ],
+            "known": false
+          },
+          {
+            "type": "endpoint_off_grid",
+            "severity": "warning",
+            "description": "Symbol pin or wire end off connection grid",
+            "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+            "fix": null,
+            "sheet": "/",
+            "category": null,
+            "excluded": false,
+            "items": [
+              {
+                "description": "Vertical Wire, length 2.54 mm",
+                "pos": {
+                  "x": 60.0,
+                  "y": 56.19
+                },
+                "uuid": "fd9e992c-8b71-4ce6-be14-ea1b5af40e29"
+              }
+            ],
+            "known": false
+          },
+          {
+            "type": "endpoint_off_grid",
+            "severity": "warning",
+            "description": "Symbol pin or wire end off connection grid",
+            "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+            "fix": null,
+            "sheet": "/",
+            "category": null,
+            "excluded": false,
+            "items": [
+              {
+                "description": "Vertical Wire, length 2.54 mm",
+                "pos": {
+                  "x": 60.0,
+                  "y": 63.81
+                },
+                "uuid": "b68563e3-36e2-49ba-b657-4a791da8c700"
+              }
+            ],
+            "known": false
+          },
+          {
+            "type": "endpoint_off_grid",
+            "severity": "warning",
+            "description": "Symbol pin or wire end off connection grid",
+            "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+            "fix": null,
+            "sheet": "/",
+            "category": null,
+            "excluded": false,
+            "items": [
+              {
+                "description": "Symbol R2 Pin 1 [Passive, Line]",
+                "pos": {
+                  "x": 80.0,
+                  "y": 56.19
+                },
+                "uuid": "4c8577a5-008a-4b49-8580-8e2effafaec0"
+              }
+            ],
+            "known": false
+          },
+          {
+            "type": "endpoint_off_grid",
+            "severity": "warning",
+            "description": "Symbol pin or wire end off connection grid",
+            "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+            "fix": null,
+            "sheet": "/",
+            "category": null,
+            "excluded": false,
+            "items": [
+              {
+                "description": "Vertical Wire, length 2.54 mm",
+                "pos": {
+                  "x": 80.0,
+                  "y": 56.19
+                },
+                "uuid": "a4debd99-a7b0-4fcb-aba9-8cd06a2774bc"
+              }
+            ],
+            "known": false
+          },
+          {
+            "type": "endpoint_off_grid",
+            "severity": "warning",
+            "description": "Symbol pin or wire end off connection grid",
+            "hint": "Symbols/wires are off the 1.27 mm grid; move with `kce sch move` (snaps by default).",
+            "fix": null,
+            "sheet": "/",
+            "category": null,
+            "excluded": false,
+            "items": [
+              {
+                "description": "Vertical Wire, length 2.54 mm",
+                "pos": {
+                  "x": 80.0,
+                  "y": 63.81
+                },
+                "uuid": "583898fd-5d26-435c-b1b9-1371c1d7d216"
+              }
+            ],
+            "known": false
+          }
+        ],
+        "clean": false,
+        "kicad_version": "10.0.7",
+        "report": null,
+        "new_violations": 6,
+        "fixed_violations": 0,
+        "exit_if_strict": 3,
+        "next": "kce check diagnose --only erc"
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "check",
+        "drc",
+        "--fail-on",
+        "error"
+      ],
+      "exit": 3,
+      "stderr": "{\n  \"error\": \"DRC failed with 2 new finding(s); inspect `kce check diagnose --only drc`.\",\n  \"type\": \"RuntimeError\",\n  \"category\": \"design\",\n  \"hint\": \"kce check diagnose --only drc\"\n}\n",
+      "stdout_sha256": "305b16853bd53984eb064a2d9241f8dbf4da74e4ea01c1744edfa784f5c5cb2a",
+      "stdout_bytes": 1543,
+      "result": {
+        "kind": "drc",
+        "total": 2,
+        "errors": 2,
+        "warnings": 0,
+        "by_severity": {
+          "error": 2
+        },
+        "by_type": {
+          "unconnected_items": 2
+        },
+        "hints": {
+          "unconnected_items": "Unrouted connections: `kce pcb ratsnest` lists them; route with `kce pcb route`, `kce pcb autoroute` or zones."
+        },
+        "violations": [
+          {
+            "type": "unconnected_items",
+            "severity": "error",
+            "description": "Missing connection between items",
+            "hint": "Unrouted connections: `kce pcb ratsnest` lists them; route with `kce pcb route`, `kce pcb autoroute` or zones.",
+            "fix": null,
+            "sheet": null,
+            "category": "unconnected_items",
+            "excluded": false,
+            "items": [
+              {
+                "description": "Pad 1 [/A] of R1 on F.Cu",
+                "pos": {
+                  "x": 19.0875,
+                  "y": 20.0
+                },
+                "uuid": "db193fa4-cca4-497f-a0ae-7a6290cbadb3"
+              },
+              {
+                "description": "Pad 1 [/A] of R2 on F.Cu",
+                "pos": {
+                  "x": 29.0875,
+                  "y": 20.0
+                },
+                "uuid": "254ea73f-35eb-47ad-a45e-463b07c556ec"
+              }
+            ],
+            "known": false
+          },
+          {
+            "type": "unconnected_items",
+            "severity": "error",
+            "description": "Missing connection between items",
+            "hint": "Unrouted connections: `kce pcb ratsnest` lists them; route with `kce pcb route`, `kce pcb autoroute` or zones.",
+            "fix": null,
+            "sheet": null,
+            "category": "unconnected_items",
+            "excluded": false,
+            "items": [
+              {
+                "description": "Pad 2 [/B] of R1 on F.Cu",
+                "pos": {
+                  "x": 20.9125,
+                  "y": 20.0
+                },
+                "uuid": "e411761b-09f6-46ad-b657-0d3d29601256"
+              },
+              {
+                "description": "Pad 2 [/B] of R2 on F.Cu",
+                "pos": {
+                  "x": 30.9125,
+                  "y": 20.0
+                },
+                "uuid": "2ec2e6fe-89b3-4beb-8e97-17cefe911819"
+              }
+            ],
+            "known": false
+          }
+        ],
+        "clean": false,
+        "kicad_version": "10.0.7",
+        "unconnected": 2,
+        "parity": 0,
+        "report": null,
+        "new_violations": 2,
+        "fixed_violations": 0,
+        "exit_if_strict": 3,
+        "next": "kce check diagnose --only drc"
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "pcb",
+        "score"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "10c947dd27264e50df0105b25bce7ebff23dc70b68184000fe79fa3f94f6e96d",
+      "stdout_bytes": 970,
+      "result": {
+        "path": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+        "schema_version": "1.0",
+        "units": "mm",
+        "net_filter": null,
+        "outline": {
+          "present": true,
+          "closed": true,
+          "method": "KiCad GetBoardPolygonOutlines"
+        },
+        "error": null,
+        "courtyard_fallback_refs": [],
+        "hpwl": {
+          "total": 20.0,
+          "nets": [
+            {
+              "net": "/A",
+              "pads": 2,
+              "hpwl": 10.0,
+              "min": [
+                19.0875,
+                20.0
+              ],
+              "max": [
+                29.0875,
+                20.0
+              ]
+            },
+            {
+              "net": "/B",
+              "pads": 2,
+              "hpwl": 10.0,
+              "min": [
+                20.9125,
+                20.0
+              ],
+              "max": [
+                30.9125,
+                20.0
+              ]
+            }
+          ]
+        },
+        "courtyard_overlaps": {
+          "count": 0,
+          "pairs": [],
+          "method": "courtyard polygon intersection; body bounding box fallback"
+        },
+        "outside_outline": {
+          "count": 0,
+          "footprints": []
+        },
+        "ratsnest_crossings": {
+          "count": 0,
+          "pairs": []
+        },
+        "congestion": {
+          "bin_size": 5.0,
+          "grid": [
+            20,
+            20
+          ],
+          "total_length": 20.0,
+          "max_density": 0.35,
+          "mean_density": 0.002,
+          "hot_bins": 4,
+          "hottest": [
+            {
+              "x": 22.5,
+              "y": 22.5,
+              "length": 8.75,
+              "density": 0.35
+            },
+            {
+              "x": 27.5,
+              "y": 22.5,
+              "length": 8.75,
+              "density": 0.35
+            },
+            {
+              "x": 17.5,
+              "y": 22.5,
+              "length": 1.25,
+              "density": 0.05
+            },
+            {
+              "x": 32.5,
+              "y": 22.5,
+              "length": 1.25,
+              "density": 0.05
+            }
+          ]
+        }
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "sch",
+        "verify",
+        "--expect",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-oracle/intent.json",
+        "--strict"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "700328b6b232af8bbab796e0596c7cb84cd9934a54d73be89cb0fdb2fe11a8a8",
+      "stdout_bytes": 462,
+      "result": {
+        "match": true,
+        "missing_components": [],
+        "extra_components": [],
+        "field_mismatches": [],
+        "symbol_mismatches": [],
+        "identity_mismatches": [],
+        "name_mismatches": [],
+        "attribute_mismatches": [],
+        "remove_present": [],
+        "missing_nets": [],
+        "extra_nets": [],
+        "renamed": [
+          {
+            "name": "A",
+            "actual": "/A",
+            "pins": [
+              "R1:1",
+              "R2:1"
+            ]
+          },
+          {
+            "name": "B",
+            "actual": "/B",
+            "pins": [
+              "R1:2",
+              "R2:2"
+            ]
+          }
+        ],
+        "merged": [],
+        "split": [],
+        "unconnected_pins": [],
+        "no_connects_missing": [],
+        "no_connects_extra": [],
+        "power_flags_missing": []
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "session",
+        "checkpoint",
+        "pre-search",
+        "--immutable"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "d07c2b3e3b7cfebf6610078bdffb3e36aa3256532468a59307d4d81797dd9c7d",
+      "stdout_bytes": 457,
+      "result": {
+        "checkpoint": "pre-search",
+        "dir": "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session/69f8ab14360e09988bf1/checkpoints/pre-search",
+        "created": 1793314422.4785864,
+        "files": [
+          ".gitignore",
+          "board.kicad_pcb",
+          "board.kicad_prl",
+          "board.kicad_pro",
+          "board.kicad_sch",
+          "intent.json"
+        ],
+        "bytes": 18233,
+        "generation": "b117d6d584394cf0887dce86cb617880",
+        "content_sha256": "2750cb6d2333048dca90d87fd50e21766234ce303f260219a5ff71ad834722cb",
+        "dry_run": false,
+        "would_write": []
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "pcb",
+        "lock",
+        "R2"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "e3176419dd5b99960d0a425ab5b9a25fcbd537cca50d8d4185662d12ac5dfa10",
+      "stdout_bytes": 120,
+      "result": {
+        "locked": [
+          "R2"
+        ],
+        "dry_run": false,
+        "would_write": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb"
+        ]
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "session",
+        "checkpoint",
+        "baseline",
+        "--immutable"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "85eeda99224efe6083f2e622fe4dc80a0669ab63977cdabd32c34de793ebeaea",
+      "stdout_bytes": 452,
+      "result": {
+        "checkpoint": "baseline",
+        "dir": "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session/69f8ab14360e09988bf1/checkpoints/baseline",
+        "created": 1793314425.417884,
+        "files": [
+          ".gitignore",
+          "board.kicad_pcb",
+          "board.kicad_prl",
+          "board.kicad_pro",
+          "board.kicad_sch",
+          "intent.json"
+        ],
+        "bytes": 18248,
+        "generation": "3885d908a4e5446bbbe74d8fe9ae0425",
+        "content_sha256": "06db14609f10e654270e4761beffb39e9b6b9d5d5b83928f7ccf2d2f2eaef4a6",
+        "dry_run": false,
+        "would_write": []
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "session",
+        "checkpoint",
+        "best-000000",
+        "--immutable"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "4135d953e1ef84a60c687cac883e4e2b44baf5360bc1de873b5e39b296fdf207",
+      "stdout_bytes": 459,
+      "result": {
+        "checkpoint": "best-000000",
+        "dir": "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session/69f8ab14360e09988bf1/checkpoints/best-000000",
+        "created": 1793314425.8296127,
+        "files": [
+          ".gitignore",
+          "board.kicad_pcb",
+          "board.kicad_prl",
+          "board.kicad_pro",
+          "board.kicad_sch",
+          "intent.json"
+        ],
+        "bytes": 18248,
+        "generation": "77c17803b8df4d0e983e67be5932fc27",
+        "content_sha256": "06db14609f10e654270e4761beffb39e9b6b9d5d5b83928f7ccf2d2f2eaef4a6",
+        "dry_run": false,
+        "would_write": []
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "session",
+        "checkpoint",
+        "best"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "b2c69e5016e3b34b732c9e1a5f0b5eea46f69da5d41ea8cad3ff393df04db691",
+      "stdout_bytes": 443,
+      "result": {
+        "checkpoint": "best",
+        "dir": "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session/69f8ab14360e09988bf1/checkpoints/best",
+        "created": 1793314426.21823,
+        "files": [
+          ".gitignore",
+          "board.kicad_pcb",
+          "board.kicad_prl",
+          "board.kicad_pro",
+          "board.kicad_sch",
+          "intent.json"
+        ],
+        "bytes": 18248,
+        "generation": "6dcbeec69b0c4c40ba8bfeb7e2118551",
+        "content_sha256": "06db14609f10e654270e4761beffb39e9b6b9d5d5b83928f7ccf2d2f2eaef4a6",
+        "dry_run": false,
+        "would_write": []
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "session",
+        "checkpoints"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "2038417f15a194d9aa3a19b3a5911e27e1b637867e798d11f82eb06d51aa2bc6",
+      "stdout_bytes": 1216,
+      "result": [
+        {
+          "name": "baseline",
+          "created": 1793314425.417884,
+          "files": [
+            ".gitignore",
+            "board.kicad_pcb",
+            "board.kicad_prl",
+            "board.kicad_pro",
+            "board.kicad_sch",
+            "intent.json"
+          ],
+          "bytes": 18248,
+          "generation": "3885d908a4e5446bbbe74d8fe9ae0425",
+          "content_sha256": "06db14609f10e654270e4761beffb39e9b6b9d5d5b83928f7ccf2d2f2eaef4a6"
+        },
+        {
+          "name": "best",
+          "created": 1793314426.21823,
+          "files": [
+            ".gitignore",
+            "board.kicad_pcb",
+            "board.kicad_prl",
+            "board.kicad_pro",
+            "board.kicad_sch",
+            "intent.json"
+          ],
+          "bytes": 18248,
+          "generation": "6dcbeec69b0c4c40ba8bfeb7e2118551",
+          "content_sha256": "06db14609f10e654270e4761beffb39e9b6b9d5d5b83928f7ccf2d2f2eaef4a6"
+        },
+        {
+          "name": "best-000000",
+          "created": 1793314425.8296127,
+          "files": [
+            ".gitignore",
+            "board.kicad_pcb",
+            "board.kicad_prl",
+            "board.kicad_pro",
+            "board.kicad_sch",
+            "intent.json"
+          ],
+          "bytes": 18248,
+          "generation": "77c17803b8df4d0e983e67be5932fc27",
+          "content_sha256": "06db14609f10e654270e4761beffb39e9b6b9d5d5b83928f7ccf2d2f2eaef4a6"
+        },
+        {
+          "name": "pre-search",
+          "created": 1793314422.4785864,
+          "files": [
+            ".gitignore",
+            "board.kicad_pcb",
+            "board.kicad_prl",
+            "board.kicad_pro",
+            "board.kicad_sch",
+            "intent.json"
+          ],
+          "bytes": 18233,
+          "generation": "b117d6d584394cf0887dce86cb617880",
+          "content_sha256": "2750cb6d2333048dca90d87fd50e21766234ce303f260219a5ff71ad834722cb"
+        }
+      ]
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "pcb",
+        "footprints",
+        "--pads"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "e124b7e28dec02d38c210ff5cdafccfd55f8cac696f006316ccbb29f62c0cbe3",
+      "stdout_bytes": 1845,
+      "result": [
+        {
+          "reference": "R2",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 30.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": true,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+          "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              28.275,
+              19.005
+            ],
+            "max": [
+              31.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              28.295,
+              19.025
+            ],
+            "max": [
+              31.705,
+              20.975
+            ]
+          },
+          "pads": [
+            {
+              "number": "1",
+              "net": "/A",
+              "x": 29.0875,
+              "y": 20.0,
+              "size": [
+                1.025,
+                1.4
+              ],
+              "drill": [
+                0.0,
+                0.0
+              ],
+              "attribute": 1,
+              "type": "smd",
+              "layers": [
+                "F.Cu",
+                "F.Mask",
+                "F.Paste"
+              ],
+              "pinfunction": "",
+              "pintype": ""
+            },
+            {
+              "number": "2",
+              "net": "/B",
+              "x": 30.9125,
+              "y": 20.0,
+              "size": [
+                1.025,
+                1.4
+              ],
+              "drill": [
+                0.0,
+                0.0
+              ],
+              "attribute": 1,
+              "type": "smd",
+              "layers": [
+                "F.Cu",
+                "F.Mask",
+                "F.Paste"
+              ],
+              "pinfunction": "",
+              "pintype": ""
+            }
+          ],
+          "fields": {
+            "Reference": "R2",
+            "Value": "330",
+            "Datasheet": "",
+            "Description": "Resistor",
+            "KiLib_Generator": "SMD_2terminal_chip_molded"
+          }
+        },
+        {
+          "reference": "R1",
+          "value": "330",
+          "fpid": "Resistor_SMD:R_0805_2012Metric",
+          "x": 20.0,
+          "y": 20.0,
+          "rotation": 0.0,
+          "side": "top",
+          "locked": false,
+          "layer": "F.Cu",
+          "pad_count": 2,
+          "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+          "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+          "dnp": false,
+          "exclude_from_bom": false,
+          "exclude_from_pos": false,
+          "courtyard": {
+            "min": [
+              18.275,
+              19.005
+            ],
+            "max": [
+              21.725,
+              20.995
+            ]
+          },
+          "bbox": {
+            "min": [
+              18.295,
+              19.025
+            ],
+            "max": [
+              21.705,
+              20.975
+            ]
+          },
+          "pads": [
+            {
+              "number": "1",
+              "net": "/A",
+              "x": 19.0875,
+              "y": 20.0,
+              "size": [
+                1.025,
+                1.4
+              ],
+              "drill": [
+                0.0,
+                0.0
+              ],
+              "attribute": 1,
+              "type": "smd",
+              "layers": [
+                "F.Cu",
+                "F.Mask",
+                "F.Paste"
+              ],
+              "pinfunction": "",
+              "pintype": ""
+            },
+            {
+              "number": "2",
+              "net": "/B",
+              "x": 20.9125,
+              "y": 20.0,
+              "size": [
+                1.025,
+                1.4
+              ],
+              "drill": [
+                0.0,
+                0.0
+              ],
+              "attribute": 1,
+              "type": "smd",
+              "layers": [
+                "F.Cu",
+                "F.Mask",
+                "F.Paste"
+              ],
+              "pinfunction": "",
+              "pintype": ""
+            }
+          ],
+          "fields": {
+            "Reference": "R1",
+            "Value": "330",
+            "Datasheet": "",
+            "Description": "Resistor",
+            "KiLib_Generator": "SMD_2terminal_chip_molded"
+          }
+        }
+      ]
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "pcb",
+        "score"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "10c947dd27264e50df0105b25bce7ebff23dc70b68184000fe79fa3f94f6e96d",
+      "stdout_bytes": 970,
+      "result": {
+        "path": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+        "schema_version": "1.0",
+        "units": "mm",
+        "net_filter": null,
+        "outline": {
+          "present": true,
+          "closed": true,
+          "method": "KiCad GetBoardPolygonOutlines"
+        },
+        "error": null,
+        "courtyard_fallback_refs": [],
+        "hpwl": {
+          "total": 20.0,
+          "nets": [
+            {
+              "net": "/A",
+              "pads": 2,
+              "hpwl": 10.0,
+              "min": [
+                19.0875,
+                20.0
+              ],
+              "max": [
+                29.0875,
+                20.0
+              ]
+            },
+            {
+              "net": "/B",
+              "pads": 2,
+              "hpwl": 10.0,
+              "min": [
+                20.9125,
+                20.0
+              ],
+              "max": [
+                30.9125,
+                20.0
+              ]
+            }
+          ]
+        },
+        "courtyard_overlaps": {
+          "count": 0,
+          "pairs": [],
+          "method": "courtyard polygon intersection; body bounding box fallback"
+        },
+        "outside_outline": {
+          "count": 0,
+          "footprints": []
+        },
+        "ratsnest_crossings": {
+          "count": 0,
+          "pairs": []
+        },
+        "congestion": {
+          "bin_size": 5.0,
+          "grid": [
+            20,
+            20
+          ],
+          "total_length": 20.0,
+          "max_density": 0.35,
+          "mean_density": 0.002,
+          "hot_bins": 4,
+          "hottest": [
+            {
+              "x": 22.5,
+              "y": 22.5,
+              "length": 8.75,
+              "density": 0.35
+            },
+            {
+              "x": 27.5,
+              "y": 22.5,
+              "length": 8.75,
+              "density": 0.35
+            },
+            {
+              "x": 17.5,
+              "y": 22.5,
+              "length": 1.25,
+              "density": 0.05
+            },
+            {
+              "x": 32.5,
+              "y": 22.5,
+              "length": 1.25,
+              "density": 0.05
+            }
+          ]
+        }
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "--progress",
+        "serve",
+        "--request-timeout-ms",
+        "30000"
+      ],
+      "exit": 0,
+      "stderr": "{\"progress\": \"request_started\", \"request_id\": \"warmup-info\"}\n{\"progress\": \"request_finished\", \"request_id\": \"warmup-info\", \"elapsed_ms\": 1517.612}\n",
+      "stdout_sha256": "141a9787a0032013f9542cf6244acff81c360a66e3213bf68bc7a07c7f30bc62",
+      "stdout_bytes": 1131,
+      "result": {
+        "jsonrpc": "2.0",
+        "id": "warmup-info",
+        "result": {
+          "path": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+          "copper_layers": 2,
+          "enabled_layers": [
+            "F.Cu",
+            "F.Mask",
+            "B.Cu",
+            "B.Mask",
+            "F.Silkscreen",
+            "B.Silkscreen",
+            "F.Adhesive",
+            "B.Adhesive",
+            "F.Paste",
+            "B.Paste",
+            "User.Drawings",
+            "User.Comments",
+            "User.Eco1",
+            "User.Eco2",
+            "Edge.Cuts",
+            "Margin",
+            "B.Courtyard",
+            "F.Courtyard",
+            "B.Fab",
+            "F.Fab",
+            "User.1",
+            "User.2",
+            "User.3",
+            "User.4"
+          ],
+          "footprints": 2,
+          "tracks": 0,
+          "vias": 0,
+          "zones": 0,
+          "drawings": 4,
+          "nets": 2,
+          "unrouted": 2,
+          "outline_bbox": {
+            "min": [
+              -0.05,
+              -0.05
+            ],
+            "max": [
+              100.05,
+              100.05
+            ],
+            "width": 100.1,
+            "height": 100.1
+          },
+          "thickness": 1.6,
+          "design": {
+            "min_track_width": 0.2,
+            "min_clearance": 0.0,
+            "min_via_diameter": 0.5,
+            "min_through_drill": 0.3,
+            "copper_edge_clearance": 0.5,
+            "hole_clearance": 0.25
+          },
+          "pcbnew_version": "10.0.7"
+        },
+        "meta": {
+          "worker_started": true,
+          "worker_reused": false,
+          "worker_start_count": 1,
+          "worker_start_ms": 628.631,
+          "load_ms": null,
+          "netlist_ms": null,
+          "validation_ms": null,
+          "checkpoint_ms": null,
+          "worker_pid": 429229,
+          "commit_state": "unchanged",
+          "elapsed_ms": 1517.573
+        }
+      }
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "--progress",
+        "serve",
+        "--request-timeout-ms",
+        "30000"
+      ],
+      "exit": 0,
+      "stderr": "{\"progress\": \"request_started\", \"request_id\": \"warmup-info\"}\n{\"progress\": \"request_finished\", \"request_id\": \"warmup-info\", \"elapsed_ms\": 1595.408}\n{\"progress\": \"request_started\", \"request_id\": \"warmup-score\"}\n{\"progress\": \"request_finished\", \"request_id\": \"warmup-score\", \"elapsed_ms\": 24.952}\n{\"progress\": \"request_started\", \"request_id\": \"trial-000001\"}\n{\"progress\": \"step_started\", \"request_id\": \"trial-000001\", \"step\": 1, \"args\": [\"pcb\", \"move\", \"R1\", \"--by\", \"0.5,0\"]}\n{\"progress\": \"step_finished\", \"request_id\": \"trial-000001\", \"step\": 1, \"elapsed_ms\": 34.938}\n{\"progress\": \"step_started\", \"request_id\": \"trial-000001\", \"step\": 2, \"args\": [\"sch\", \"verify\", \"--expect\", \"intent.json\", \"--strict\"]}\n{\"progress\": \"step_finished\", \"request_id\": \"trial-000001\", \"step\": 2, \"elapsed_ms\": 549.399}\n{\"progress\": \"step_started\", \"request_id\": \"trial-000001\", \"step\": 3, \"args\": [\"pcb\", \"score\"]}\n{\"progress\": \"step_finished\", \"request_id\": \"trial-000001\", \"step\": 3, \"elapsed_ms\": 13.213}\n{\"progress\": \"step_started\", \"request_id\": \"trial-000001\", \"step\": 4, \"args\": [\"pcb\", \"footprints\", \"--match\", \"R2\", \"--pads\"]}\n{\"progress\": \"step_finished\", \"request_id\": \"trial-000001\", \"step\": 4, \"elapsed_ms\": 13.008}\n{\"progress\": \"step_started\", \"request_id\": \"trial-000001\", \"step\": 5, \"args\": [\"pcb\", \"footprints\", \"--match\", \"R1\", \"--pads\"]}\n{\"progress\": \"step_finished\", \"request_id\": \"trial-000001\", \"step\": 5, \"elapsed_ms\": 13.028}\n{\"progress\": \"step_started\", \"request_id\": \"trial-000001\", \"step\": 6, \"args\": [\"check\", \"drc\", \"--fail-on\", \"error\"]}\n{\"progress\": \"request_finished\", \"request_id\": \"trial-000001\", \"elapsed_ms\": 3640.907}\n{\"progress\": \"request_started\", \"request_id\": \"after-trial-score\"}\n{\"progress\": \"request_finished\", \"request_id\": \"after-trial-score\", \"elapsed_ms\": 12.771}\n{\"progress\": \"request_started\", \"request_id\": \"after-trial-footprints\"}\n{\"progress\": \"request_finished\", \"request_id\": \"after-trial-footprints\", \"elapsed_ms\": 12.423}\n{\"progress\": \"request_started\", \"request_id\": \"restore-best\"}\n{\"progress\": \"request_finished\", \"request_id\": \"restore-best\", \"elapsed_ms\": 4.111}\n{\"progress\": \"request_started\", \"request_id\": \"restored-score\"}\n{\"progress\": \"request_finished\", \"request_id\": \"restored-score\", \"elapsed_ms\": 12.515}\n{\"progress\": \"request_started\", \"request_id\": \"restored-nets\"}\n{\"progress\": \"request_finished\", \"request_id\": \"restored-nets\", \"elapsed_ms\": 516.601}\n{\"progress\": \"request_started\", \"request_id\": \"restored-intent\"}\n{\"progress\": \"request_finished\", \"request_id\": \"restored-intent\", \"elapsed_ms\": 511.142}\n{\"progress\": \"request_started\", \"request_id\": \"restored-footprints\"}\n{\"progress\": \"request_finished\", \"request_id\": \"restored-footprints\", \"elapsed_ms\": 13.24}\n",
+      "stdout_sha256": "1a9564360f78e191cfd2586338b531bd8250228f52cac3d566d2666c825b5fd0",
+      "stdout_bytes": 22962,
+      "result": [
+        {
+          "jsonrpc": "2.0",
+          "id": "warmup-info",
+          "result": {
+            "path": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+            "copper_layers": 2,
+            "enabled_layers": [
+              "F.Cu",
+              "F.Mask",
+              "B.Cu",
+              "B.Mask",
+              "F.Silkscreen",
+              "B.Silkscreen",
+              "F.Adhesive",
+              "B.Adhesive",
+              "F.Paste",
+              "B.Paste",
+              "User.Drawings",
+              "User.Comments",
+              "User.Eco1",
+              "User.Eco2",
+              "Edge.Cuts",
+              "Margin",
+              "B.Courtyard",
+              "F.Courtyard",
+              "B.Fab",
+              "F.Fab",
+              "User.1",
+              "User.2",
+              "User.3",
+              "User.4"
+            ],
+            "footprints": 2,
+            "tracks": 0,
+            "vias": 0,
+            "zones": 0,
+            "drawings": 4,
+            "nets": 2,
+            "unrouted": 2,
+            "outline_bbox": {
+              "min": [
+                -0.05,
+                -0.05
+              ],
+              "max": [
+                100.05,
+                100.05
+              ],
+              "width": 100.1,
+              "height": 100.1
+            },
+            "thickness": 1.6,
+            "design": {
+              "min_track_width": 0.2,
+              "min_clearance": 0.0,
+              "min_via_diameter": 0.5,
+              "min_through_drill": 0.3,
+              "copper_edge_clearance": 0.5,
+              "hole_clearance": 0.25
+            },
+            "pcbnew_version": "10.0.7"
+          },
+          "meta": {
+            "worker_started": true,
+            "worker_reused": false,
+            "worker_start_count": 1,
+            "worker_start_ms": 672.635,
+            "load_ms": null,
+            "netlist_ms": null,
+            "validation_ms": null,
+            "checkpoint_ms": null,
+            "worker_pid": 431419,
+            "commit_state": "unchanged",
+            "elapsed_ms": 1595.381
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "warmup-score",
+          "result": {
+            "path": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+            "schema_version": "1.0",
+            "units": "mm",
+            "net_filter": null,
+            "outline": {
+              "present": true,
+              "closed": true,
+              "method": "KiCad GetBoardPolygonOutlines"
+            },
+            "error": null,
+            "courtyard_fallback_refs": [],
+            "hpwl": {
+              "total": 20.0,
+              "nets": [
+                {
+                  "net": "/A",
+                  "pads": 2,
+                  "hpwl": 10.0,
+                  "min": [
+                    19.0875,
+                    20.0
+                  ],
+                  "max": [
+                    29.0875,
+                    20.0
+                  ]
+                },
+                {
+                  "net": "/B",
+                  "pads": 2,
+                  "hpwl": 10.0,
+                  "min": [
+                    20.9125,
+                    20.0
+                  ],
+                  "max": [
+                    30.9125,
+                    20.0
+                  ]
+                }
+              ]
+            },
+            "courtyard_overlaps": {
+              "count": 0,
+              "pairs": [],
+              "method": "courtyard polygon intersection; body bounding box fallback"
+            },
+            "outside_outline": {
+              "count": 0,
+              "footprints": []
+            },
+            "ratsnest_crossings": {
+              "count": 0,
+              "pairs": []
+            },
+            "congestion": {
+              "bin_size": 5.0,
+              "grid": [
+                20,
+                20
+              ],
+              "total_length": 20.0,
+              "max_density": 0.35,
+              "mean_density": 0.002,
+              "hot_bins": 4,
+              "hottest": [
+                {
+                  "x": 22.5,
+                  "y": 22.5,
+                  "length": 8.75,
+                  "density": 0.35
+                },
+                {
+                  "x": 27.5,
+                  "y": 22.5,
+                  "length": 8.75,
+                  "density": 0.35
+                },
+                {
+                  "x": 17.5,
+                  "y": 22.5,
+                  "length": 1.25,
+                  "density": 0.05
+                },
+                {
+                  "x": 32.5,
+                  "y": 22.5,
+                  "length": 1.25,
+                  "density": 0.05
+                }
+              ]
+            }
+          },
+          "meta": {
+            "worker_started": false,
+            "worker_reused": true,
+            "worker_start_count": 1,
+            "worker_start_ms": null,
+            "load_ms": null,
+            "netlist_ms": null,
+            "validation_ms": null,
+            "checkpoint_ms": null,
+            "worker_pid": 431419,
+            "commit_state": "unchanged",
+            "elapsed_ms": 24.927
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "trial-000001",
+          "error": {
+            "code": -32000,
+            "message": "DRC failed with 2 new finding(s); inspect `kce check diagnose --only drc`.",
+            "data": {
+              "kce": {
+                "error": "DRC failed with 2 new finding(s); inspect `kce check diagnose --only drc`.",
+                "type": "RuntimeError",
+                "category": "design",
+                "hint": "kce check diagnose --only drc",
+                "details": {
+                  "step": 6,
+                  "args": [
+                    "check",
+                    "drc",
+                    "--fail-on",
+                    "error"
+                  ],
+                  "steps": 6,
+                  "rolled_back": true,
+                  "phase": "step",
+                  "results": [
+                    {
+                      "step": 1,
+                      "args": [
+                        "pcb",
+                        "move",
+                        "R1",
+                        "--by",
+                        "0.5,0"
+                      ],
+                      "ok": true,
+                      "result": {
+                        "reference": "R1",
+                        "value": "330",
+                        "fpid": "Resistor_SMD:R_0805_2012Metric",
+                        "x": 20.5,
+                        "y": 20.0,
+                        "rotation": 0.0,
+                        "side": "top",
+                        "locked": false,
+                        "layer": "F.Cu",
+                        "pad_count": 2,
+                        "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+                        "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+                        "dnp": false,
+                        "exclude_from_bom": false,
+                        "exclude_from_pos": false,
+                        "courtyard": {
+                          "min": [
+                            18.775,
+                            19.005
+                          ],
+                          "max": [
+                            22.225,
+                            20.995
+                          ]
+                        },
+                        "bbox": {
+                          "min": [
+                            18.795,
+                            19.025
+                          ],
+                          "max": [
+                            22.205,
+                            20.975
+                          ]
+                        },
+                        "dry_run": false,
+                        "would_write": [
+                          "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb"
+                        ]
+                      },
+                      "elapsed_ms": 35.05
+                    },
+                    {
+                      "step": 2,
+                      "args": [
+                        "sch",
+                        "verify",
+                        "--expect",
+                        "intent.json",
+                        "--strict"
+                      ],
+                      "ok": true,
+                      "result": {
+                        "match": true,
+                        "missing_components": [],
+                        "extra_components": [],
+                        "field_mismatches": [],
+                        "symbol_mismatches": [],
+                        "identity_mismatches": [],
+                        "name_mismatches": [],
+                        "attribute_mismatches": [],
+                        "remove_present": [],
+                        "missing_nets": [],
+                        "extra_nets": [],
+                        "renamed": [
+                          {
+                            "name": "A",
+                            "actual": "/A",
+                            "pins": [
+                              "R1:1",
+                              "R2:1"
+                            ]
+                          },
+                          {
+                            "name": "B",
+                            "actual": "/B",
+                            "pins": [
+                              "R1:2",
+                              "R2:2"
+                            ]
+                          }
+                        ],
+                        "merged": [],
+                        "split": [],
+                        "unconnected_pins": [],
+                        "no_connects_missing": [],
+                        "no_connects_extra": [],
+                        "power_flags_missing": []
+                      },
+                      "elapsed_ms": 549.484
+                    },
+                    {
+                      "step": 3,
+                      "args": [
+                        "pcb",
+                        "score"
+                      ],
+                      "ok": true,
+                      "result": {
+                        "path": "/home/example/.cache/agent-tmp/kce-gaps-fix4/kicad-cli-extended-ws-qwijsql4/board.kicad_pcb",
+                        "schema_version": "1.0",
+                        "units": "mm",
+                        "net_filter": null,
+                        "outline": {
+                          "present": true,
+                          "closed": true,
+                          "method": "KiCad GetBoardPolygonOutlines"
+                        },
+                        "error": null,
+                        "courtyard_fallback_refs": [],
+                        "hpwl": {
+                          "total": 19.0,
+                          "nets": [
+                            {
+                              "net": "/A",
+                              "pads": 2,
+                              "hpwl": 9.5,
+                              "min": [
+                                19.5875,
+                                20.0
+                              ],
+                              "max": [
+                                29.0875,
+                                20.0
+                              ]
+                            },
+                            {
+                              "net": "/B",
+                              "pads": 2,
+                              "hpwl": 9.5,
+                              "min": [
+                                21.4125,
+                                20.0
+                              ],
+                              "max": [
+                                30.9125,
+                                20.0
+                              ]
+                            }
+                          ]
+                        },
+                        "courtyard_overlaps": {
+                          "count": 0,
+                          "pairs": [],
+                          "method": "courtyard polygon intersection; body bounding box fallback"
+                        },
+                        "outside_outline": {
+                          "count": 0,
+                          "footprints": []
+                        },
+                        "ratsnest_crossings": {
+                          "count": 0,
+                          "pairs": []
+                        },
+                        "congestion": {
+                          "bin_size": 5.0,
+                          "grid": [
+                            20,
+                            20
+                          ],
+                          "total_length": 19.0,
+                          "max_density": 0.38,
+                          "mean_density": 0.0019,
+                          "hot_bins": 3,
+                          "hottest": [
+                            {
+                              "x": 22.5,
+                              "y": 22.5,
+                              "length": 9.5,
+                              "density": 0.38
+                            },
+                            {
+                              "x": 27.5,
+                              "y": 22.5,
+                              "length": 8.3125,
+                              "density": 0.3325
+                            },
+                            {
+                              "x": 32.5,
+                              "y": 22.5,
+                              "length": 1.1875,
+                              "density": 0.0475
+                            }
+                          ]
+                        }
+                      },
+                      "elapsed_ms": 13.275
+                    },
+                    {
+                      "step": 4,
+                      "args": [
+                        "pcb",
+                        "footprints",
+                        "--match",
+                        "R2",
+                        "--pads"
+                      ],
+                      "ok": true,
+                      "result": [
+                        {
+                          "reference": "R2",
+                          "value": "330",
+                          "fpid": "Resistor_SMD:R_0805_2012Metric",
+                          "x": 30.0,
+                          "y": 20.0,
+                          "rotation": 0.0,
+                          "side": "top",
+                          "locked": true,
+                          "layer": "F.Cu",
+                          "pad_count": 2,
+                          "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+                          "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+                          "dnp": false,
+                          "exclude_from_bom": false,
+                          "exclude_from_pos": false,
+                          "courtyard": {
+                            "min": [
+                              28.275,
+                              19.005
+                            ],
+                            "max": [
+                              31.725,
+                              20.995
+                            ]
+                          },
+                          "bbox": {
+                            "min": [
+                              28.295,
+                              19.025
+                            ],
+                            "max": [
+                              31.705,
+                              20.975
+                            ]
+                          },
+                          "pads": [
+                            {
+                              "number": "1",
+                              "net": "/A",
+                              "x": 29.0875,
+                              "y": 20.0,
+                              "size": [
+                                1.025,
+                                1.4
+                              ],
+                              "drill": [
+                                0.0,
+                                0.0
+                              ],
+                              "attribute": 1,
+                              "type": "smd",
+                              "layers": [
+                                "F.Cu",
+                                "F.Mask",
+                                "F.Paste"
+                              ],
+                              "pinfunction": "",
+                              "pintype": ""
+                            },
+                            {
+                              "number": "2",
+                              "net": "/B",
+                              "x": 30.9125,
+                              "y": 20.0,
+                              "size": [
+                                1.025,
+                                1.4
+                              ],
+                              "drill": [
+                                0.0,
+                                0.0
+                              ],
+                              "attribute": 1,
+                              "type": "smd",
+                              "layers": [
+                                "F.Cu",
+                                "F.Mask",
+                                "F.Paste"
+                              ],
+                              "pinfunction": "",
+                              "pintype": ""
+                            }
+                          ],
+                          "fields": {
+                            "Reference": "R2",
+                            "Value": "330",
+                            "Datasheet": "",
+                            "Description": "Resistor",
+                            "KiLib_Generator": "SMD_2terminal_chip_molded"
+                          }
+                        }
+                      ],
+                      "elapsed_ms": 13.067
+                    },
+                    {
+                      "step": 5,
+                      "args": [
+                        "pcb",
+                        "footprints",
+                        "--match",
+                        "R1",
+                        "--pads"
+                      ],
+                      "ok": true,
+                      "result": [
+                        {
+                          "reference": "R1",
+                          "value": "330",
+                          "fpid": "Resistor_SMD:R_0805_2012Metric",
+                          "x": 20.5,
+                          "y": 20.0,
+                          "rotation": 0.0,
+                          "side": "top",
+                          "locked": false,
+                          "layer": "F.Cu",
+                          "pad_count": 2,
+                          "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+                          "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+                          "dnp": false,
+                          "exclude_from_bom": false,
+                          "exclude_from_pos": false,
+                          "courtyard": {
+                            "min": [
+                              18.775,
+                              19.005
+                            ],
+                            "max": [
+                              22.225,
+                              20.995
+                            ]
+                          },
+                          "bbox": {
+                            "min": [
+                              18.795,
+                              19.025
+                            ],
+                            "max": [
+                              22.205,
+                              20.975
+                            ]
+                          },
+                          "pads": [
+                            {
+                              "number": "1",
+                              "net": "/A",
+                              "x": 19.5875,
+                              "y": 20.0,
+                              "size": [
+                                1.025,
+                                1.4
+                              ],
+                              "drill": [
+                                0.0,
+                                0.0
+                              ],
+                              "attribute": 1,
+                              "type": "smd",
+                              "layers": [
+                                "F.Cu",
+                                "F.Mask",
+                                "F.Paste"
+                              ],
+                              "pinfunction": "",
+                              "pintype": ""
+                            },
+                            {
+                              "number": "2",
+                              "net": "/B",
+                              "x": 21.4125,
+                              "y": 20.0,
+                              "size": [
+                                1.025,
+                                1.4
+                              ],
+                              "drill": [
+                                0.0,
+                                0.0
+                              ],
+                              "attribute": 1,
+                              "type": "smd",
+                              "layers": [
+                                "F.Cu",
+                                "F.Mask",
+                                "F.Paste"
+                              ],
+                              "pinfunction": "",
+                              "pintype": ""
+                            }
+                          ],
+                          "fields": {
+                            "Reference": "R1",
+                            "Value": "330",
+                            "Datasheet": "",
+                            "Description": "Resistor",
+                            "KiLib_Generator": "SMD_2terminal_chip_molded"
+                          }
+                        }
+                      ],
+                      "elapsed_ms": 13.093
+                    }
+                  ],
+                  "commit_state": "rolled_back"
+                }
+              },
+              "category": "design",
+              "exit_code": 3,
+              "details": {
+                "backend": "kce",
+                "operation": "run /home/example/.omo/waves/kce-p4/cold-agent/R9-live-trial-000001.json",
+                "request_id": "trial-000001",
+                "worker_pid": null,
+                "returncode": null,
+                "signal": null,
+                "timeout_ms": 30000,
+                "elapsed_ms": 3640.821,
+                "commit_state": "rolled_back",
+                "retryable": false,
+                "step": 6,
+                "args": [
+                  "check",
+                  "drc",
+                  "--fail-on",
+                  "error"
+                ],
+                "steps": 6,
+                "rolled_back": true,
+                "phase": "step",
+                "results": [
+                  {
+                    "step": 1,
+                    "args": [
+                      "pcb",
+                      "move",
+                      "R1",
+                      "--by",
+                      "0.5,0"
+                    ],
+                    "ok": true,
+                    "result": {
+                      "reference": "R1",
+                      "value": "330",
+                      "fpid": "Resistor_SMD:R_0805_2012Metric",
+                      "x": 20.5,
+                      "y": 20.0,
+                      "rotation": 0.0,
+                      "side": "top",
+                      "locked": false,
+                      "layer": "F.Cu",
+                      "pad_count": 2,
+                      "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+                      "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+                      "dnp": false,
+                      "exclude_from_bom": false,
+                      "exclude_from_pos": false,
+                      "courtyard": {
+                        "min": [
+                          18.775,
+                          19.005
+                        ],
+                        "max": [
+                          22.225,
+                          20.995
+                        ]
+                      },
+                      "bbox": {
+                        "min": [
+                          18.795,
+                          19.025
+                        ],
+                        "max": [
+                          22.205,
+                          20.975
+                        ]
+                      },
+                      "dry_run": false,
+                      "would_write": [
+                        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb"
+                      ]
+                    },
+                    "elapsed_ms": 35.05
+                  },
+                  {
+                    "step": 2,
+                    "args": [
+                      "sch",
+                      "verify",
+                      "--expect",
+                      "intent.json",
+                      "--strict"
+                    ],
+                    "ok": true,
+                    "result": {
+                      "match": true,
+                      "missing_components": [],
+                      "extra_components": [],
+                      "field_mismatches": [],
+                      "symbol_mismatches": [],
+                      "identity_mismatches": [],
+                      "name_mismatches": [],
+                      "attribute_mismatches": [],
+                      "remove_present": [],
+                      "missing_nets": [],
+                      "extra_nets": [],
+                      "renamed": [
+                        {
+                          "name": "A",
+                          "actual": "/A",
+                          "pins": [
+                            "R1:1",
+                            "R2:1"
+                          ]
+                        },
+                        {
+                          "name": "B",
+                          "actual": "/B",
+                          "pins": [
+                            "R1:2",
+                            "R2:2"
+                          ]
+                        }
+                      ],
+                      "merged": [],
+                      "split": [],
+                      "unconnected_pins": [],
+                      "no_connects_missing": [],
+                      "no_connects_extra": [],
+                      "power_flags_missing": []
+                    },
+                    "elapsed_ms": 549.484
+                  },
+                  {
+                    "step": 3,
+                    "args": [
+                      "pcb",
+                      "score"
+                    ],
+                    "ok": true,
+                    "result": {
+                      "path": "/home/example/.cache/agent-tmp/kce-gaps-fix4/kicad-cli-extended-ws-qwijsql4/board.kicad_pcb",
+                      "schema_version": "1.0",
+                      "units": "mm",
+                      "net_filter": null,
+                      "outline": {
+                        "present": true,
+                        "closed": true,
+                        "method": "KiCad GetBoardPolygonOutlines"
+                      },
+                      "error": null,
+                      "courtyard_fallback_refs": [],
+                      "hpwl": {
+                        "total": 19.0,
+                        "nets": [
+                          {
+                            "net": "/A",
+                            "pads": 2,
+                            "hpwl": 9.5,
+                            "min": [
+                              19.5875,
+                              20.0
+                            ],
+                            "max": [
+                              29.0875,
+                              20.0
+                            ]
+                          },
+                          {
+                            "net": "/B",
+                            "pads": 2,
+                            "hpwl": 9.5,
+                            "min": [
+                              21.4125,
+                              20.0
+                            ],
+                            "max": [
+                              30.9125,
+                              20.0
+                            ]
+                          }
+                        ]
+                      },
+                      "courtyard_overlaps": {
+                        "count": 0,
+                        "pairs": [],
+                        "method": "courtyard polygon intersection; body bounding box fallback"
+                      },
+                      "outside_outline": {
+                        "count": 0,
+                        "footprints": []
+                      },
+                      "ratsnest_crossings": {
+                        "count": 0,
+                        "pairs": []
+                      },
+                      "congestion": {
+                        "bin_size": 5.0,
+                        "grid": [
+                          20,
+                          20
+                        ],
+                        "total_length": 19.0,
+                        "max_density": 0.38,
+                        "mean_density": 0.0019,
+                        "hot_bins": 3,
+                        "hottest": [
+                          {
+                            "x": 22.5,
+                            "y": 22.5,
+                            "length": 9.5,
+                            "density": 0.38
+                          },
+                          {
+                            "x": 27.5,
+                            "y": 22.5,
+                            "length": 8.3125,
+                            "density": 0.3325
+                          },
+                          {
+                            "x": 32.5,
+                            "y": 22.5,
+                            "length": 1.1875,
+                            "density": 0.0475
+                          }
+                        ]
+                      }
+                    },
+                    "elapsed_ms": 13.275
+                  },
+                  {
+                    "step": 4,
+                    "args": [
+                      "pcb",
+                      "footprints",
+                      "--match",
+                      "R2",
+                      "--pads"
+                    ],
+                    "ok": true,
+                    "result": [
+                      {
+                        "reference": "R2",
+                        "value": "330",
+                        "fpid": "Resistor_SMD:R_0805_2012Metric",
+                        "x": 30.0,
+                        "y": 20.0,
+                        "rotation": 0.0,
+                        "side": "top",
+                        "locked": true,
+                        "layer": "F.Cu",
+                        "pad_count": 2,
+                        "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+                        "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+                        "dnp": false,
+                        "exclude_from_bom": false,
+                        "exclude_from_pos": false,
+                        "courtyard": {
+                          "min": [
+                            28.275,
+                            19.005
+                          ],
+                          "max": [
+                            31.725,
+                            20.995
+                          ]
+                        },
+                        "bbox": {
+                          "min": [
+                            28.295,
+                            19.025
+                          ],
+                          "max": [
+                            31.705,
+                            20.975
+                          ]
+                        },
+                        "pads": [
+                          {
+                            "number": "1",
+                            "net": "/A",
+                            "x": 29.0875,
+                            "y": 20.0,
+                            "size": [
+                              1.025,
+                              1.4
+                            ],
+                            "drill": [
+                              0.0,
+                              0.0
+                            ],
+                            "attribute": 1,
+                            "type": "smd",
+                            "layers": [
+                              "F.Cu",
+                              "F.Mask",
+                              "F.Paste"
+                            ],
+                            "pinfunction": "",
+                            "pintype": ""
+                          },
+                          {
+                            "number": "2",
+                            "net": "/B",
+                            "x": 30.9125,
+                            "y": 20.0,
+                            "size": [
+                              1.025,
+                              1.4
+                            ],
+                            "drill": [
+                              0.0,
+                              0.0
+                            ],
+                            "attribute": 1,
+                            "type": "smd",
+                            "layers": [
+                              "F.Cu",
+                              "F.Mask",
+                              "F.Paste"
+                            ],
+                            "pinfunction": "",
+                            "pintype": ""
+                          }
+                        ],
+                        "fields": {
+                          "Reference": "R2",
+                          "Value": "330",
+                          "Datasheet": "",
+                          "Description": "Resistor",
+                          "KiLib_Generator": "SMD_2terminal_chip_molded"
+                        }
+                      }
+                    ],
+                    "elapsed_ms": 13.067
+                  },
+                  {
+                    "step": 5,
+                    "args": [
+                      "pcb",
+                      "footprints",
+                      "--match",
+                      "R1",
+                      "--pads"
+                    ],
+                    "ok": true,
+                    "result": [
+                      {
+                        "reference": "R1",
+                        "value": "330",
+                        "fpid": "Resistor_SMD:R_0805_2012Metric",
+                        "x": 20.5,
+                        "y": 20.0,
+                        "rotation": 0.0,
+                        "side": "top",
+                        "locked": false,
+                        "layer": "F.Cu",
+                        "pad_count": 2,
+                        "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+                        "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+                        "dnp": false,
+                        "exclude_from_bom": false,
+                        "exclude_from_pos": false,
+                        "courtyard": {
+                          "min": [
+                            18.775,
+                            19.005
+                          ],
+                          "max": [
+                            22.225,
+                            20.995
+                          ]
+                        },
+                        "bbox": {
+                          "min": [
+                            18.795,
+                            19.025
+                          ],
+                          "max": [
+                            22.205,
+                            20.975
+                          ]
+                        },
+                        "pads": [
+                          {
+                            "number": "1",
+                            "net": "/A",
+                            "x": 19.5875,
+                            "y": 20.0,
+                            "size": [
+                              1.025,
+                              1.4
+                            ],
+                            "drill": [
+                              0.0,
+                              0.0
+                            ],
+                            "attribute": 1,
+                            "type": "smd",
+                            "layers": [
+                              "F.Cu",
+                              "F.Mask",
+                              "F.Paste"
+                            ],
+                            "pinfunction": "",
+                            "pintype": ""
+                          },
+                          {
+                            "number": "2",
+                            "net": "/B",
+                            "x": 21.4125,
+                            "y": 20.0,
+                            "size": [
+                              1.025,
+                              1.4
+                            ],
+                            "drill": [
+                              0.0,
+                              0.0
+                            ],
+                            "attribute": 1,
+                            "type": "smd",
+                            "layers": [
+                              "F.Cu",
+                              "F.Mask",
+                              "F.Paste"
+                            ],
+                            "pinfunction": "",
+                            "pintype": ""
+                          }
+                        ],
+                        "fields": {
+                          "Reference": "R1",
+                          "Value": "330",
+                          "Datasheet": "",
+                          "Description": "Resistor",
+                          "KiLib_Generator": "SMD_2terminal_chip_molded"
+                        }
+                      }
+                    ],
+                    "elapsed_ms": 13.093
+                  }
+                ],
+                "exit_code": 3
+              }
+            }
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "after-trial-score",
+          "result": {
+            "path": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+            "schema_version": "1.0",
+            "units": "mm",
+            "net_filter": null,
+            "outline": {
+              "present": true,
+              "closed": true,
+              "method": "KiCad GetBoardPolygonOutlines"
+            },
+            "error": null,
+            "courtyard_fallback_refs": [],
+            "hpwl": {
+              "total": 20.0,
+              "nets": [
+                {
+                  "net": "/A",
+                  "pads": 2,
+                  "hpwl": 10.0,
+                  "min": [
+                    19.0875,
+                    20.0
+                  ],
+                  "max": [
+                    29.0875,
+                    20.0
+                  ]
+                },
+                {
+                  "net": "/B",
+                  "pads": 2,
+                  "hpwl": 10.0,
+                  "min": [
+                    20.9125,
+                    20.0
+                  ],
+                  "max": [
+                    30.9125,
+                    20.0
+                  ]
+                }
+              ]
+            },
+            "courtyard_overlaps": {
+              "count": 0,
+              "pairs": [],
+              "method": "courtyard polygon intersection; body bounding box fallback"
+            },
+            "outside_outline": {
+              "count": 0,
+              "footprints": []
+            },
+            "ratsnest_crossings": {
+              "count": 0,
+              "pairs": []
+            },
+            "congestion": {
+              "bin_size": 5.0,
+              "grid": [
+                20,
+                20
+              ],
+              "total_length": 20.0,
+              "max_density": 0.35,
+              "mean_density": 0.002,
+              "hot_bins": 4,
+              "hottest": [
+                {
+                  "x": 22.5,
+                  "y": 22.5,
+                  "length": 8.75,
+                  "density": 0.35
+                },
+                {
+                  "x": 27.5,
+                  "y": 22.5,
+                  "length": 8.75,
+                  "density": 0.35
+                },
+                {
+                  "x": 17.5,
+                  "y": 22.5,
+                  "length": 1.25,
+                  "density": 0.05
+                },
+                {
+                  "x": 32.5,
+                  "y": 22.5,
+                  "length": 1.25,
+                  "density": 0.05
+                }
+              ]
+            }
+          },
+          "meta": {
+            "worker_started": false,
+            "worker_reused": true,
+            "worker_start_count": 1,
+            "worker_start_ms": null,
+            "load_ms": null,
+            "netlist_ms": null,
+            "validation_ms": null,
+            "checkpoint_ms": null,
+            "worker_pid": 431419,
+            "commit_state": "unchanged",
+            "elapsed_ms": 12.759
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "after-trial-footprints",
+          "result": [
+            {
+              "reference": "R2",
+              "value": "330",
+              "fpid": "Resistor_SMD:R_0805_2012Metric",
+              "x": 30.0,
+              "y": 20.0,
+              "rotation": 0.0,
+              "side": "top",
+              "locked": true,
+              "layer": "F.Cu",
+              "pad_count": 2,
+              "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+              "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+              "dnp": false,
+              "exclude_from_bom": false,
+              "exclude_from_pos": false,
+              "courtyard": {
+                "min": [
+                  28.275,
+                  19.005
+                ],
+                "max": [
+                  31.725,
+                  20.995
+                ]
+              },
+              "bbox": {
+                "min": [
+                  28.295,
+                  19.025
+                ],
+                "max": [
+                  31.705,
+                  20.975
+                ]
+              },
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "/A",
+                  "x": 29.0875,
+                  "y": 20.0,
+                  "size": [
+                    1.025,
+                    1.4
+                  ],
+                  "drill": [
+                    0.0,
+                    0.0
+                  ],
+                  "attribute": 1,
+                  "type": "smd",
+                  "layers": [
+                    "F.Cu",
+                    "F.Mask",
+                    "F.Paste"
+                  ],
+                  "pinfunction": "",
+                  "pintype": ""
+                },
+                {
+                  "number": "2",
+                  "net": "/B",
+                  "x": 30.9125,
+                  "y": 20.0,
+                  "size": [
+                    1.025,
+                    1.4
+                  ],
+                  "drill": [
+                    0.0,
+                    0.0
+                  ],
+                  "attribute": 1,
+                  "type": "smd",
+                  "layers": [
+                    "F.Cu",
+                    "F.Mask",
+                    "F.Paste"
+                  ],
+                  "pinfunction": "",
+                  "pintype": ""
+                }
+              ],
+              "fields": {
+                "Reference": "R2",
+                "Value": "330",
+                "Datasheet": "",
+                "Description": "Resistor",
+                "KiLib_Generator": "SMD_2terminal_chip_molded"
+              }
+            },
+            {
+              "reference": "R1",
+              "value": "330",
+              "fpid": "Resistor_SMD:R_0805_2012Metric",
+              "x": 20.0,
+              "y": 20.0,
+              "rotation": 0.0,
+              "side": "top",
+              "locked": false,
+              "layer": "F.Cu",
+              "pad_count": 2,
+              "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+              "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+              "dnp": false,
+              "exclude_from_bom": false,
+              "exclude_from_pos": false,
+              "courtyard": {
+                "min": [
+                  18.275,
+                  19.005
+                ],
+                "max": [
+                  21.725,
+                  20.995
+                ]
+              },
+              "bbox": {
+                "min": [
+                  18.295,
+                  19.025
+                ],
+                "max": [
+                  21.705,
+                  20.975
+                ]
+              },
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "/A",
+                  "x": 19.0875,
+                  "y": 20.0,
+                  "size": [
+                    1.025,
+                    1.4
+                  ],
+                  "drill": [
+                    0.0,
+                    0.0
+                  ],
+                  "attribute": 1,
+                  "type": "smd",
+                  "layers": [
+                    "F.Cu",
+                    "F.Mask",
+                    "F.Paste"
+                  ],
+                  "pinfunction": "",
+                  "pintype": ""
+                },
+                {
+                  "number": "2",
+                  "net": "/B",
+                  "x": 20.9125,
+                  "y": 20.0,
+                  "size": [
+                    1.025,
+                    1.4
+                  ],
+                  "drill": [
+                    0.0,
+                    0.0
+                  ],
+                  "attribute": 1,
+                  "type": "smd",
+                  "layers": [
+                    "F.Cu",
+                    "F.Mask",
+                    "F.Paste"
+                  ],
+                  "pinfunction": "",
+                  "pintype": ""
+                }
+              ],
+              "fields": {
+                "Reference": "R1",
+                "Value": "330",
+                "Datasheet": "",
+                "Description": "Resistor",
+                "KiLib_Generator": "SMD_2terminal_chip_molded"
+              }
+            }
+          ],
+          "meta": {
+            "worker_started": false,
+            "worker_reused": true,
+            "worker_start_count": 1,
+            "worker_start_ms": null,
+            "load_ms": null,
+            "netlist_ms": null,
+            "validation_ms": null,
+            "checkpoint_ms": null,
+            "worker_pid": 431419,
+            "commit_state": "unchanged",
+            "elapsed_ms": 12.411
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "restore-best",
+          "result": {
+            "checkpoint": "best-000000",
+            "generation": "77c17803b8df4d0e983e67be5932fc27",
+            "content_sha256": "06db14609f10e654270e4761beffb39e9b6b9d5d5b83928f7ccf2d2f2eaef4a6",
+            "files": [
+              ".gitignore",
+              "board.kicad_pcb",
+              "board.kicad_prl",
+              "board.kicad_pro",
+              "board.kicad_sch",
+              "intent.json"
+            ],
+            "dry_run": false,
+            "restored": [],
+            "deleted": [],
+            "saved": [],
+            "validation": [],
+            "would_write": []
+          },
+          "meta": {
+            "worker_started": false,
+            "worker_reused": null,
+            "worker_start_count": 0,
+            "worker_start_ms": null,
+            "load_ms": null,
+            "netlist_ms": null,
+            "validation_ms": null,
+            "checkpoint_ms": null,
+            "commit_state": "committed",
+            "elapsed_ms": 4.1
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "restored-score",
+          "result": {
+            "path": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+            "schema_version": "1.0",
+            "units": "mm",
+            "net_filter": null,
+            "outline": {
+              "present": true,
+              "closed": true,
+              "method": "KiCad GetBoardPolygonOutlines"
+            },
+            "error": null,
+            "courtyard_fallback_refs": [],
+            "hpwl": {
+              "total": 20.0,
+              "nets": [
+                {
+                  "net": "/A",
+                  "pads": 2,
+                  "hpwl": 10.0,
+                  "min": [
+                    19.0875,
+                    20.0
+                  ],
+                  "max": [
+                    29.0875,
+                    20.0
+                  ]
+                },
+                {
+                  "net": "/B",
+                  "pads": 2,
+                  "hpwl": 10.0,
+                  "min": [
+                    20.9125,
+                    20.0
+                  ],
+                  "max": [
+                    30.9125,
+                    20.0
+                  ]
+                }
+              ]
+            },
+            "courtyard_overlaps": {
+              "count": 0,
+              "pairs": [],
+              "method": "courtyard polygon intersection; body bounding box fallback"
+            },
+            "outside_outline": {
+              "count": 0,
+              "footprints": []
+            },
+            "ratsnest_crossings": {
+              "count": 0,
+              "pairs": []
+            },
+            "congestion": {
+              "bin_size": 5.0,
+              "grid": [
+                20,
+                20
+              ],
+              "total_length": 20.0,
+              "max_density": 0.35,
+              "mean_density": 0.002,
+              "hot_bins": 4,
+              "hottest": [
+                {
+                  "x": 22.5,
+                  "y": 22.5,
+                  "length": 8.75,
+                  "density": 0.35
+                },
+                {
+                  "x": 27.5,
+                  "y": 22.5,
+                  "length": 8.75,
+                  "density": 0.35
+                },
+                {
+                  "x": 17.5,
+                  "y": 22.5,
+                  "length": 1.25,
+                  "density": 0.05
+                },
+                {
+                  "x": 32.5,
+                  "y": 22.5,
+                  "length": 1.25,
+                  "density": 0.05
+                }
+              ]
+            }
+          },
+          "meta": {
+            "worker_started": false,
+            "worker_reused": true,
+            "worker_start_count": 1,
+            "worker_start_ms": null,
+            "load_ms": null,
+            "netlist_ms": null,
+            "validation_ms": null,
+            "checkpoint_ms": null,
+            "worker_pid": 431419,
+            "commit_state": "unchanged",
+            "elapsed_ms": 12.501
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "restored-nets",
+          "result": {
+            "components": 2,
+            "net_count": 2,
+            "nets": [
+              {
+                "name": "/A",
+                "code": 1,
+                "sheet_path": "/",
+                "class": "Default",
+                "pins": [
+                  {
+                    "ref": "R1",
+                    "pin": "1",
+                    "pin_name": "",
+                    "pin_type": "passive",
+                    "no_connect": false
+                  },
+                  {
+                    "ref": "R2",
+                    "pin": "1",
+                    "pin_name": "",
+                    "pin_type": "passive",
+                    "no_connect": false
+                  }
+                ],
+                "nodes": [
+                  "R1:1",
+                  "R2:1"
+                ]
+              },
+              {
+                "name": "/B",
+                "code": 2,
+                "sheet_path": "/",
+                "class": "Default",
+                "pins": [
+                  {
+                    "ref": "R1",
+                    "pin": "2",
+                    "pin_name": "",
+                    "pin_type": "passive",
+                    "no_connect": false
+                  },
+                  {
+                    "ref": "R2",
+                    "pin": "2",
+                    "pin_name": "",
+                    "pin_type": "passive",
+                    "no_connect": false
+                  }
+                ],
+                "nodes": [
+                  "R1:2",
+                  "R2:2"
+                ]
+              }
+            ]
+          },
+          "meta": {
+            "worker_started": false,
+            "worker_reused": null,
+            "worker_start_count": 0,
+            "worker_start_ms": null,
+            "load_ms": null,
+            "netlist_ms": null,
+            "validation_ms": null,
+            "checkpoint_ms": null,
+            "commit_state": "unchanged",
+            "elapsed_ms": 516.584
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "restored-intent",
+          "result": {
+            "match": true,
+            "missing_components": [],
+            "extra_components": [],
+            "field_mismatches": [],
+            "symbol_mismatches": [],
+            "identity_mismatches": [],
+            "name_mismatches": [],
+            "attribute_mismatches": [],
+            "remove_present": [],
+            "missing_nets": [],
+            "extra_nets": [],
+            "renamed": [
+              {
+                "name": "A",
+                "actual": "/A",
+                "pins": [
+                  "R1:1",
+                  "R2:1"
+                ]
+              },
+              {
+                "name": "B",
+                "actual": "/B",
+                "pins": [
+                  "R1:2",
+                  "R2:2"
+                ]
+              }
+            ],
+            "merged": [],
+            "split": [],
+            "unconnected_pins": [],
+            "no_connects_missing": [],
+            "no_connects_extra": [],
+            "power_flags_missing": []
+          },
+          "meta": {
+            "worker_started": false,
+            "worker_reused": null,
+            "worker_start_count": 0,
+            "worker_start_ms": null,
+            "load_ms": null,
+            "netlist_ms": null,
+            "validation_ms": null,
+            "checkpoint_ms": null,
+            "commit_state": "unchanged",
+            "elapsed_ms": 511.122
+          }
+        },
+        {
+          "jsonrpc": "2.0",
+          "id": "restored-footprints",
+          "result": [
+            {
+              "reference": "R2",
+              "value": "330",
+              "fpid": "Resistor_SMD:R_0805_2012Metric",
+              "x": 30.0,
+              "y": 20.0,
+              "rotation": 0.0,
+              "side": "top",
+              "locked": true,
+              "layer": "F.Cu",
+              "pad_count": 2,
+              "path": "/e258f2cc-365a-4ccf-8316-0491496dd9b9",
+              "uuid": "6b65929d-7d6d-5674-89b8-cb13ba390c71",
+              "dnp": false,
+              "exclude_from_bom": false,
+              "exclude_from_pos": false,
+              "courtyard": {
+                "min": [
+                  28.275,
+                  19.005
+                ],
+                "max": [
+                  31.725,
+                  20.995
+                ]
+              },
+              "bbox": {
+                "min": [
+                  28.295,
+                  19.025
+                ],
+                "max": [
+                  31.705,
+                  20.975
+                ]
+              },
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "/A",
+                  "x": 29.0875,
+                  "y": 20.0,
+                  "size": [
+                    1.025,
+                    1.4
+                  ],
+                  "drill": [
+                    0.0,
+                    0.0
+                  ],
+                  "attribute": 1,
+                  "type": "smd",
+                  "layers": [
+                    "F.Cu",
+                    "F.Mask",
+                    "F.Paste"
+                  ],
+                  "pinfunction": "",
+                  "pintype": ""
+                },
+                {
+                  "number": "2",
+                  "net": "/B",
+                  "x": 30.9125,
+                  "y": 20.0,
+                  "size": [
+                    1.025,
+                    1.4
+                  ],
+                  "drill": [
+                    0.0,
+                    0.0
+                  ],
+                  "attribute": 1,
+                  "type": "smd",
+                  "layers": [
+                    "F.Cu",
+                    "F.Mask",
+                    "F.Paste"
+                  ],
+                  "pinfunction": "",
+                  "pintype": ""
+                }
+              ],
+              "fields": {
+                "Reference": "R2",
+                "Value": "330",
+                "Datasheet": "",
+                "Description": "Resistor",
+                "KiLib_Generator": "SMD_2terminal_chip_molded"
+              }
+            },
+            {
+              "reference": "R1",
+              "value": "330",
+              "fpid": "Resistor_SMD:R_0805_2012Metric",
+              "x": 20.0,
+              "y": 20.0,
+              "rotation": 0.0,
+              "side": "top",
+              "locked": false,
+              "layer": "F.Cu",
+              "pad_count": 2,
+              "path": "/aa6a98f6-855a-4df4-8475-9c2e47669b90",
+              "uuid": "b44d2cef-f408-59e3-a1d4-36acf2f442ac",
+              "dnp": false,
+              "exclude_from_bom": false,
+              "exclude_from_pos": false,
+              "courtyard": {
+                "min": [
+                  18.275,
+                  19.005
+                ],
+                "max": [
+                  21.725,
+                  20.995
+                ]
+              },
+              "bbox": {
+                "min": [
+                  18.295,
+                  19.025
+                ],
+                "max": [
+                  21.705,
+                  20.975
+                ]
+              },
+              "pads": [
+                {
+                  "number": "1",
+                  "net": "/A",
+                  "x": 19.0875,
+                  "y": 20.0,
+                  "size": [
+                    1.025,
+                    1.4
+                  ],
+                  "drill": [
+                    0.0,
+                    0.0
+                  ],
+                  "attribute": 1,
+                  "type": "smd",
+                  "layers": [
+                    "F.Cu",
+                    "F.Mask",
+                    "F.Paste"
+                  ],
+                  "pinfunction": "",
+                  "pintype": ""
+                },
+                {
+                  "number": "2",
+                  "net": "/B",
+                  "x": 20.9125,
+                  "y": 20.0,
+                  "size": [
+                    1.025,
+                    1.4
+                  ],
+                  "drill": [
+                    0.0,
+                    0.0
+                  ],
+                  "attribute": 1,
+                  "type": "smd",
+                  "layers": [
+                    "F.Cu",
+                    "F.Mask",
+                    "F.Paste"
+                  ],
+                  "pinfunction": "",
+                  "pintype": ""
+                }
+              ],
+              "fields": {
+                "Reference": "R1",
+                "Value": "330",
+                "Datasheet": "",
+                "Description": "Resistor",
+                "KiLib_Generator": "SMD_2terminal_chip_molded"
+              }
+            }
+          ],
+          "meta": {
+            "worker_started": false,
+            "worker_reused": true,
+            "worker_start_count": 1,
+            "worker_start_ms": null,
+            "load_ms": null,
+            "netlist_ms": null,
+            "validation_ms": null,
+            "checkpoint_ms": null,
+            "worker_pid": 431419,
+            "commit_state": "unchanged",
+            "elapsed_ms": 13.221
+          }
+        }
+      ]
+    },
+    {
+      "args": [
+        "--json",
+        "--project",
+        "/home/example/.omo/waves/kce-p4/cold-agent/live-R9",
+        "--session-dir",
+        "/home/example/.omo/waves/kce-p4/cold-agent/R9-live-session",
+        "session",
+        "restore",
+        "pre-search"
+      ],
+      "exit": 0,
+      "stderr": "",
+      "stdout_sha256": "37d42d2a1b314505e2ac045885ccc4cb6912786e72ef59fecc96d68a06b5fdd2",
+      "stdout_bytes": 636,
+      "result": {
+        "checkpoint": "pre-search",
+        "generation": "b117d6d584394cf0887dce86cb617880",
+        "content_sha256": "2750cb6d2333048dca90d87fd50e21766234ce303f260219a5ff71ad834722cb",
+        "files": [
+          ".gitignore",
+          "board.kicad_pcb",
+          "board.kicad_prl",
+          "board.kicad_pro",
+          "board.kicad_sch",
+          "intent.json"
+        ],
+        "dry_run": false,
+        "restored": [
+          "board.kicad_pcb"
+        ],
+        "deleted": [],
+        "saved": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb"
+        ],
+        "validation": [
+          {
+            "file": "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb",
+            "check": "kicad-cli pcb export stats",
+            "ok": true
+          }
+        ],
+        "would_write": [
+          "/home/example/.omo/waves/kce-p4/cold-agent/live-R9/board.kicad_pcb"
+        ]
+      }
+    }
+  ]
+}

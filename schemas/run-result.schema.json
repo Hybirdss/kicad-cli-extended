@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "kce run-result",
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "project": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "step",
+          "args",
+          "ok",
+          "result"
+        ],
+        "properties": {
+          "step": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ok": {
+            "const": true
+          },
+          "result": {},
+          "elapsed_ms": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "dry_run": {
+      "type": "boolean"
+    },
+    "saved": {
+      "type": "array"
+    },
+    "validation": {
+      "type": "array"
+    },
+    "would_write": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "version",
+    "project",
+    "steps",
+    "dry_run",
+    "saved",
+    "validation"
+  ]
+}

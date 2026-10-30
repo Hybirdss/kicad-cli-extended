@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "kce sch-verify",
+  "properties": {
+    "match": {
+      "type": "boolean"
+    },
+    "missing_components": {
+      "type": "array"
+    },
+    "extra_components": {
+      "type": "array"
+    },
+    "merged": {
+      "type": "array"
+    },
+    "split": {
+      "type": "array"
+    },
+    "renamed": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "match",
+    "merged",
+    "split",
+    "renamed"
+  ]
+}
