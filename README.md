@@ -89,6 +89,8 @@ Derived from the `--help` tree of KiCad 10.0.7's kicad-cli (43 commands, 582 opt
 * **KiCad 10.x** (kicad-cli + its pcbnew Python module, both ship with KiCad).
 * **Python 3.10+** for `kce` itself. pcbnew runs in KiCad's own interpreter, found automatically.
 
+PLY export requires KiCad built with OCCT 7.7 or newer; older builds can still export STEP.
+
 | OS | Install KiCad 10 |
 |---|---|
 | Windows | [installer](https://www.kicad.org/download/windows/), `choco install kicad`, or `winget install KiCad.KiCad` |
