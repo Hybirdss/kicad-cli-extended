@@ -105,6 +105,9 @@ VRML_FREE_3D = {"pcb export step": "step", "pcb export stpz": "gzip", "pcb expor
 _VRML_EXT = (".wrl", ".vrml")
 
 
+# kicad-cli exits 1 on these without --layers, and its message about it may never reach the console
+NEEDS_LAYERS = {"pcb export svg", "pcb export dxf", "pcb export pdf", "pcb export ps"}
+
 NO_DEFAULT_OUTPUT = {"jobset run", "sym upgrade", "fp upgrade", "pcb import"}
 NETLIST_EXT = {"kicadxml": ".xml", "cadstar": ".frp", "orcadpcb2": ".net", "spice": ".cir", "spicemodel": ".cir",
                "pads": ".asc", "allegro": ".txt"}
@@ -198,6 +201,8 @@ def make_command(kpath: str, spec: Dict[str, Any], ctx_api: Dict[str, Callable])
             inp = os.path.abspath(inp)
         if kpath in ("sch erc", "pcb drc") and not values.get("--format"):
             values["--format"] = "json"  # agent-friendly default (kicad-cli's own default is 'report')
+        if kpath in NEEDS_LAYERS and not values.get("--layers"):
+            raise ValueError(f"{' '.join(command_path(kpath))} needs --layers, for example --layers F.Cu,B.Cu,Edge.Cuts")
         has_output = any(o["long"] == "--output" for o in spec["options"])
         if has_output and not values.get("--output"):
             d = default_output(proj, kpath, spec, values)

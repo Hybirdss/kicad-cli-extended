@@ -786,6 +786,21 @@ class TestKicadCliCmds:
         # kicad-cli 10.0.7 help says "Output directory" for gencad but it writes a file
         assert kicad_cli_cmds.output_is_dir(spec["pcb export gencad"], "pcb export gencad") is False
 
+    def test_wx_debug_lines_are_dropped_in_any_language(self):
+        from kicad_cli_extended.utils import kicad_backend
+        text = ("07시 41분 50초: Debug: Adding duplicate image handler for 'PNG file'\n"
+                "08:09:01: Debug: Adding duplicate image handler for 'JPEG file'\n"
+                "07:41:50 PM: Debug: Adding duplicate image handler for 'TIFF file'\n"
+                "At least one layer must be specified")
+        assert kicad_backend.clean_output(text) == "At least one layer must be specified"
+
+    @pytest.mark.parametrize("plot", ["svg", "dxf", "pdf", "ps"])
+    def test_plot_export_without_layers_names_the_option(self, tmp_dir, monkeypatch, plot):
+        from kicad_cli_extended import cli as m
+        monkeypatch.setattr(kicad_cli_cmds.kb, "run_kicad_cli", lambda *a, **k: pytest.fail("kicad-cli ran"))
+        with pytest.raises(ValueError, match="--layers"):
+            m.run_in_process(["pcb", "export", plot], make_project(tmp_dir).pro_path)
+
 
 # ═══════════════════════════════ verify / checks / fab / jobset / diff ═══════════════════════════════
 
