@@ -831,6 +831,39 @@ class TestMisc:
         assert "lib link-check" in pin_map["hints"]["net_conflict"]
         assert "pcb update" in pin_map["hints"]["footprint_symbol_field_mismatch"]
 
+    @pytest.mark.parametrize("pin_text", ["Symbol {ref} Pin 2 [Pin_2, Passive, Line]",
+                                          "Symbol {ref} 핀 2 [Pin_2, 수동, 선]"])
+    def test_erc_fix_hints_do_not_depend_on_kicad_language(self, tmp_dir, monkeypatch, pin_text):
+        root, s1, s2 = ("11111111-1111-4111-8111-111111111111", "22222222-2222-4222-8222-222222222222",
+                        "33333333-3333-4333-8333-333333333333")
+        pin2 = "44444444-4444-4444-8444-444444444444"
+        sheet = ('(sheet (at 10 10) (size 20 10) (uuid "{u}") (property "Sheetname" "{n}" (at 10 10 0))'
+                 ' (property "Sheetfile" "sub.kicad_sch" (at 10 20 0)))')
+        wr(os.path.join(tmp_dir, "p.kicad_sch"),
+           f'(kicad_sch (version 20250114) (generator "eeschema") (uuid "{root}") (paper "A4") (lib_symbols)\n'
+           f'{sheet.format(u=s1, n="A")}\n{sheet.format(u=s2, n="B")}\n(sheet_instances (path "/" (page "1"))))\n')
+        wr(os.path.join(tmp_dir, "sub.kicad_sch"),
+           '(kicad_sch (version 20250114) (generator "eeschema") (uuid "55555555-5555-4555-8555-555555555555")'
+           ' (paper "A4") (lib_symbols)\n'
+           '(symbol (lib_id "Connector_Generic:Conn_01x03") (at 50 50 0) (unit 1)'
+           ' (uuid "66666666-6666-4666-8666-666666666666")'
+           ' (property "Reference" "J1" (at 50 45 0))'
+           f' (pin "1" (uuid "77777777-7777-4777-8777-777777777777")) (pin "2" (uuid "{pin2}"))'
+           f' (instances (project "p" (path "/{root}/{s1}" (reference "J1") (unit 1))'
+           f' (path "/{root}/{s2}" (reference "J2") (unit 1))))))\n')
+        sheets = [{"path": f"/{name}/", "uuid_path": f"/{root}/{u}", "violations": [
+            {"type": "pin_not_connected", "severity": "error", "description": "Pin not connected",
+             "items": [{"description": pin_text.format(ref=ref), "pos": {"x": 44.45, "y": 46.99}, "uuid": pin2}]}]}
+            for name, u, ref in (("A", s1, "J1"), ("B", s2, "J2"))]
+
+        def fake_kicad_cli(args, **kw):
+            wr(args[args.index("-o") + 1], json.dumps({"sheets": sheets}))
+            return {"returncode": 0, "stdout": "", "stderr": ""}
+
+        monkeypatch.setattr(checks.kb, "run_kicad_cli", fake_kicad_cli)
+        erc = checks.run_erc(session_for(tmp_dir), output=os.path.join(tmp_dir, "erc.json"))
+        assert [v["fix"] for v in erc["violations"]] == ["kce sch no-connect J1:2", "kce sch no-connect J2:2"]
+
     def test_cpl_conversion(self, tmp_dir):
         src = os.path.join(tmp_dir, "pos.csv")
         with open(src, "w", newline="", encoding="utf-8") as f:
