@@ -1633,10 +1633,6 @@ def a_autoroute_builtin(b, a):
     grid = float(a.get("grid", 0.25))
     if not math.isfinite(grid) or grid <= 0:
         raise ValueError("--grid must be auto or a finite positive number")
-    width = float(a.get("width", 0.25))
-    clearance = float(a.get("clearance", 0.2))
-    via_d = float(a.get("via_diameter", 0.6))
-    via_drill = float(a.get("via_drill", 0.3))
     layers = a.get("layers") or ["F.Cu", "B.Cu"]
     lids = [layer_id(b, l) for l in layers]
     via_cost = float(a.get("via_cost", 8))
@@ -1677,7 +1673,29 @@ def a_autoroute_builtin(b, a):
                 elif cur != val:
                     row[base + i] = BLOCK
 
-    halo = width / 2 + clearance
+    selected = set(a.get("refs") or [])
+    for ref in selected:
+        get_fp(b, ref)
+    conns = _ratsnest(b, a.get("net"))
+    if selected:
+        conns = [c for c in conns if c["from"].split(":")[0] in selected or c["to"].split(":")[0] in selected]
+    if a.get("skip_nets"):
+        conns = [c for c in conns if c["net"] not in a["skip_nets"]]
+    ds = b.GetDesignSettings()
+    ns = ds.m_NetSettings
+    # DRC applies the larger clearance of the two items, so one board-wide worst case keeps the grid simple
+    clearance = a.get("clearance")
+    if clearance is None:
+        clearance = mm(max([ds.m_MinClearance, ns.GetDefaultNetclass().GetClearance()]
+                           + [nc.GetClearance() for nc in ns.GetNetclasses().values()]))
+    rules = {}
+    for c in conns:
+        nc = ns.GetEffectiveNetClass(c["net"])
+        rules[c["net"]] = {
+            "width": a.get("width") or mm(max(nc.GetTrackWidth(), ds.m_TrackMinWidth)),
+            "via_d": a.get("via_diameter") or mm(max(nc.GetViaDiameter(), ds.m_ViasMinSize)),
+            "via_drill": a.get("via_drill") or mm(max(nc.GetViaDrill(), ds.m_MinThroughDrill))}
+    halo = max([r["width"] for r in rules.values()], default=0) / 2 + clearance
     # board edge keepout
     for li in range(L):
         mark_rect(li, x0, y0, x0 + mm(bb.GetWidth()), y0 + edge_clear, BLOCK)
@@ -1701,23 +1719,49 @@ def a_autoroute_builtin(b, a):
             if t.GetClass() == "PCB_VIA" or t.GetLayer() == lid:
                 mark_rect(li, mm(tb.GetX()) - halo, mm(tb.GetY()) - halo, mm(tb.GetRight()) + halo,
                           mm(tb.GetBottom()) + halo, code)
-    # keepout zones
+    # keepout zones and pours
+    pour = {}
     for z in b.Zones():
         if z.GetIsRuleArea() and z.GetDoNotAllowTracks():
             zb = z.GetBoundingBox()
             for li, lid in enumerate(lids):
                 if z.IsOnLayer(lid):
                     mark_rect(li, mm(zb.GetX()), mm(zb.GetY()), mm(zb.GetRight()), mm(zb.GetBottom()), BLOCK)
+        elif not z.GetIsRuleArea():
+            # pours refill around new tracks, but a track through one can cut it apart, so crossing costs extra
+            code = z.GetNetCode()
+            for li, lid in enumerate(lids):
+                if not z.IsOnLayer(lid):
+                    continue
+                fill = z.GetFilledPolysList(lid)
+                crossings = {}
+                for k in range(fill.OutlineCount()):
+                    for ch in [fill.COutline(k)] + [fill.CHole(k, h) for h in range(fill.HoleCount(k))]:
+                        pts = [(mm(ch.CPoint(n).x), mm(ch.CPoint(n).y)) for n in range(ch.PointCount())]
+                        for (xa, ya), (xb, yb) in zip(pts, pts[1:] + pts[:1]):
+                            if ya > yb:
+                                xa, ya, xb, yb = xb, yb, xa, ya
+                            for j in range(max(0, math.ceil((ya - y0) / grid)), min(ny, math.ceil((yb - y0) / grid))):
+                                y = y0 + j * grid
+                                crossings.setdefault(j, []).append(xa + (y - ya) * (xb - xa) / (yb - ya))
+                for j, xs in crossings.items():
+                    xs.sort()
+                    y = y0 + j * grid
+                    for xa, xb in zip(xs[::2], xs[1::2]):
+                        for i in range(max(0, math.ceil((xa - x0) / grid)), min(nx, math.floor((xb - x0) / grid) + 1)):
+                            pour[(li, j * nx + i)] = code
+    # copper text and graphics, on the board and inside footprints
+    art = list(b.GetDrawings())
+    for fp in b.GetFootprints():
+        art += list(fp.GraphicalItems()) + list(fp.GetFields())
+    for d in art:
+        code = d.GetNetCode() if hasattr(d, "GetNetCode") and d.GetNetCode() > 0 else BLOCK
+        db = d.GetBoundingBox()
+        for li, lid in enumerate(lids):
+            if d.IsOnLayer(lid):
+                mark_rect(li, mm(db.GetX()) - halo, mm(db.GetY()) - halo, mm(db.GetRight()) + halo,
+                          mm(db.GetBottom()) + halo, code)
 
-    via_halo_cells = int(math.ceil((via_d / 2 + clearance) / grid))
-    selected = set(a.get("refs") or [])
-    for ref in selected:
-        get_fp(b, ref)
-    conns = _ratsnest(b, a.get("net"))
-    if selected:
-        conns = [c for c in conns if c["from"].split(":")[0] in selected or c["to"].split(":")[0] in selected]
-    if a.get("skip_nets"):
-        conns = [c for c in conns if c["net"] not in a["skip_nets"]]
     routed, failed = [], []
     dirs = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
@@ -1727,7 +1771,7 @@ def a_autoroute_builtin(b, a):
         v = occ[li][j * nx + i]
         return v == FREE or v == code
 
-    def via_ok(i, j, code):
+    def via_ok(i, j, code, via_halo_cells):
         for li in range(L):
             for dj in range(-via_halo_cells, via_halo_cells + 1):
                 for di in range(-via_halo_cells, via_halo_cells + 1):
@@ -1739,6 +1783,8 @@ def a_autoroute_builtin(b, a):
     for c in conns:
         pa, pb_ = get_pad(b, c["from"]), get_pad(b, c["to"])
         code = pa.GetNetCode()
+        rule = rules[c["net"]]
+        via_halo_cells = int(math.ceil((rule["via_d"] / 2 + clearance) / grid))
         si, sj = cell(*c["from_xy"])
         ti, tj = cell(*c["to_xy"])
         if not (0 <= si < nx and 0 <= sj < ny and 0 <= ti < nx and 0 <= tj < ny):
@@ -1774,6 +1820,8 @@ def a_autoroute_builtin(b, a):
                 if di and dj and not (passable(li, i + di, j, code) and passable(li, i, j + dj, code)):
                     continue
                 cost = base + (1.414 if di and dj else 1.0)
+                if pour.get((li, nj * nx + ni), code) != code:
+                    cost += 4
                 # discourage direction changes a little (fewer segments)
                 prev = came.get(cur)
                 if prev is not None and prev[0] == li and (i - prev[1], j - prev[2]) != (di, dj):
@@ -1784,7 +1832,7 @@ def a_autoroute_builtin(b, a):
                     came[nxt] = cur
                     h = math.hypot(ti - ni, tj - nj)
                     heapq.heappush(openq, (cost + h, nxt))
-            if L > 1 and via_ok(i, j, code):
+            if L > 1 and via_ok(i, j, code, via_halo_cells):
                 for lj in range(L):
                     if lj == li:
                         continue
@@ -1807,6 +1855,7 @@ def a_autoroute_builtin(b, a):
         net = pa.GetNet()
         segs = 0
         vias = 0
+        items = []
 
         def xy(nd):
             return (round(x0 + nd[1] * grid, 4), round(y0 + nd[2] * grid, 4))
@@ -1827,10 +1876,11 @@ def a_autoroute_builtin(b, a):
                 v.SetPosition(vec(*xy(pc[1])))
                 v.SetViaType(pcbnew.VIATYPE_THROUGH)
                 v.SetLayerPair(lids[0], lids[-1])
-                v.SetWidth(MM(via_d))
-                v.SetDrill(MM(via_drill))
+                v.SetWidth(MM(rule["via_d"]))
+                v.SetDrill(MM(rule["via_drill"]))
                 v.SetNet(net)
                 b.Add(v)
+                items.append(v.m_Uuid.AsString())
                 vias += 1
                 continue
             pts = [xy(pc[0])]
@@ -1850,14 +1900,20 @@ def a_autoroute_builtin(b, a):
                 t = pcbnew.PCB_TRACK(b)
                 t.SetStart(vec(*s))
                 t.SetEnd(vec(*e))
-                t.SetWidth(MM(width))
+                t.SetWidth(MM(rule["width"]))
                 t.SetLayer(lids[pc[0][0]])
                 t.SetNet(net)
                 b.Add(t)
+                items.append(t.m_Uuid.AsString())
                 segs += 1
-        # occupy the routed cells for later nets (with clearance halo)
-        hc = int(math.ceil(halo / grid))
-        for li, i, j in path:
+        # occupy the routed copper for later nets: its own extent plus their halo
+        track_hc = int(math.ceil((rule["width"] / 2 + halo) / grid))
+        via_hc = int(math.ceil((rule["via_d"] / 2 + halo) / grid))
+        occupied = [(li, i, j, track_hc) for li, i, j in path]
+        for pc in pieces:
+            if isinstance(pc, tuple):
+                occupied += [(lj, pc[1][1], pc[1][2], via_hc) for lj in range(L)]
+        for li, i, j, hc in occupied:
             for dj in range(-hc, hc + 1):
                 for di in range(-hc, hc + 1):
                     ii, jj = i + di, j + dj
@@ -1865,7 +1921,8 @@ def a_autoroute_builtin(b, a):
                         cur = occ[li][jj * nx + ii]
                         if cur == FREE:
                             occ[li][jj * nx + ii] = code
-        routed.append({"net": c["net"], "from": c["from"], "to": c["to"], "segments": segs, "vias": vias})
+        routed.append({"net": c["net"], "from": c["from"], "to": c["to"], "segments": segs, "vias": vias,
+                       "_items": items})
     b.BuildConnectivity()
     for failure in failed:
         failure["hint"] = "retry with --grid 0.1, or --grid auto; check DRC after routing"

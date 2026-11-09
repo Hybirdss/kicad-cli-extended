@@ -15,6 +15,7 @@ import tempfile
 import uuid
 from typing import Any, Dict, List, Optional
 
+from . import checks as checks_mod
 from . import library as lib_mod
 from . import netlist as nl_mod
 from . import project as proj_mod
@@ -396,7 +397,23 @@ def autoroute(sess, engine: str = "builtin", **opts) -> Dict[str, Any]:
     if engine == "builtin":
         act = {"action": "autoroute_builtin"}
         act.update({k: v for k, v in opts.items() if v is not None})
-        return edit1(sess, act, "autoroute (builtin)")
+        before = checks_mod.run_drc(sess)
+        res = edit1(sess, act, "autoroute (builtin)")
+        _, new = checks_mod.report_policy(checks_mod.run_drc(sess), baseline=before, fail_on="error")
+        offending = {it["uuid"] for v in new for it in v["items"] if it.get("uuid")}
+        clean = []
+        for r in res["routed"]:
+            if offending.intersection(r.pop("_items")):
+                res["failed"].append(dict(r, reason="new DRC errors"))
+            else:
+                clean.append(r)
+        res["routed"] = clean
+        if new:
+            err = RuntimeError(f"DRC has {len(new)} new error(s) after autoroute; nothing was saved.")
+            err.runtime_details = {"routed": len(clean), "failed": len(res["failed"]), "new_violations": new,
+                                   "failed_connections": res["failed"]}
+            raise err
+        return res
     if engine == "freerouting":
         fr = kb.find_freerouting()
         if not fr:
