@@ -615,7 +615,41 @@ class TestScratchWorkflow:
 # Official KiCad demos
 # ═════════════════════════════════════════════════════════════════════════════
 
+def ripped_pic_programmer(tmp_dir):
+    """pic_programmer with eight signal nets ripped up: KiCad DRC sees 21 unrouted connections."""
+    d = demo_copy("pic_programmer", tmp_dir)
+    P = ["--project", d]
+    for net in ("/DATA-RB7", "/CLOCK-RB6", "Net-(D2-A)", "Net-(D4-A)", "Net-(D9-A)", "Net-(Q1-B)",
+                "Net-(R12-Pad1)", "Net-(R13-Pad1)"):
+        run(P + ["pcb", "delete-tracks", "--net", net])
+    drc = rj(P + ["check", "drc"])
+    assert drc["errors"] == drc["unconnected"] == 21, drc["by_type"]
+    return P, drc
+
+
 class TestDemos:
+    def test_autoroute_adds_no_drc_errors(self, tmp_dir):
+        P, ripped = ripped_pic_programmer(tmp_dir)
+        r = rj(P + ["pcb", "autoroute", "--grid", "auto"])
+        drc = rj(P + ["check", "drc"])
+        assert drc["errors"] == 0, drc["by_type"]
+        assert len(r["failed"]) == drc["unconnected"]
+        assert len(r["routed"]) == ripped["unconnected"] - drc["unconnected"]
+
+    def test_autoroute_refuses_new_drc_errors(self, tmp_dir):
+        P, ripped = ripped_pic_programmer(tmp_dir)
+        board = os.path.join(P[1], "pic_programmer.kicad_pcb")
+        before = read_text(board)
+        # the board's rules ask for at least 0.9 mm vias with 0.5 mm drills
+        r = run(["--json", *P, "pcb", "autoroute", "--grid", "auto", "--via-diameter", "0.6", "--via-drill", "0.3"],
+                check=False)
+        assert r.returncode == 3, r.stderr[-3000:]
+        details = json.loads(r.stderr)["details"]
+        assert details["new_violations"]
+        assert {v["type"] for v in details["new_violations"]} <= {"via_diameter", "drill_out_of_range"}
+        assert details["failed"] >= 1 and details["routed"] + details["failed"] == ripped["unconnected"]
+        assert read_text(board) == before
+
     @pytest.mark.smoke
     def test_pic_programmer_erc_drc_and_update_noop(self, tmp_dir):
         d = demo_copy("pic_programmer", tmp_dir)
