@@ -636,6 +636,14 @@ class TestDemos:
         assert len(r["failed"]) == drc["unconnected"]
         assert len(r["routed"]) == ripped["unconnected"] - drc["unconnected"]
 
+    def test_autoroute_keeps_a_partly_routed_net(self, tmp_dir):
+        P, ripped = ripped_pic_programmer(tmp_dir)
+        # the area leaves out U2, so Net-(D2-A) and Net-(D4-A) route up to their last pad
+        r = rj(P + ["pcb", "autoroute", "--grid", "auto", "--area", "90,100,23,30"])
+        assert {c["net"] for c in r["routed"]} >= {"Net-(D2-A)", "Net-(D4-A)"}
+        drc = rj(P + ["check", "drc"])
+        assert drc["errors"] == drc["unconnected"] == ripped["unconnected"] - len(r["routed"]), drc["by_type"]
+
     def test_autoroute_refuses_new_drc_errors(self, tmp_dir):
         P, ripped = ripped_pic_programmer(tmp_dir)
         board = os.path.join(P[1], "pic_programmer.kicad_pcb")

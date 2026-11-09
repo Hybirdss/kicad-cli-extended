@@ -436,7 +436,12 @@ def autoroute(sess, engine: str = "builtin", **opts) -> Dict[str, Any]:
         act.update({k: v for k, v in opts.items() if v is not None})
         before = checks_mod.run_drc(sess)
         res = edit1(sess, act, "autoroute (builtin)")
-        _, new = checks_mod.report_policy(checks_mod.run_drc(sess), baseline=before, fail_on="error")
+        after = checks_mod.run_drc(sess)
+        _, new = checks_mod.report_policy(after, baseline=before, fail_on="error")
+        # Unrouted connections change names as a net fills in, so they are not judged by DRC identity;
+        # copper that loses a connection it had, as when a route cuts a copper pour, is.
+        new = [v for v in new if v["type"] != "unconnected_items"]
+        lost = res["lost_connections"]
         offending = {it["uuid"] for v in new for it in v["items"] if it.get("uuid")}
         clean = []
         for r in res["routed"]:
@@ -445,10 +450,11 @@ def autoroute(sess, engine: str = "builtin", **opts) -> Dict[str, Any]:
             else:
                 clean.append(r)
         res["routed"] = clean
-        if new:
-            err = RuntimeError(f"DRC has {len(new)} new error(s) after autoroute; nothing was saved.")
+        if new or lost:
+            err = RuntimeError(f"Autoroute would add {len(new)} DRC error(s) and break {len(lost)} existing "
+                               "connection(s); nothing was saved.")
             err.runtime_details = {"routed": len(clean), "failed": len(res["failed"]), "new_violations": new,
-                                   "failed_connections": res["failed"]}
+                                   "lost_connections": lost, "failed_connections": res["failed"]}
             raise err
         return res
     if engine == "freerouting":
