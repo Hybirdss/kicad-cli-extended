@@ -3271,6 +3271,8 @@ ACTIONS = {
 
 def op_edit(p):
     b = load(p["path"])
+    if p.get("loaded"):  # the board as loaded: items keep the UUIDs the edited board is saved with
+        pcbnew.PCB_IO_KICAD_SEXPR().SaveBoard(p["loaded"], b)
     results = []
     for act in p["actions"]:
         name = act.get("action")
