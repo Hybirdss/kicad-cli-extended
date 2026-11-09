@@ -67,7 +67,6 @@ jobs:
       - run: python -m pip install ".[test]"
       - run: python scripts/fetch_fixtures.py --tag "$KICAD_TAG"
       - run: python scripts/ci_doctor.py
-      - run: kce lib init-global-tables
       - name: Unit + full E2E suite
         env:
           KCE_FORCE_INSTALLED: "1"
@@ -87,7 +86,6 @@ jobs:
       - run: python -m pip install ".[test]"
       - run: python scripts/fetch_fixtures.py --tag "$env:KICAD_TAG"
       - run: python scripts/ci_doctor.py
-      - run: kce lib init-global-tables
       - name: E2E smoke subset
         env:
           KCE_FORCE_INSTALLED: "1"
@@ -114,7 +112,6 @@ jobs:
       - run: python scripts/fetch_fixtures.py --tag "$KICAD_TAG"
       - name: Check KiCad through kce (finds the cask on its own)
         run: python scripts/ci_doctor.py
-      - run: kce lib init-global-tables
       - name: E2E smoke subset
         env:
           KCE_FORCE_INSTALLED: "1"
