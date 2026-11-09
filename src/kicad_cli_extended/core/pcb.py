@@ -302,16 +302,21 @@ def update_from_schematic(sess, delete_extra: bool = True, replace_footprints: b
     if place and report["added"]:
         added = [a["ref"] for a in report["added"]]
         try:
-            pr = edit1(sess, {"action": "place_grid", "refs": added, "spacing": 1.0, "margin": 2.0},
-                       "place new footprints")
+            pr = _checked_placement(sess, {"action": "place_grid", "refs": added, "spacing": 1.0, "margin": 2.0},
+                                    "place new footprints", lambda r: [f["reference"] for f in r["placed"]],
+                                    "rerun with `kce pcb update --no-place` and place the new parts by hand")
+        except kb.KicadError as e:
+            if "No board outline" not in str(e):
+                raise
+            report["placed"] = {"skipped": str(e).splitlines()[0]}
+        else:
             report["placed"] = pr
             report["unplaced_inside_outline"] = pr.get("unplaced_inside_outline") or []
             if report["unplaced_inside_outline"]:
                 report["warning"] = (f"{len(report['unplaced_inside_outline'])} new footprint(s) do not fit "
                                      f"inside the outline ({', '.join(report['unplaced_inside_outline'])}); "
                                      "placed next to the board")
-        except Exception as e:  # no outline yet: footprints stay near the origin
-            report["placed"] = {"skipped": str(e).splitlines()[0]}
+            report["unrouted_connections"] = read(sess, "ratsnest")
     report["would_place"] = [{"ref": f["reference"], "x": f["x"], "y": f["y"]}
                              for f in read(sess, "footprints") if f["reference"] in {c["ref"] for c in report["added"]}]
     report["schematic_problems"] = problems
@@ -321,6 +326,35 @@ def update_from_schematic(sess, delete_extra: bool = True, replace_footprints: b
     return report
 
 
+class PlacementBlocked(RuntimeError):
+    """A placement that KiCad's DRC rejects; the board was not written."""
+
+    def __init__(self, message, details):
+        super().__init__(message)
+        self.details = details
+
+
+def _checked_placement(sess, action: Dict[str, Any], description: str, moved, next_step: str) -> Dict[str, Any]:
+    """Apply a placement edit, or undo it and raise PlacementBlocked when KiCad's DRC finds new errors."""
+    path = board_path(sess)
+    doc = sess.doc(path)
+    before, was_dirty = sess.current_text(path), doc.dirty
+    result = edit1(sess, action, description)
+    refs = moved(result)
+    new = checks_mod.new_drc_errors(sess, before) if refs else []
+    if new:
+        doc.set_text(before)
+        doc.dirty = was_dirty
+        sess.rollback_last_snapshot()
+        kinds = ", ".join(sorted({v["type"] for v in new}))
+        raise PlacementBlocked(
+            f"Placing {', '.join(refs)} would add {len(new)} DRC error(s) ({kinds}); nothing was saved. "
+            f"See details.new_violations, then {next_step}.",
+            {"reason_code": "new_drc_violations", "unplaced_refs": refs, "new_violations": new,
+             "commit_state": "unchanged"})
+    return result
+
+
 def score(sess, net: Optional[str] = None, bin_size: float = 5.0) -> Dict[str, Any]:
     """Measure the placed board (HPWL, courtyard overlaps, out-of-outline, crossings, congestion)."""
     return read(sess, "score", net=net, bin_size=bin_size)
@@ -328,8 +362,10 @@ def score(sess, net: Optional[str] = None, bin_size: float = 5.0) -> Dict[str, A
 
 def legalize(sess, clearance: float = 0.2, grid: float = 0.5, max_distance: float = 10.0, strict: bool = False, refs=None) -> Dict[str, Any]:
     """Move overlapping / out-of-outline footprints to the nearest legal spot (locked ones stay)."""
-    return edit1(sess, {"action": "legalize", "clearance": clearance, "grid": grid,
-                        "max_distance": max_distance, "strict": strict, "refs": refs}, "legalize placement")
+    return _checked_placement(sess, {"action": "legalize", "clearance": clearance, "grid": grid,
+                                     "max_distance": max_distance, "strict": strict, "refs": refs},
+                              "legalize placement", lambda r: [m["reference"] for m in r["moves"]],
+                              "place them by hand with `kce pcb move REF --at X,Y`")
 
 
 def place_near(sess, ref: str, target: str, max_distance: float = 10.0, side: Optional[str] = None,
@@ -362,7 +398,8 @@ def place_near(sess, ref: str, target: str, max_distance: float = 10.0, side: Op
             a["target_pad"] = pins[0]
     if side:
         a["side"] = side
-    return edit1(sess, a, f"place {ref} near {target}")
+    return _checked_placement(sess, a, f"place {ref} near {target}", lambda r: [ref],
+                              f"place it by hand with `kce pcb move {ref} --at X,Y`")
 
 
 # ---------------------------------------------------------------------------
