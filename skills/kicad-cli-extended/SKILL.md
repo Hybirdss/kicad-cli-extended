@@ -174,12 +174,13 @@ review files/manifest/CPL orientation and hand off. Never pay or place an order 
 ```bash
 kce $P fab parts check --offline
 kce $P fab bom-check --require MPN,LCSC,Footprint
-kce $P fab package --preset jlcpcb --fail-on-drc --require-lcsc --manifest -o RELEASE
+kce $P fab package --preset jlcpcb --require-lcsc --manifest -o RELEASE
 kce $P pcb export drill --output P/outputs/drill/
 kce $P pcb export step --output P/outputs/board.step
 ```
 
-Require complete:true, empty failed_steps, nonempty files[]/ZIP hashes. Failure is
+Require complete:true, empty failed_steps, nonempty files[]/ZIP hashes. DRC errors refuse the
+package (failed_steps [drc], drc.error_violations); never hand off with --allow-drc-errors. Failure is
 complete:false/design/3, preserving accepted output. Use fresh directories. rules_preset:null
 is not fab qualification. Review BOM/CPL/polarity/rotation in the fab viewer; --rotation-fix
 changes CPL only. Jobset fab-template archives Gerber/drill. Passthrough files use outputs[].
@@ -188,7 +189,7 @@ changes CPL only. Jobset fab-template archives Gerber/drill. Passthrough files u
 
 Triggers: GitHub Actions, ERC/DRC on PRs, BOM/cost gate, build Gerbers on tag, jobset CI.
 Chain: doctor, explicit check thresholds/baseline policy, compare base, preview diff, BOM gate,
-revision gate, fresh fab package --fail-on-drc, clean-tree assertion, artifact review.
+revision gate, fresh fab package (refuses DRC errors), clean-tree assertion, artifact review.
 Use README templates with fetch-depth: 0/reviewed pins; preserve stdout/stderr. Cost gate:
 `fab bom-check --prices prices.csv --price-key LCSC --against git:HEAD --max-delta-pct 10`.
 Unpriced fails. Release uses --require-rev/--manifest. Verify bad/clean go red/green.

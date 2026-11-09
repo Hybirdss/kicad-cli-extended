@@ -134,7 +134,7 @@ kce --json pcb score
 kce --json pcb autoroute --grid auto
 kce --json pcb connectivity
 kce --json check drc --fail-on-error
-kce --json fab package --preset jlcpcb --fail-on-drc --no-step
+kce --json fab package --preset jlcpcb --no-step
 ```
 
 **验证要点：**
@@ -165,7 +165,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 * **同步安全：** 应用同步前先检查预演结果中的 `replaced[].pads_moved`、`unmatched_pins` 与 `tracks_ending_on_old_pads`。若批准的封装替换改变了焊盘位置，则需去掉 `--lock-existing`。
 * **范围门禁：** `project compare --fail-on-unexpected` 会在发现 `--allow` 白名单之外的修改时以退出码 `4` 拒绝通过。
 * **KiCad 9 及更早的电路板：** `project compare` 按名称匹配网络，并忽略 KiCad 10 升级旧文件时重写的内容，因此在 kce 首次写入（返回 `format_upgrade: true`）之后门禁依然有效。如需让格式变更不混入 ECO 差异，请在 ECO 之前运行 `pcb upgrade` 与 `sch upgrade`，并提交或创建检查点。
-* **贴片生产发布：** 发布前运行 `fab parts check --offline` 与 `fab bom-check --require MPN,LCSC,Footprint`，随后使用 `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE` 打包。只有 `complete: true` 才代表所有输出均已就绪。
+* **贴片生产发布：** 发布前运行 `fab parts check --offline` 与 `fab bom-check --require MPN,LCSC,Footprint`，随后使用 `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" -o RELEASE` 打包。只有 `complete: true` 才代表所有输出均已就绪。 若 DRC 报告错误，`fab package` 会拒绝打包（`complete: false`、`failed_steps: ["drc"]`、退出码 `3`），并在 `drc.error_violations` 中列出这些错误；传入 `--allow-drc-errors` 时仍会打包，但错误列表照常保留。
 
 ---
 
@@ -186,7 +186,7 @@ kce skill status
 
 ## 工作流
 
-[内置技能](https://github.com/Hybirdss/kicad-cli-extended/blob/main/skills/kicad-cli-extended/SKILL.md#choose-a-scenario-recipe)包含 12 条触发式工作流配方，完整步骤详见 [`docs/AGENT-RECIPES.md`](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/AGENT-RECIPES.md)。由于 ERC/DRC 默认仅输出报告，请务必加上显式门禁参数（`--fail-on-error`、`--fail-on-drc`、`--strict`）。
+[内置技能](https://github.com/Hybirdss/kicad-cli-extended/blob/main/skills/kicad-cli-extended/SKILL.md#choose-a-scenario-recipe)包含 12 条触发式工作流配方，完整步骤详见 [`docs/AGENT-RECIPES.md`](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/AGENT-RECIPES.md)。由于 ERC/DRC 默认仅输出报告，请务必加上显式门禁参数（`--fail-on-error`、`--strict`）。`fab package` 例外：未传入 `--allow-drc-errors` 时会拒绝存在 DRC 错误的电路板。
 
 | 目标 | 核心命令链 | 章节 |
 |---|---|---|

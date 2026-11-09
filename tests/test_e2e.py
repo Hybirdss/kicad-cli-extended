@@ -632,6 +632,29 @@ class TestDemos:
         assert drc2["parity"] == 0 and drc2["errors"] == 0
         print(f"\n  pic_programmer: board {len(before):,} bytes, ERC {e['total']} findings, DRC clean")
 
+    @pytest.mark.smoke
+    def test_fab_package_refuses_drc_errors_unless_allowed(self, tmp_dir):
+        d = demo_copy("pic_programmer", tmp_dir)
+        P = ["--project", d]
+        # R1 and R2 share a footprint; stacking them overlaps pads of different nets
+        run(P + ["pcb", "move", "R2", "--at", "87.63,118.11"])
+        drc = rj(P + ["check", "drc"])
+        assert drc["errors"] > 0 and "shorting_items" in drc["by_type"]
+        out = os.path.join(tmp_dir, "fab")
+        r = run(["--json", *P, "fab", "package", "--preset", "jlcpcb", "--no-step", "-o", out], check=False)
+        assert r.returncode == 3, r.stderr
+        refused = json.loads(r.stdout)
+        assert refused["complete"] is False and refused["failed_steps"] == ["drc"] and refused["files"] == []
+        assert refused["drc"]["errors"] == drc["errors"]
+        assert len(refused["drc"]["error_violations"]) == drc["errors"]
+        assert all(v["severity"] == "error" for v in refused["drc"]["error_violations"])
+        assert json.loads(r.stderr)["category"] == "design"
+        assert not os.path.exists(out)
+        allowed = rj(P + ["fab", "package", "--preset", "jlcpcb", "--no-step", "-o", out, "--allow-drc-errors"])
+        assert allowed["complete"] is True and allowed["failed_steps"] == []
+        assert {v["type"] for v in allowed["drc"]["error_violations"]} >= {"shorting_items"}
+        assert os.path.exists(opath(allowed, allowed["zip"]))
+
     def test_video_hierarchy_and_netlist(self, tmp_dir):
         d = demo_copy("video", tmp_dir)
         h = rj(["--project", d, "sch", "hierarchy"])

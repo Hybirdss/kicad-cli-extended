@@ -134,7 +134,7 @@ kce --json pcb score
 kce --json pcb autoroute --grid auto
 kce --json pcb connectivity
 kce --json check drc --fail-on-error
-kce --json fab package --preset jlcpcb --fail-on-drc --no-step
+kce --json fab package --preset jlcpcb --no-step
 ```
 
 **확인 포인트:**
@@ -167,7 +167,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 * **동기화 안전성:** 실제 적용 전 드라이런 결과에서 `replaced[].pads_moved`, `unmatched_pins`, `tracks_ending_on_old_pads`를 확인하세요. 패드 위치가 바뀌는 풋프린트 교체가 승인된 경우 `--lock-existing`을 생략해야 합니다.
 * **범위 제한 게이트:** 범위 지정 작업은 다른 풋프린트의 저장된 잠금 플래그를 건드리지 않고 위치를 고정합니다. `project compare --fail-on-unexpected`는 `--allow` 목록 밖의 변경이 감지되면 종료 코드 `4`로 거부합니다.
 * **KiCad 9 이하 보드:** `project compare`는 넷을 이름으로 맞추고 KiCad 10이 이전 파일을 업그레이드하며 다시 쓰는 부분은 무시하므로, `format_upgrade: true`를 보고하는 kce의 첫 쓰기 이후에도 게이트가 유지됩니다. 형식 변경을 ECO diff에서 분리하려면 ECO 전에 `pcb upgrade`와 `sch upgrade`를 실행하고 커밋하거나 체크포인트를 만드세요.
-* **조립용 패키지 릴리스:** 출시 전 `fab parts check --offline` 및 `fab bom-check --require MPN,LCSC,Footprint`를 실행하고, `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE`로 패키지를 생성하세요. 모든 출력은 스테이징에서 생성되며 `complete: true`일 때만 게시됩니다.
+* **조립용 패키지 릴리스:** 출시 전 `fab parts check --offline` 및 `fab bom-check --require MPN,LCSC,Footprint`를 실행하고, `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" -o RELEASE`로 패키지를 생성하세요. 모든 출력은 스테이징에서 생성되며 `complete: true`일 때만 게시됩니다. `fab package`는 DRC 오류가 있는 보드를 패키징하지 않고(`complete: false`, `failed_steps: ["drc"]`, 종료 코드 `3`) 오류를 `drc.error_violations`에 나열합니다. `--allow-drc-errors`를 주면 패키징은 하되 오류 목록은 그대로 남깁니다.
 
 ---
 
@@ -188,7 +188,7 @@ kce skill status
 
 ## 워크플로
 
-[설치된 스킬](https://github.com/Hybirdss/kicad-cli-extended/blob/main/skills/kicad-cli-extended/SKILL.md#choose-a-scenario-recipe)에는 12가지 트리거 기반 레시피가 포함되어 있으며, 상세 내용은 [`docs/AGENT-RECIPES.md`](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/AGENT-RECIPES.md)에 정리되어 있습니다. ERC와 DRC는 기본적으로 리포트 전용이므로 항상 명시적인 게이트 옵션(`--fail-on-error`, `--fail-on-drc`, `--strict`)을 함께 사용하세요.
+[설치된 스킬](https://github.com/Hybirdss/kicad-cli-extended/blob/main/skills/kicad-cli-extended/SKILL.md#choose-a-scenario-recipe)에는 12가지 트리거 기반 레시피가 포함되어 있으며, 상세 내용은 [`docs/AGENT-RECIPES.md`](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/AGENT-RECIPES.md)에 정리되어 있습니다. ERC와 DRC는 기본적으로 리포트 전용이므로 항상 명시적인 게이트 옵션(`--fail-on-error`, `--strict`)을 함께 사용하세요. 단, `fab package`는 `--allow-drc-errors` 없이는 DRC 오류가 있는 보드를 거부합니다.
 
 | 목표 | 핵심 명령어 체인 | 섹션 |
 |---|---|---|
