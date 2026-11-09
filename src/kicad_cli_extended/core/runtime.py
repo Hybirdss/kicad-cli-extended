@@ -31,16 +31,23 @@ class Request:
         self.cancelled.set()
         proc = self.process
         if proc is not None and proc.poll() is None:
-            try:
-                if os.name != 'nt':
-                    os.killpg(proc.pid, signal.SIGKILL)
-                else:
-                    proc.kill()
-                proc.wait()
-            except ProcessLookupError:
-                pass
+            kill(proc)
+            proc.wait()
         if self.worker is not None:
             self.worker.close(force=True)
+
+
+def kill(proc):
+    """Kill a process and its group. Cancelling and the call's own cleanup can both get here for one
+    process, because Popen.poll() answers None while another thread waits on it; once only an unreaped
+    zombie is left in the group, macOS answers EPERM where Linux answers ESRCH."""
+    if os.name == 'nt':
+        proc.kill()
+        return
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        pass
 
 
 current = contextvars.ContextVar('kce_request', default=None)
@@ -99,13 +106,7 @@ def execute(cmd, *, timeout, **kwargs):
         raise
     finally:
         if proc.poll() is None:
-            try:
-                if os.name != 'nt':
-                    os.killpg(proc.pid, signal.SIGKILL)
-                else:
-                    proc.kill()
-            except ProcessLookupError:
-                pass
+            kill(proc)
         proc.communicate()
         request.process = None
         if error is not None:
