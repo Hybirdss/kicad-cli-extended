@@ -1,5 +1,4 @@
 """Run the suite against a throwaway KiCad config, so it never edits the user's KiCad settings."""
-import json
 import os
 import shutil
 import subprocess
@@ -18,7 +17,7 @@ def pytest_configure(config):
     # KiCad's default library tables, which a configured KiCad (and CI) has
     r = subprocess.run([sys.executable, "-m", "kicad_cli_extended", "--json", "lib", "init-global-tables"],
                        capture_output=True, text=True, encoding="utf-8", stdin=subprocess.DEVNULL)
-    if r.returncode and json.loads(r.stderr)["category"] != "environment":  # environment: KiCad is not installed
+    if r.returncode not in (0, 7):  # 7, the environment category: KiCad is not installed
         raise RuntimeError(f"kce lib init-global-tables failed:\n{r.stderr}")
 
 
