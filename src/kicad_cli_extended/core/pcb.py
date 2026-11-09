@@ -304,14 +304,18 @@ def update_from_schematic(sess, delete_extra: bool = True, replace_footprints: b
         try:
             pr = edit1(sess, {"action": "place_grid", "refs": added, "spacing": 1.0, "margin": 2.0},
                        "place new footprints")
+        except kb.KicadError as e:
+            if "No board outline" not in str(e):
+                raise
+            report["placed"] = {"skipped": str(e).splitlines()[0]}
+        else:
             report["placed"] = pr
             report["unplaced_inside_outline"] = pr.get("unplaced_inside_outline") or []
             if report["unplaced_inside_outline"]:
                 report["warning"] = (f"{len(report['unplaced_inside_outline'])} new footprint(s) do not fit "
                                      f"inside the outline ({', '.join(report['unplaced_inside_outline'])}); "
                                      "placed next to the board")
-        except Exception as e:  # no outline yet: footprints stay near the origin
-            report["placed"] = {"skipped": str(e).splitlines()[0]}
+            report["unrouted_connections"] = read(sess, "ratsnest")
     report["would_place"] = [{"ref": f["reference"], "x": f["x"], "y": f["y"]}
                              for f in read(sess, "footprints") if f["reference"] in {c["ref"] for c in report["added"]}]
     report["schematic_problems"] = problems

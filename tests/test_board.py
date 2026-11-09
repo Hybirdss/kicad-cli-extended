@@ -10,7 +10,10 @@ import os
 
 import pytest
 
-from kicad_cli_extended.core import sexpr
+from kicad_cli_extended.core import pcb, sexpr
+from kicad_cli_extended.core.project import KicadProject
+from kicad_cli_extended.core.session import Session
+from kicad_cli_extended.utils import kicad_backend as kb
 
 from test_e2e import (COMMAND, ENV_PREFIX, REPO, artifact, blink, blink_master, demos_dir, read_csv,  # noqa: F401
                       read_text, rj, run, tmp_dir)
@@ -114,6 +117,41 @@ class TestUpdatePlacement:
         assert second["min"] == pytest.approx([first["max"][0] + 1, first["min"][1]], abs=0.001)
         assert all(inside(f, o) for f in after.values())
         assert all(f["inside_outline"] for f in up["placed"]["placed"])
+
+    def test_unrouted_connections_describe_the_saved_board(self, tmp_dir):
+        p = os.path.join(tmp_dir, "ratsnest")
+        run(["project", "new", p, "--name", "ratsnest"])
+        P = ["--project", p]
+        run(P + ["pcb", "outline", "rect", "--at", "40,40", "--size", "20,12"])
+        for ref, at in (("R1", "50.8,50.8"), ("R2", "63.5,50.8")):
+            run(P + ["sch", "add", "Device:R", "--ref", ref, "--at", at,
+                     "--footprint", "Resistor_SMD:R_0805_2012Metric"])
+            run(P + ["sch", "label-pin", f"{ref}:1", "A"])
+        up = rj(P + ["pcb", "update"])
+        assert up["unrouted_connections"] and up["unrouted_connections"] == rj(P + ["pcb", "ratsnest"])
+
+    def test_only_a_missing_outline_skips_auto_placement(self, tmp_dir, monkeypatch):
+        p = os.path.join(tmp_dir, "noplace")
+        run(["project", "new", p, "--name", "noplace"])
+        P = ["--project", p]
+        run(P + ["sch", "add", "Device:R", "--ref", "R1", "--at", "50.8,50.8",
+                 "--footprint", "Resistor_SMD:R_0805_2012Metric"])
+        assert "No board outline" in rj(P + ["pcb", "update"])["placed"]["skipped"]
+        run(P + ["pcb", "outline", "rect", "--at", "40,40", "--size", "20,12"])
+        run(P + ["sch", "add", "Device:R", "--ref", "R2", "--at", "63.5,50.8",
+                 "--footprint", "Resistor_SMD:R_0805_2012Metric"])
+        sess = Session()
+        sess.set_project(KicadProject(os.path.join(p, "noplace.kicad_pro")))
+        edit = pcb.edit
+
+        def crash(sess, actions, description):
+            if actions[0]["action"] == "place_grid":
+                raise kb.KicadError("pcbnew worker 'edit' crashed (exit -11).", {"returncode": -11})
+            return edit(sess, actions, description)
+
+        monkeypatch.setattr(pcb, "edit", crash)
+        with pytest.raises(kb.KicadError, match="crashed"):
+            pcb.update_from_schematic(sess)
 
     def test_new_parts_avoid_existing_footprints(self, blink):
         P = ["--project", blink]
