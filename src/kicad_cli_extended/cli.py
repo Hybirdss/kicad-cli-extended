@@ -48,7 +48,7 @@ from .core import preview as preview_mod
 from .core import project as proj_mod
 from .core import schematic as sch_mod
 from .core import sexpr
-from .core.session import Session, ValidationError
+from .core.session import ConcurrentEdit, Session, ValidationError
 from .core.workspace import materialize, remap
 from .utils import kicad_backend as kb
 from .utils.paths import kicad_uri, same_path
@@ -272,7 +272,6 @@ _STATE_ERRORS: Tuple[Tuple[str, str], ...] = (
     ("needs a project", "input"),
     ("Nothing to undo", "input"),
     ("Nothing to redo", "input"),
-    ("Project is locked by", "input"),
     ("ERC failed", "design"),
     ("DRC failed", "design"),
     ("DRC has ", "design"),
@@ -296,8 +295,12 @@ def _state_error(category: str):
     return test
 
 
-# (test, type, category) — first match wins.
-_ERROR_TABLE: Tuple[Tuple[Callable[[BaseException], bool], Optional[str], str], ...] = (
+# Exceptions the pcbnew worker raises for a bad argument or an unreadable input file.
+_WORKER_INPUT = {"KeyError": "NotFound", "ValueError": "InvalidInput", "OverflowError": "InvalidInput",
+                 "FileNotFoundError": "FileNotFound", "FileExistsError": "FileExists"}
+
+# (test, type, category) — first match wins; anything unmatched is InternalError.
+_ERROR_TABLE: Tuple[Tuple[Callable[[BaseException], bool], str, str], ...] = (
     (lambda e: isinstance(e, sch_mod.NetMergeError), "NetMergeError", "design"),
     (lambda e: isinstance(e, sch_mod.NetSplitError), "NetSplitError", "design"),
     (lambda e: isinstance(e, sch_mod.RouteBlockedError), "RouteBlocked", "design"),
@@ -306,6 +309,7 @@ _ERROR_TABLE: Tuple[Tuple[Callable[[BaseException], bool], Optional[str], str], 
     (lambda e: isinstance(e, plan_mod.AcceptanceFailed), "AcceptanceFailed", "design"),
     (lambda e: isinstance(e, jobset_mod.JobsetFailed), "JobsetFailed", "design"),
     (lambda e: isinstance(e, ValidationError), "ValidationError", "validation"),
+    (lambda e: isinstance(e, ConcurrentEdit), "ConcurrentEdit", "input"),
     (lambda e: isinstance(e, subprocess.TimeoutExpired), "ToolTimeout", "timeout"),  # Freerouting, ngspice, kikit
     (_kicad_timeout, "KicadTimeout", "timeout"),
     # a locked item surfaces either directly or wrapped by the pcbnew worker's KicadError
@@ -314,34 +318,21 @@ _ERROR_TABLE: Tuple[Tuple[Callable[[BaseException], bool], Optional[str], str], 
     (_kicad_cli_exit(_KICAD_EXIT_DESIGN), "KicadCheckFailed", "design"),
     (_kicad_crash, "KicadCrash", "crash"),
     (lambda e: _worker_error(e) == "PlacementBlocked", "PlacementBlocked", "design"),
-    *((lambda e, n=n: _worker_error(e) == n, n, "input")
-      for n in ("KeyError", "ValueError", "FileNotFoundError", "FileExistsError")),
+    *((lambda e, n=n: _worker_error(e) == n, code, "input") for n, code in _WORKER_INPUT.items()),
     (lambda e: _worker_error(e) is not None, "KicadError", "internal"),
     (lambda e: isinstance(e, kb.KicadError) and any(x in str(e).lower() for x in
          ("not found", "missing file", "requires kicad", "cannot import pcbnew", "no python interpreter")), "KicadNotFound", "environment"),
     (lambda e: isinstance(e, kb.KicadError), "KicadError", "internal"),
-    (_state_error("input"), "RuntimeError", "input"),
-    (_state_error("design"), "RuntimeError", "design"),
-    (_state_error("environment"), "RuntimeError", "environment"),
-    (lambda e: isinstance(e, FileNotFoundError), "FileNotFoundError", "input"),
-    (lambda e: isinstance(e, FileExistsError), "FileExistsError", "input"),
-    (lambda e: isinstance(e, KeyError), "KeyError", "input"),
-    (lambda e: isinstance(e, ValueError), None, "input"),
-    (lambda e: isinstance(e, TypeError), "TypeError", "internal"),
-    (lambda e: isinstance(e, IndexError), "IndexError", "internal"),
-    (lambda e: isinstance(e, AttributeError), "InternalError", "internal"),
-    (lambda e: isinstance(e, OSError), "OSError", "environment"),
-    (lambda e: isinstance(e, RuntimeError), "RuntimeError", "internal"),
+    (_state_error("input"), "InvalidState", "input"),
+    (_state_error("design"), "GateFailed", "design"),
+    (_state_error("environment"), "ToolUnavailable", "environment"),
+    (lambda e: isinstance(e, FileNotFoundError), "FileNotFound", "input"),
+    (lambda e: isinstance(e, FileExistsError), "FileExists", "input"),
+    (lambda e: isinstance(e, KeyError), "NotFound", "input"),
+    (lambda e: isinstance(e, sexpr.SexprError), "SexprError", "input"),
+    (lambda e: isinstance(e, ValueError), "InvalidInput", "input"),
+    (lambda e: isinstance(e, OSError), "IOFailure", "environment"),
 )
-
-
-def _documented_name(exc: BaseException) -> str:
-    """The documented name for a generic input exception (a ValueError stays ``ValueError``
-    even when it is a subclass such as ``json.JSONDecodeError``)."""
-    for base in (sexpr.SexprError, ValueError, TypeError, IndexError):
-        if isinstance(exc, base):
-            return base.__name__
-    return type(exc).__name__
 
 
 def classify_error(exc: BaseException) -> Tuple[str, str]:
@@ -350,7 +341,7 @@ def classify_error(exc: BaseException) -> Tuple[str, str]:
         return exc.type, exc.category
     for test, name, category in _ERROR_TABLE:
         if test(exc):
-            return (name or _documented_name(exc)), category
+            return name, category
     return "InternalError", "internal"
 
 
@@ -365,6 +356,12 @@ def error_payload(exc: BaseException) -> Dict[str, Any]:
         payload["details"] = {k: v for k, v in exc.details.items() if k != "traceback"}
     if hasattr(exc, "runtime_details"):
         payload["details"] = {**payload.get("details", {}), **exc.runtime_details}
+    if isinstance(exc, ConcurrentEdit):
+        payload["details"] = {**payload.get("details", {}), "retryable": True}
+    details = payload.get("details") or {}
+    # Only a serve request tracks commit_state; a one-shot failure checks the files it meant to edit.
+    if details.get("commit_state") == "unknown" and details.get("request_id") is None and get_session().disk_unchanged():
+        details["commit_state"] = "unchanged"
     if getattr(exc, "rollback_failed", False):
         payload['details'] = {**payload.get('details', {}), 'rolled_back': False, 'commit_state': 'unknown',
                               'original_error': str(exc.rollback_cause)}
@@ -755,6 +752,8 @@ def cli(ctx, use_json, project_path, dry_run, no_validate, read_only, session_di
         sess.set_project(proj)
     if ctx.invoked_subcommand is None:
         ctx.invoke(repl, project_path=project_path)
+    elif ctx.meta.get("effect") == "write" and not _repl_mode:
+        sess._acquire_lock()  # queue behind another kce process before this command reads the project
 
 
 @cli.result_callback()
@@ -795,8 +794,8 @@ def auto_save_on_exit(result, **kwargs):
 @handle_error
 def errors():
     """List stable error types, categories, exit codes and recovery commands."""
-    categories = {name: category for _, name, category in _ERROR_TABLE if name}
-    categories.update(SexprError="input", UsageError="input", InternalError="internal", RuntimeError="internal")
+    categories = {name: category for _, name, category in _ERROR_TABLE}
+    categories.update(UsageError="input", InternalError="internal")
     meaning = {
         "input": "Fix arguments or references before retrying.",
         "design": "Design or acceptance gate rejected the change; review the result.",
@@ -810,7 +809,7 @@ def errors():
                      "kce session restore NAME" if c in {"timeout", "crash", "validation"} else
                      "kce check diagnose" if c == "design" else "kce info describe COMMAND" for c in meaning}
     items = [{"type": name, "category": category, "exit_code": EXIT_CODES[category],
-              "meaning": meaning[category] + (" RuntimeError can also describe input/design/environment state; use category." if name == "RuntimeError" else ""),
+              "meaning": meaning[category] + (" Another kce process held or changed the project; rerun the same command (details.retryable)." if name == "ConcurrentEdit" else ""),
               "next_command_pattern": next_commands[category]}
              for name, category in sorted(categories.items())]
     output({"count": len(items), "items": items, "exit_codes": EXIT_CODES})

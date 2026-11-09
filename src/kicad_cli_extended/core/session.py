@@ -55,6 +55,10 @@ class ValidationError(RuntimeError):
     """KiCad rejected the saved files; every write of that command was rolled back."""
 
 
+class ConcurrentEdit(RuntimeError):
+    """Another process held or changed the project; nothing was written, so the command can be rerun."""
+
+
 def _lock_file(f, exclusive: bool = True, blocking: bool = True) -> bool:
     """Cross-platform advisory lock (fcntl on POSIX, msvcrt on Windows).
 
@@ -396,7 +400,7 @@ class Session:
             except BlockingIOError:
                 if time.time() > deadline:
                     fh.close()
-                    raise RuntimeError(
+                    raise ConcurrentEdit(
                         f"Project is locked by another {APP_NAME} process "
                         f"({os.path.join(self.state_dir, 'lock')}). Retry when it finishes.")
                 time.sleep(0.1)
@@ -408,7 +412,7 @@ class Session:
             self._redo = st.get("redo", [])
         for d in self.docs.values():
             if not d.dirty and d.exists_on_disk and _file_hash(d.path) != d.disk_hash:
-                raise RuntimeError(
+                raise ConcurrentEdit(
                     f"{d.path} changed on disk while this command was running; re-run the command.")
 
     def release_lock(self) -> None:
@@ -602,6 +606,12 @@ class Session:
         self._modified = before["modified"]
         self._before_snapshot = None
         return True
+
+    def disk_unchanged(self) -> bool:
+        """Whether every file recorded for undo since the last save still holds its pre-edit bytes."""
+        start = getattr(self, "_tx_undo_len", None)
+        return start is None or all(_file_hash(self._abs(rel)) == blob for entry in self._undo[start:]
+                                    for rel, blob in entry["files"].items())
 
     def list_history(self) -> List[Dict]:
         out = []

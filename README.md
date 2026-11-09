@@ -313,23 +313,23 @@ Full command reference: [`skills/kicad-cli-extended/COMMANDS.md`](https://github
 
 * **Success (`0`):** `--json` (before or after the subcommand) prints one JSON document on `stdout`. Design and comparison gates retain their diagnostic JSON on `stdout` even when exiting non-zero.
 * **Failure (`1`–`7`):** Emits one JSON error object on `stderr`, validated by [`schemas/error.schema.json`](https://github.com/Hybirdss/kicad-cli-extended/blob/main/schemas/error.schema.json):
-  `{"error": "...", "type": "KeyError", "category": "input", "hint": "kce sch symbols"}` with an optional `details` object.
+  `{"error": "...", "type": "NotFound", "category": "input", "hint": "kce sch symbols"}` with an optional `details` object.
 * **Error categories and exit codes:**
 
   | category | exit | meaning | `type` values |
   |---|:-:|---|---|
-  | `input` | 2 | bad arguments, unknown reference or pin, missing file, malformed input file, locked item | `UsageError`, `KicadInputError`, `KeyError`, `ValueError`, `SexprError`, `FileNotFoundError`, `FileExistsError`, `ItemLocked` (unlock it or pass `--force`), `RuntimeError` (no project loaded, project locked by another process, nothing to undo) |
-  | `design` | 3 | refused because the result would be wrong | `NetMergeError` (an edit would join unrequested nets), `NetSplitError` (a symbol swap would lose connections), `RouteBlocked` (no clean wire route), `DesignMismatch` (strict intent verification), `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `RuntimeError` (ERC/DRC failed) |
+  | `input` | 2 | bad arguments, unknown reference or pin, missing file, malformed input file, locked item | `UsageError`, `KicadInputError`, `NotFound`, `InvalidInput`, `SexprError`, `FileNotFound`, `FileExists`, `ItemLocked` (unlock it or pass `--force`), `InvalidState` (no project loaded, nothing to undo), `ConcurrentEdit` (another `kce` process held the project past `KCE_LOCK_TIMEOUT`; `details.retryable` is true) |
+  | `design` | 3 | refused because the result would be wrong | `NetMergeError` (an edit would join unrequested nets), `NetSplitError` (a symbol swap would lose connections), `RouteBlocked` (no clean wire route), `DesignMismatch` (strict intent verification), `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `GateFailed` (ERC/DRC failed) |
   | `validation` | 4 | KiCad rejected a saved file (the mutation was rolled back), or an explicit comparison gate found unexpected changes | `ValidationError` |
   | `crash` | 5 | kicad-cli (any other non-zero exit) or the pcbnew worker died or returned garbage | `KicadCrash` |
   | `timeout` | 6 | `kicad-cli` exceeded `KCE_TIMEOUT` (seconds, default 1800), or a pcbnew worker op exceeded its 3600 s budget | `KicadTimeout`; `ToolTimeout` (Freerouting, ngspice or kikit exceeded its budget) |
-  | `environment` | 7 | KiCad or another tool was not found, or an OS-level I/O failure | `KicadNotFound`, `OSError`, `RuntimeError` (Freerouting missing) |
-  | `internal` | 1 | a bug in kce (report it); details.traceback holds the stack | `KicadError` (worker exception), `RuntimeError` (unexpected), `InternalError`, `TypeError`, `IndexError` |
+  | `environment` | 7 | KiCad or another tool was not found, or an OS-level I/O failure | `KicadNotFound`, `ToolUnavailable` (Freerouting missing), `IOFailure` |
+  | `internal` | 1 | a bug in kce (report it); details.traceback holds the stack | `KicadError` (worker exception), `InternalError` |
 
 * **Additional guarantees:**
   * `kce --json errors` lists every stable error type with its category, exit code, and recovery command.
   * Passthrough exports report generated files in `outputs[]` (`path`, `bytes`, content-detected `format`, plus parsed Gerber X2 attributes); `fab package` reports `files[]`.
-  * Failed storage restoration reports `rolled_back: false` and `commit_state: unknown`; repair storage and restore an accepted checkpoint before retrying.
+  * When present, `details.commit_state` is `unchanged` if the command failed before writing any project file. Failed storage restoration reports `rolled_back: false` and `commit_state: unknown`; repair storage and restore an accepted checkpoint before retrying.
   * Mutations auto-save, validate with KiCad, and support `kce session undo`. `--dry-run` runs on isolated copies and returns `dry_run: true` and `would_write`.
   * Non-UTF-8 consoles (such as Windows `cp1252`) automatically `\u`-escape non-ASCII characters so JSON output stays valid.
   * Stable IDs survive repeated edits via `sch add --uuid UUID` and `pcb update --stable-uuids` (`uuid5(6ba7b811-9dad-11d1-80b4-00c04fd430c8, symbol_path)`).

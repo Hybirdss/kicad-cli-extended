@@ -30,7 +30,22 @@
     },
     "details": {
       "type": "object",
-      "description": "Category-specific data: kicad-cli stderr/returncode, merged nets for NetMergeError, ..."
+      "description": "Category-specific data: kicad-cli stderr/returncode, merged nets for NetMergeError, ...",
+      "properties": {
+        "commit_state": {
+          "description": "What reached the project files: unchanged (the command failed before writing any), committed (the change was saved), rolled_back (every change was restored), unknown (repair storage and restore an accepted checkpoint before retrying).",
+          "enum": [
+            "unchanged",
+            "committed",
+            "rolled_back",
+            "unknown"
+          ]
+        },
+        "retryable": {
+          "type": "boolean",
+          "description": "true when rerunning the same command can succeed, such as ConcurrentEdit after another kce process released the project."
+        }
+      }
     }
   },
   "$defs": {
@@ -60,14 +75,15 @@
         "UsageError",
         "KicadNotFound",
         "ItemLocked",
-        "RuntimeError",
-        "FileNotFoundError",
-        "FileExistsError",
-        "KeyError",
-        "ValueError",
-        "TypeError",
-        "IndexError",
-        "OSError",
+        "ConcurrentEdit",
+        "InvalidState",
+        "GateFailed",
+        "ToolUnavailable",
+        "FileNotFound",
+        "FileExists",
+        "NotFound",
+        "InvalidInput",
+        "IOFailure",
         "SexprError",
         "InternalError",
         "DesignMismatch",

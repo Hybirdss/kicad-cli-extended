@@ -266,13 +266,13 @@ kce --json -p sensor run board-stage.json
 
   | श्रेणी (`category`) | एग्जिट कोड | अर्थ | प्रमुख `type` मान |
   |---|:-:|---|---|
-  | `input` | 2 | गलत आर्ग्यूमेंट, अज्ञात रेफरेंस या पिन, गायब या खराब फ़ाइल, लॉक किया गया आइटम | `UsageError`, `KicadInputError`, `KeyError`, `ValueError`, `SexprError`, `FileNotFoundError`, `FileExistsError`, `ItemLocked`, `RuntimeError` |
-  | `design` | 3 | अस्वीकृत क्योंकि परिणाम डिज़ाइन नियमों के विरुद्ध होगा | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `RuntimeError` (ERC/DRC विफल) |
+  | `input` | 2 | गलत आर्ग्यूमेंट, अज्ञात रेफरेंस या पिन, गायब या खराब फ़ाइल, लॉक किया गया आइटम | `UsageError`, `KicadInputError`, `NotFound`, `InvalidInput`, `SexprError`, `FileNotFound`, `FileExists`, `ItemLocked`, `InvalidState`, `ConcurrentEdit` |
+  | `design` | 3 | अस्वीकृत क्योंकि परिणाम डिज़ाइन नियमों के विरुद्ध होगा | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `GateFailed` (ERC/DRC विफल) |
   | `validation` | 4 | KiCad ने सेव की गई फ़ाइल को अस्वीकार किया (बदलाव रोलबैक हो गया) या तुलना गेट में अनपेक्षित बदलाव मिले | `ValidationError` |
   | `crash` | 5 | `kicad-cli` या `pcbnew` वर्कर क्रैश हो गया | `KicadCrash` |
   | `timeout` | 6 | `kicad-cli` ने `KCE_TIMEOUT` (डिफ़ॉल्ट 1800 सेकंड) पार कर लिया या वर्कर टाइमआउट हो गया | `KicadTimeout`, `ToolTimeout` |
-  | `environment` | 7 | KiCad या अन्य टूल नहीं मिला, या OS-स्तरीय I/O विफलता | `KicadNotFound`, `OSError`, `RuntimeError` |
-  | `internal` | 1 | `kce` में आंतरिक बग (`details.traceback` में स्टैक उपलब्ध) | `KicadError`, `RuntimeError`, `InternalError`, `TypeError`, `IndexError` |
+  | `environment` | 7 | KiCad या अन्य टूल नहीं मिला, या OS-स्तरीय I/O विफलता | `KicadNotFound`, `ToolUnavailable`, `IOFailure` |
+  | `internal` | 1 | `kce` में आंतरिक बग (`details.traceback` में स्टैक उपलब्ध) | `KicadError`, `InternalError` |
 
 ---
 

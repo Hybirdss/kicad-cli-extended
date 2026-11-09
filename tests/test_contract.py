@@ -361,7 +361,7 @@ class TestFailureSignals:
     def test_input_bad_reference(self, blink):
         r, err = kce_err(["sch", "show", "R99"], cwd=blink)
         assert r.returncode == 2
-        assert (err["category"], err["type"]) == ("input", "KeyError")
+        assert (err["category"], err["type"]) == ("input", "NotFound")
         assert "R99" in err["error"] and err["hint"]
 
     def test_design_unrequested_merge(self, blink):
@@ -412,16 +412,17 @@ class TestFailureSignals:
 
     def test_caller_states_are_not_reported_as_kce_bugs(self):
         from kicad_cli_extended import cli as cli_mod
+        from kicad_cli_extended.core.session import ConcurrentEdit
         from kicad_cli_extended.utils import kicad_backend as kb
         cases = [
             (RuntimeError("R1 is locked; unlock it first or pass --force"), "input", "ItemLocked"),
             # the pcbnew worker ships the same refusal back wrapped in a KicadError
             (kb.KicadError("pcbnew move: R1 is locked; unlock it first or pass --force"),
              "input", "ItemLocked"),
-            (RuntimeError("Nothing to undo"), "input", "RuntimeError"),
-            (RuntimeError("Project is locked by another kce process"), "input", "RuntimeError"),
-            (RuntimeError("ERC failed with 2 error(s)"), "design", "RuntimeError"),
-            (RuntimeError("Freerouting not found. Install Java 17+"), "environment", "RuntimeError"),
+            (RuntimeError("Nothing to undo"), "input", "InvalidState"),
+            (ConcurrentEdit("Project is locked by another kce process"), "input", "ConcurrentEdit"),
+            (RuntimeError("ERC failed with 2 error(s)"), "design", "GateFailed"),
+            (RuntimeError("Freerouting not found. Install Java 17+"), "environment", "ToolUnavailable"),
         ]
         for exc, category, name in cases:
             assert cli_mod.classify_error(exc) == (name, category), str(exc)
@@ -444,7 +445,7 @@ class TestFailureSignals:
     def test_pcbnew_worker_rejecting_a_reference_is_input(self, blink):
         r, err = kce_err(["pcb", "move", "R99", "--at", "1,1"], cwd=blink)
         assert r.returncode == 2
-        assert (err["category"], err["type"]) == ("input", "KeyError")
+        assert (err["category"], err["type"]) == ("input", "NotFound")
 
     def test_kicad_exit_codes_and_external_tool_timeouts(self):
         import subprocess
@@ -478,7 +479,7 @@ class TestFailureSignals:
     def test_internal_unexpected_error_is_a_kce_fault(self):
         from kicad_cli_extended import cli as cli_mod
         name, category = cli_mod.classify_error(RuntimeError("unexpected"))
-        assert (category, name) == ("internal", "RuntimeError")
+        assert (category, name) == ("internal", "InternalError")
         assert cli_mod.EXIT_CODES[category] == 1
         assert cli_mod.classify_error(RuntimeError("something else broke"))[1] == "internal"
 
@@ -486,7 +487,7 @@ class TestFailureSignals:
         import json as json_mod
         from kicad_cli_extended import cli as cli_mod
         from kicad_cli_extended.core import sexpr
-        assert cli_mod.classify_error(json_mod.JSONDecodeError("x", "{", 0)) == ("ValueError", "input")
+        assert cli_mod.classify_error(json_mod.JSONDecodeError("x", "{", 0)) == ("InvalidInput", "input")
         assert cli_mod.classify_error(sexpr.SexprError("bad")) == ("SexprError", "input")
 
     def test_every_error_type_and_exit_code_is_documented(self):
@@ -533,7 +534,7 @@ def test_unknown_setter_reference_never_records_history(blink, args):
     path = Path(blink) / "blink.kicad_sch"
     before, history = path.read_bytes(), kcej(["session", "history"], cwd=blink)
     r, err = kce_err(["sch", *args], cwd=blink)
-    assert r.returncode == 2 and err["category"] == "input" and err["type"] == "KeyError"
+    assert r.returncode == 2 and err["category"] == "input" and err["type"] == "NotFound"
     assert "No symbol with reference 'ZZ9'" in err["error"] and "#PWR" not in err["error"]
     assert path.read_bytes() == before
     assert kcej(["session", "history"], cwd=blink) == history
@@ -546,3 +547,70 @@ def test_missing_models_warn_and_require_fails_environment(tmp_path):
     assert not data['capabilities']['step']
     assert data['warnings'][0]['id'] == '3dmodels_missing'
     assert result.returncode == 7 and json.loads(result.stderr)['category'] == 'environment'
+
+
+def test_error_types_are_kce_codes_not_python_exception_names():
+    import builtins
+    catalog = kcej(["errors"])
+    assert [i["type"] for i in catalog["items"] if hasattr(builtins, i["type"])] == []
+    assert {i["category"]: i["exit_code"] for i in catalog["items"]} == catalog["exit_codes"]
+
+
+@pytest.mark.parametrize("argv", [["pcb", "move", "J1", "--by", "1e309,0"], ["pcb", "move", "J1", "--at", "99999999,0"],
+                                  ["sch", "move", "R1", "--by", "1e309,0"]])
+def test_out_of_range_coordinates_are_input_errors(blink, argv):
+    kce(["pcb", "update"], cwd=blink)
+    r, err = kce_err(argv, cwd=blink)
+    assert (r.returncode, err["category"]) == (2, "input") and err["hint"]
+
+
+def test_empty_board_file_is_an_input_error(blink):
+    open(os.path.join(blink, "blink.kicad_pcb"), "w").close()
+    r, err = kce_err(["pcb", "info"], cwd=blink)
+    assert (r.returncode, err["category"]) == (2, "input") and err["hint"]
+
+
+def test_refusal_before_any_save_reports_unchanged(blink):
+    kce(["pcb", "update"], cwd=blink)
+    kce(["pcb", "outline", "rect", "--at", "100,100", "--size", "20,20"], cwd=blink)
+    board = os.path.join(blink, "blink.kicad_pcb")
+    with open(board, "rb") as f:
+        before = f.read()
+    history = kcej(["session", "history"], cwd=blink)
+    for argv, code in ((["pcb", "move", "J9", "--by", "1,0"], 2),
+                       (["pcb", "legalize", "--max-move", "0.01", "--strict"], 3)):
+        r, err = kce_err(argv, cwd=blink)
+        assert (r.returncode, err["details"]["commit_state"], r.stdout) == (code, "unchanged", ""), argv
+    with open(board, "rb") as f:
+        assert f.read() == before
+    assert kcej(["session", "history"], cwd=blink) == history
+
+
+def _hold_project_lock(project):
+    from kicad_cli_extended.core.session import _lock_file
+    os.makedirs(os.path.join(project, STATE_DIR), exist_ok=True)
+    fh = open(os.path.join(project, STATE_DIR, "lock"), "a+", encoding="utf-8")
+    _lock_file(fh)
+    return fh
+
+
+def test_parallel_writers_wait_for_the_project_lock(blink):
+    import subprocess
+    import time
+    edits = [["sch", "set-value", "R1", "1k"], ["sch", "set-value", "D1", "red"], ["sch", "set-value", "J1", "PWR"]]
+    with _hold_project_lock(blink):
+        procs = [subprocess.Popen(CLI + ["--json", *argv], cwd=blink, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  stdin=subprocess.DEVNULL, **UTF8) for argv in edits]
+        time.sleep(5)
+    results = [p.communicate(timeout=600) for p in procs]
+    assert [p.returncode for p in procs] == [0, 0, 0], results
+    assert len(kcej(["session", "history"], cwd=blink)["undo"]) == 3
+    assert {s["reference"]: s["value"] for s in kcej(["sch", "symbols"], cwd=blink)} == {
+        "R1": "1k", "D1": "red", "J1": "PWR"}
+
+
+def test_lock_wait_timeout_is_a_retryable_input_error(blink):
+    with _hold_project_lock(blink):
+        r, err = kce_err(["sch", "set-value", "R1", "1k"], cwd=blink, env={"KCE_LOCK_TIMEOUT": "1"})
+    assert (r.returncode, err["type"], err["category"], r.stdout) == (2, "ConcurrentEdit", "input", "")
+    assert err["details"]["retryable"] is True

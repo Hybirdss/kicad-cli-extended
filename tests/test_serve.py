@@ -177,7 +177,7 @@ class TestRunPlan:
         })
         r, err = kce_err(["run", plan])
         assert r.returncode == 2
-        assert err["category"] == "input" and err["type"] == "KeyError"
+        assert err["category"] == "input" and err["type"] == "NotFound"
         assert err["details"]["step"] == 2
         assert err["details"]["rolled_back"] is True
         assert "NO_SUCH_SYMBOL" in err["error"]
@@ -205,7 +205,7 @@ class TestRunPlan:
             plan = write_json(os.path.join(os.path.dirname(proj), "m.json"), bad)
             r, err = kce_err(["run", plan])
             assert r.returncode == 2, bad
-            assert err["category"] == "input" and err["type"] == "ValueError", bad
+            assert err["category"] == "input" and err["type"] == "InvalidInput", bad
             assert "kce run --help" in err["hint"]
 
     def test_missing_plan_file(self, proj):
@@ -682,6 +682,9 @@ class TestRequestDeadlines:
     @pytest.mark.smoke
     def test_timeout_cancel_reap_and_restart(self, proj):
         from concurrent.futures import ThreadPoolExecutor
+        # The first write command in a project creates its state directory; keep that disk sync
+        # out of the 200 ms request below so its deadline lands inside the worker call.
+        kce(['session', 'checkpoint', 'start'], project=proj)
         proc = subprocess.Popen(CLI + ['--project', proj, 'serve', '--request-timeout-ms', '30000'],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **UTF8)
         executor = ThreadPoolExecutor(max_workers=1)
@@ -761,7 +764,7 @@ class TestCheckpointHeads:
         listed = kcej(['session', 'checkpoints'], project=proj)
         assert listed[0]['name'] == 'before' and listed[0]['content_sha256'] == first['content_sha256']
         r, error = kce_err(['session', 'checkpoint', 'before', '--immutable'], project=proj)
-        assert r.returncode == 2 and error['type'] == 'FileExistsError'
+        assert r.returncode == 2 and error['type'] == 'FileExists'
         kcej(['sch', 'set-value', 'R1', '470'], project=proj)
         diff = kcej(['project', 'compare', 'checkpoint:before'], project=proj)
         assert any(c['ref'] == 'R1' for c in diff['schematic']['components_changed'])

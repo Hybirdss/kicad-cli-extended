@@ -62,6 +62,7 @@ class SafeGroup(click.Group):
                         result.pop(key, None)
                 m.output(result)
                 return result
+            ctx.meta['effect'] = effect
             result = super().invoke(ctx)
             from .runtime import current
             request = current.get()

@@ -266,13 +266,13 @@ KiCad 10 より前に保存されたプロジェクトでは、先に `pcb upgra
 
   | カテゴリ (`category`) | 終了コード | 意味 | 主な `type` 値 |
   |---|:-:|---|---|
-  | `input` | 2 | 引数不正、未知のリファレンス/ピン、ファイル不在、不正な入力ファイル、ロックされた要素 | `UsageError`, `KicadInputError`, `KeyError`, `ValueError`, `SexprError`, `FileNotFoundError`, `FileExistsError`, `ItemLocked`, `RuntimeError` |
-  | `design` | 3 | 設計ルール違反または意図しない接続変更のため拒否 | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `RuntimeError` (ERC/DRC 失敗) |
+  | `input` | 2 | 引数不正、未知のリファレンス/ピン、ファイル不在、不正な入力ファイル、ロックされた要素 | `UsageError`, `KicadInputError`, `NotFound`, `InvalidInput`, `SexprError`, `FileNotFound`, `FileExists`, `ItemLocked`, `InvalidState`, `ConcurrentEdit` |
+  | `design` | 3 | 設計ルール違反または意図しない接続変更のため拒否 | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `GateFailed` (ERC/DRC 失敗) |
   | `validation` | 4 | 保存されたファイルを KiCad が拒否（変更はロールバック済み）、または比較ゲートが想定外の変更を検出 | `ValidationError` |
   | `crash` | 5 | `kicad-cli` または `pcbnew` ワーカーが異常終了 | `KicadCrash` |
   | `timeout` | 6 | `kicad-cli` が `KCE_TIMEOUT`（デフォルト 1800 秒）を超過、またはワーカーがタイムアウト | `KicadTimeout`, `ToolTimeout` |
-  | `environment` | 7 | KiCad または外部ツールが見つからない、あるいは OS レベルの I/O エラー | `KicadNotFound`, `OSError`, `RuntimeError` |
-  | `internal` | 1 | `kce` 内部のバグ（`details.traceback` にスタックトレースを格納） | `KicadError`, `RuntimeError`, `InternalError`, `TypeError`, `IndexError` |
+  | `environment` | 7 | KiCad または外部ツールが見つからない、あるいは OS レベルの I/O エラー | `KicadNotFound`, `ToolUnavailable`, `IOFailure` |
+  | `internal` | 1 | `kce` 内部のバグ（`details.traceback` にスタックトレースを格納） | `KicadError`, `InternalError` |
 
 ---
 

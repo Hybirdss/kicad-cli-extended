@@ -55,7 +55,7 @@ def load(path):
         raise FileNotFoundError(f"Board not found: {path}")
     b = pcbnew.LoadBoard(path)
     if b is None:
-        raise RuntimeError(f"pcbnew failed to load {path}")
+        raise ValueError(f"pcbnew cannot read {path}: the file is empty or not a KiCad board")
     return b
 
 

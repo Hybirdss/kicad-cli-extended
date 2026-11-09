@@ -29,7 +29,8 @@ these chains. P means the project; replace path/to/project below.
   journals and independent oracles outside P, plan step inputs inside P before checkpointing.
   Use absolute project-local input paths from other working directories.
 * run is atomic for project/history; exports stay inside P. Restore on later rejection.
-  rolled_back:false/commit_state:unknown requires repair and recovery before retry.
+  rolled_back:false/commit_state:unknown requires repair and recovery before retry;
+  commit_state:unchanged means nothing was written. Rerun ConcurrentEdit (retryable:true).
 * Never order, pay, upload or commit unless asked. Inspect images, orientation and pin 1.
 * sch nets has stable ordering and nullable code. Compare pin sets. sch add --uuid preserves
   identity; pcb update --stable-uuids converges all symbol-linked footprints, existing too.
