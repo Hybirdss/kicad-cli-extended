@@ -515,6 +515,17 @@ def test_worker_faults_are_not_missing_installations():
     assert "secret" not in error_payload(KicadError("bug", {"traceback": "secret"})).get("details", {}).get("traceback", "")
 
 
+def test_sch_show_is_one_object_for_single_and_multi_unit_symbols(blink):
+    # LM358: unit A has pins 1-3, unit B pins 5-7, unit C the supply pins 4 and 8
+    for unit, y in (("1", "90"), ("2", "120")):
+        kce(["sch", "add", "Amplifier_Operational:LM358", "--ref", "U1", "--at", f"100,{y}", "--unit", unit], cwd=blink)
+    single, multi = kcej(["sch", "show", "R1"], cwd=blink), kcej(["sch", "show", "U1"], cwd=blink)
+    assert single["value"] == "330" and [u["unit"] for u in single["units"]] == [1]
+    assert multi["value"] == "LM358" and [u["unit"] for u in multi["units"]] == [1, 2]
+    assert sorted((p["unit"], p["number"]) for p in multi["pins"]) == [
+        (1, "1"), (1, "2"), (1, "3"), (2, "5"), (2, "6"), (2, "7")]
+
+
 @pytest.mark.parametrize("args", [["set-value", "ZZ9", "1"], ["set-field", "ZZ9", "MPN", "x"],
     ["set-footprint", "ZZ9", "missing:missing"], ["remove-field", "ZZ9", "MPN"], ["set-attr", "ZZ9", "dnp", "yes"]])
 def test_unknown_setter_reference_never_records_history(blink, args):

@@ -820,6 +820,24 @@ class TestResidentSessionDirectory:
         assert replies[1]['result'][0]['name'] == 'best'
         assert not os.path.exists(os.path.join(proj, STATE_DIR))
 
+    @pytest.mark.parametrize('method, command', [
+        ('CONNECTIVITY_DATA.GetConnectedItems', 'connectivity'),
+        ('BOARD.SynchronizeNetsAndNetClasses', 'nets'),
+        ('FOOTPRINT.GetCourtyard', 'footprints'),
+        ('FOOTPRINT.GetCourtyard', 'score')])
+    def test_pcbnew_failure_in_a_read_is_an_error_not_a_result(self, proj, method, command):
+        kce(['pcb', 'outline', 'rect', '--at', '20,20', '--size', '80,80'], project=proj)
+        kce(['pcb', 'update'], project=proj)
+        inject = f"def fail(*a, **k):\n    raise RuntimeError('injected')\npcbnew.{method} = fail\n"
+        requests = [
+            {'jsonrpc': '2.0', 'id': 1, 'method': 'run', 'params': {'args': ['raw', 'pcbnew', '--readonly', '--code', inject]}},
+            {'jsonrpc': '2.0', 'id': 2, 'method': 'run', 'params': {'args': ['pcb', command]}},
+            {'jsonrpc': '2.0', 'id': 3, 'method': 'shutdown'}]
+        result = kce(['serve'], project=proj, input=''.join(json.dumps(r) + '\n' for r in requests))
+        injected, read, _ = [json.loads(line) for line in result.stdout.splitlines()]
+        assert 'error' not in injected, injected
+        assert 'injected' in read['error']['message'], read
+
 
 @pytest.mark.parametrize('outside', [False, True])
 @pytest.mark.parametrize('absolute', [False, True])

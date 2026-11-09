@@ -1249,15 +1249,18 @@ def sch_symbols(sheet, no_power, match):
 @SHEET_OPT
 @handle_error
 def sch_show(ref, sheet):
-    """Full detail of a placed symbol incl. absolute pin positions."""
+    """Full detail of a placed symbol as one object, with absolute pin positions of every unit.
+
+    Top-level x/y/angle/mirror/unit/uuid describe the lowest placed unit; units[] lists the
+    placement of each unit, and each pin names its unit.
+    """
     _, t = _sch_tree(sheet)
-    out = []
-    for s in sch_mod.find_symbols(t, ref) or [sch_mod.find_symbol(t, ref)]:
-        d = sch_mod.symbol_dict(s, t)
-        d["pins"] = sch_mod.symbol_pins(t, s)
-        d["instances"] = sch_mod.instance_references(s)
-        out.append(d)
-    output(out[0] if len(out) == 1 else out)
+    symbols = sch_mod.find_symbols(t, ref) or [sch_mod.find_symbol(t, ref)]
+    units = sorted(((sch_mod.symbol_dict(s, t), s) for s in symbols), key=lambda u: u[0]["unit"])
+    first, first_symbol = units[0]
+    output(dict(first, pins=[p for _, s in units for p in sch_mod.symbol_pins(t, s)],
+                instances=sch_mod.instance_references(first_symbol),
+                units=[{k: d[k] for k in ("unit", "x", "y", "angle", "mirror", "uuid")} for d, _ in units]))
 
 
 @sch_group.command("pins")
