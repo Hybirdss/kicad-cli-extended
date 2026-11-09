@@ -3216,7 +3216,7 @@ def fab_presets():
 @click.option("--preset", type=click.Choice(sorted(fab_mod.PRESETS)), default="generic")
 @click.option("--output-dir", "-o", default=None)
 @click.option("--no-drc", is_flag=True)
-@click.option("--fail-on-drc", is_flag=True, help="Abort if DRC reports errors")
+@click.option("--allow-drc-errors", is_flag=True, help="Package even when DRC reports errors; the errors stay listed in the result.")
 @click.option("--step/--no-step", "step", default=None)
 @click.option("--atomic-output", is_flag=True, help="Stage and atomically publish only complete packages (always enabled).")
 @click.option("--fail-on-any-export", is_flag=True, help="Exit 3 on any export failure (always enabled).")
@@ -3227,19 +3227,19 @@ def fab_presets():
 @click.option("--name-suffix", default=None, help="Archive suffix using {rev}, {preset}, {tag}, {commit}.")
 @click.option("--require-rev", default=None, help="Exit 3 before export unless the title-block revision matches (v prefix optional).")
 @handle_error
-def fab_package(preset, output_dir, no_drc, fail_on_drc, step, atomic_output, fail_on_any_export, require_lcsc, bom_fields, rotation_fix, manifest, name_suffix, require_rev):
+def fab_package(preset, output_dir, no_drc, allow_drc_errors, step, atomic_output, fail_on_any_export, require_lcsc, bom_fields, rotation_fix, manifest, name_suffix, require_rev):
     """Stage and verify every export before publishing. Failures preserve the accepted directory.
 
     Inspect complete/failed_steps before hand-off. Use a fresh --output-dir for portable releases.
     """
-    r = fab_mod.make_package(get_session(), preset, output_dir, run_drc=not no_drc, fail_on_drc=fail_on_drc, step=step,
+    r = fab_mod.make_package(get_session(), preset, output_dir, run_drc=not no_drc, allow_drc_errors=allow_drc_errors, step=step,
                               require_lcsc=require_lcsc, bom_fields=bom_fields, rotation_fix=rotation_fix, manifest=manifest,
                               name_suffix=name_suffix, require_rev=require_rev)
     if not r["complete"]:
         output(r)
         reason = "Fab package incomplete: " + ", ".join(r["failed_steps"])
         if "drc" in r["failed_steps"]:
-            reason += "; fix the reported DRC errors with `kce check diagnose`, then rerun fab package --fail-on-drc"
+            reason += "; fix the reported DRC errors with `kce check diagnose`, then rerun fab package"
         raise RuntimeError(reason)
     output(r, f"Fab package ({preset}): {r['summary']['total_files']} files, zip {r['zip']['path']}")
 

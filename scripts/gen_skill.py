@@ -58,7 +58,7 @@ def commands_md() -> str:
              "| Breakaway panels | `pcb panelize` | source hash; effective mode/spacing; panel DRC; fab review |",
              "| Filters | `sim model`, `sim directive add`, `sim netlist`, `sim run` | node 0; AC stimulus; analytical/probe check |",
              "| Foreign design | `project import` into a new directory | source preservation and independent loss/equivalence review |",
-             "| Release | `fab bom-check`, `fab package --fail-on-drc --manifest` | complete:true; files/hashes; CPL review |", "",
+             "| Release | `fab bom-check`, `fab package --manifest` | complete:true; files/hashes; CPL review |", "",
              "`serve` reuses pcbnew; separate kicad-cli invocations such as ERC do not share that worker. Connector edge placement uses `pcb move` and `pcb lock`.", "",
              "## Complete command reference", "",
              "| Command | Args | Description | Options |", "|---|---|---|---|"]

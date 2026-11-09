@@ -134,7 +134,7 @@ kce --json pcb score
 kce --json pcb autoroute --grid auto
 kce --json pcb connectivity
 kce --json check drc --fail-on-error
-kce --json fab package --preset jlcpcb --fail-on-drc --no-step
+kce --json fab package --preset jlcpcb --no-step
 ```
 
 **驗證重點：**
@@ -164,7 +164,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 * **同步安全：** 套用同步前先檢查預演結果中的 `replaced[].pads_moved`、`unmatched_pins` 與 `tracks_ending_on_old_pads`。
 * **範圍門檻：** `project compare --fail-on-unexpected` 會在發現 `--allow` 清單以外的變更時以結束碼 `4` 拒絕通過。
 * **KiCad 9 及更早的電路板：** `project compare` 依名稱比對網路，並忽略 KiCad 10 升級舊檔案時重寫的內容，因此在 kce 第一次寫入（回傳 `format_upgrade: true`）之後門檻依然有效。若要讓格式變更不混入 ECO 差異，請在 ECO 之前執行 `pcb upgrade` 與 `sch upgrade`，並提交或建立檢查點。
-* **貼片生產發布：** 發布前執行 `fab parts check --offline` 與 `fab bom-check --require MPN,LCSC,Footprint`，再以 `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE` 打包。
+* **貼片生產發布：** 發布前執行 `fab parts check --offline` 與 `fab bom-check --require MPN,LCSC,Footprint`，再以 `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" -o RELEASE` 打包。 若 DRC 回報錯誤，`fab package` 會拒絕打包（`complete: false`、`failed_steps: ["drc"]`、結束碼 `3`），並在 `drc.error_violations` 中列出這些錯誤；加上 `--allow-drc-errors` 時仍會打包，但錯誤清單照常保留。
 
 ---
 

@@ -134,7 +134,7 @@ kce --json pcb score
 kce --json pcb autoroute --grid auto
 kce --json pcb connectivity
 kce --json check drc --fail-on-error
-kce --json fab package --preset jlcpcb --fail-on-drc --no-step
+kce --json fab package --preset jlcpcb --no-step
 ```
 
 **Qué verificar:**
@@ -164,7 +164,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 * **Seguridad al sincronizar:** Revisa `replaced[].pads_moved`, `unmatched_pins` y `tracks_ending_on_old_pads` antes de aplicar.
 * **Control de alcance:** `project compare --fail-on-unexpected` rechaza cualquier cambio fuera de la lista `--allow` con código de salida `4`.
 * **Placas de KiCad 9 o anteriores:** `project compare` empareja las redes por nombre e ignora lo que KiCad 10 reescribe al actualizar un archivo antiguo, así que el control sigue siendo válido tras la primera escritura de kce, que devuelve `format_upgrade: true`. Para mantener el cambio de formato fuera del diff del ECO, ejecuta `pcb upgrade` y `sch upgrade` y haz commit o crea un punto de control antes del ECO.
-* **Publicación para ensamblaje:** Ejecuta `fab parts check --offline` y `fab bom-check --require MPN,LCSC,Footprint`, y genera el paquete con `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE`.
+* **Publicación para ensamblaje:** Ejecuta `fab parts check --offline` y `fab bom-check --require MPN,LCSC,Footprint`, y genera el paquete con `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" -o RELEASE`. Si el DRC informa errores, `fab package` se niega a empaquetar (`complete: false`, `failed_steps: ["drc"]`, código de salida `3`) y los enumera en `drc.error_violations`; con `--allow-drc-errors` empaqueta igualmente y sigue enumerándolos.
 
 ---
 

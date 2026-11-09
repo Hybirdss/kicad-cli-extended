@@ -23,7 +23,7 @@ Start with the triggered recipes in [SKILL.md](SKILL.md). Use this map before co
 | Breakaway panels | `pcb panelize` | source hash; effective mode/spacing; panel DRC; fab review |
 | Filters | `sim model`, `sim directive add`, `sim netlist`, `sim run` | node 0; AC stimulus; analytical/probe check |
 | Foreign design | `project import` into a new directory | source preservation and independent loss/equivalence review |
-| Release | `fab bom-check`, `fab package --fail-on-drc --manifest` | complete:true; files/hashes; CPL review |
+| Release | `fab bom-check`, `fab package --manifest` | complete:true; files/hashes; CPL review |
 
 `serve` reuses pcbnew; separate kicad-cli invocations such as ERC do not share that worker. Connector edge placement uses `pcb move` and `pcb lock`.
 
@@ -36,7 +36,7 @@ Start with the triggered recipes in [SKILL.md](SKILL.md). Use this map before co
 | `kce check erc` |  | Check schematic electrical rules; use --fail-on error for CI and plan acceptance. | `--output` `--severity` `--fail-on-error` `--max-violations` `--summary` `--baseline` `--fail-on` |
 | `kce errors` |  | List stable error types, categories, exit codes and recovery commands. |  |
 | `kce fab bom-check` |  | Gate assembly fields and file-based costs. Emits the full report before design exit 3. | `--require` `--variant` `--prices` `--price-key` `--against` `--max-delta-pct` |
-| `kce fab package` |  | Stage and verify every export before publishing. Failures preserve the accepted directory. | `--preset` `--output-dir` `--no-drc` `--fail-on-drc` `--step` `--atomic-output` `--fail-on-any-export` `--require-lcsc` `--bom-fields` `--rotation-fix` `--manifest` `--name-suffix` `--require-rev` |
+| `kce fab package` |  | Stage and verify every export before publishing. Failures preserve the accepted directory. | `--preset` `--output-dir` `--no-drc` `--allow-drc-errors` `--step` `--atomic-output` `--fail-on-any-export` `--require-lcsc` `--bom-fields` `--rotation-fix` `--manifest` `--name-suffix` `--require-rev` |
 | `kce fab parts check` |  | List refs, LCSC IDs, footprints and lookup links; verify stock and package at the supplier. | `--offline` |
 | `kce fab presets` |  |  |  |
 | `kce gui action` | NAME | Run a KiCad tool action, e.g. common.Control.zoomFitScreen, pcbnew.InteractiveSelection.ClearSelection. |  |

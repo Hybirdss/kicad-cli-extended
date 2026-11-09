@@ -204,12 +204,14 @@ review files/manifest/CPL orientation and hand off. Never pay or place an order 
 ```bash
 kce --json -p P fab parts check --offline
 kce --json -p P fab bom-check --require MPN,LCSC,Footprint
-kce --json -p P fab package --preset jlcpcb --fail-on-drc --require-lcsc --manifest -o RELEASE
+kce --json -p P fab package --preset jlcpcb --require-lcsc --manifest -o RELEASE
 kce --json -p P pcb export drill --output P/outputs/drill/
 kce --json -p P pcb export step --output P/outputs/board.step
 ```
 
-Verify complete:true, failed_steps empty and nonempty files[]/zip hashes. Export failure returns
+Verify complete:true, failed_steps empty and nonempty files[]/zip hashes. DRC errors refuse the
+package with failed_steps ["drc"] and list them in drc.error_violations; --allow-drc-errors packages
+anyway for a deliberate prototype and is never a hand-off. Export failure returns
 complete:false/design/3 and preserves the accepted package. Existing-directory exchange is
 atomic on Linux; use fresh directories elsewhere. DRC rules_preset:null is not manufacturer
 qualification. Review bom.missing_lcsc and cpl.review, pin 1, polarity and rotation in the fab
@@ -220,7 +222,7 @@ use fab package for assembly. Passthrough exports use outputs[], fab uses files[
 
 Triggers: GitHub Actions, ERC/DRC on PRs, BOM/cost gate, build Gerbers on tag, jobset CI.
 Chain: doctor, explicit check thresholds/baseline policy, compare base, preview diff, BOM gate,
-revision gate, fresh fab package --fail-on-drc, clean-tree assertion, artifact review.
+revision gate, fresh fab package (refuses DRC errors), clean-tree assertion, artifact review.
 Use README workflow templates with fetch-depth: 0 and reviewed pins. Preserve stdout/stderr.
 For costs use `fab bom-check --prices prices.csv --price-key LCSC --against git:HEAD
 --max-delta-pct 10`; CSV needs LCSC/unit_price_usd. Unpriced is not free. Release can require
