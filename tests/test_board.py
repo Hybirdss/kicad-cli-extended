@@ -155,10 +155,10 @@ class TestUpdatePlacement:
         sess.set_project(KicadProject(os.path.join(p, "noplace.kicad_pro")))
         edit = pcb.edit
 
-        def crash(sess, actions, description):
+        def crash(sess, actions, description, **kwargs):
             if actions[0]["action"] == "place_grid":
                 raise kb.KicadError("pcbnew worker 'edit' crashed (exit -11).", {"returncode": -11})
-            return edit(sess, actions, description)
+            return edit(sess, actions, description, **kwargs)
 
         monkeypatch.setattr(pcb, "edit", crash)
         with pytest.raises(kb.KicadError, match="crashed"):
