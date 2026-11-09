@@ -1717,6 +1717,33 @@ class TestExternalRequestCancellation:
             timer.cancel()
             timer.join()
 
+    @pytest.mark.skipif(os.name == 'nt', reason='process groups are POSIX')
+    def test_cancelling_reports_the_cancellation_when_the_group_is_already_gone(self, monkeypatch):
+        # Cancelling and the engine call's own cleanup can both kill one process group. Once only an
+        # unreaped zombie is left in it, macOS answers EPERM, not ESRCH.
+        import subprocess
+        import threading
+        from kicad_cli_extended.core import runtime
+        from kicad_cli_extended.utils.kicad_backend import KicadError
+        real = os.killpg
+
+        def killpg(pid, sig):
+            real(pid, sig)
+            raise PermissionError(1, 'Operation not permitted')
+        monkeypatch.setattr(runtime.os, 'killpg', killpg)
+        sleep = [sys.executable, '-c', 'import time; time.sleep(10)']
+        request = runtime.Request('engine', 10000)
+        request.process = subprocess.Popen(sleep, start_new_session=True)
+        request.stop()
+        assert request.process.returncode is not None
+        request = runtime.Request('engine', 10000)
+        timer = threading.Timer(0.1, request.cancelled.set)
+        timer.start()
+        with runtime.scope(request), pytest.raises(KicadError, match='cancelled'):
+            runtime.execute(sleep, timeout=10, capture_output=True, text=True, encoding='utf-8')
+        timer.join()
+        assert request.process is None
+
 
 class TestTransactionScope:
     def test_reserved_metadata_paths_are_rejected_before_execution(self, tmp_path):
