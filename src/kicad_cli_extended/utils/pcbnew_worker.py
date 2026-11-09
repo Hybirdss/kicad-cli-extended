@@ -1740,19 +1740,24 @@ def _joined_copper(b):
     refilled as KiCad would refill them.
 
     The refill runs on a copy saved from `b` and loaded back, because refilling also marks zones and
-    board settings, and `b` is the board that gets saved. The copy sits next to `b`'s project and
-    rules files, so it refills with the same net classes and clearances. Two copies saved from the
-    same loaded board give its copper the same UUIDs and positions, while the file `b` came from may
-    not: KiCad 5 stored no pad UUIDs, and the first save can move a pad of a rotated footprint by 1 nm.
+    board settings, and `b` is the board that gets saved. The copy keeps `b`'s file name and sits next
+    to copies of its project and rules files, so it refills with the same net classes, clearances and
+    text variables (copper text such as ${PROJECTNAME} cuts into a pour by the width of what it
+    resolves to). Two copies saved from the same loaded board give its copper the same UUIDs and
+    positions, while the file `b` came from may not: KiCad 5 stored no pad UUIDs, and the first save
+    can move a pad of a rotated footprint by 1 nm.
     """
+    original = b.GetFileName()
+    stem = os.path.splitext(original)[0]
     with tempfile.TemporaryDirectory(prefix="kce-route-check-") as td:
-        path = os.path.join(td, "board.kicad_pcb")
-        stem = os.path.splitext(b.GetFileName())[0]
+        name = os.path.basename(stem)
         for ext in (".kicad_pro", ".kicad_dru"):
             if os.path.isfile(stem + ext):
-                shutil.copyfile(stem + ext, os.path.join(td, "board" + ext))
+                shutil.copyfile(stem + ext, os.path.join(td, name + ext))
+        path = os.path.join(td, name + ".kicad_pcb")
         pcbnew.PCB_IO_KICAD_SEXPR().SaveBoard(path, b)
         copy = load(path)
+    copy.SetFileName(original)
     try:
         return _clusters_after_refill(copy)
     finally:  # a long-lived worker would otherwise keep every copy's project loaded
