@@ -281,7 +281,7 @@ Start with the triggered recipes in [SKILL.md](SKILL.md). Use this map before co
 | `kce sch set-footprint` | REF FOOTPRINT | Assign a footprint (Library:Name), verified against the fp-lib-table. | `--no-check` `--sheet` |
 | `kce sch set-value` | REF VALUE | Set all units of REF; unknown references fail with input/2 before recording undo. | `--sheet` |
 | `kce sch sheet-pin` | SHEET_NAME PIN_NAME | Add a sheet pin and the matching hierarchical label inside the child sheet. | `--shape` `--side` `--no-label` `--sheet` |
-| `kce sch show` | REF | Full detail of a placed symbol incl. absolute pin positions. | `--sheet` |
+| `kce sch show` | REF | Full detail of a placed symbol as one object, with absolute pin positions of every unit. | `--sheet` |
 | `kce sch symbols` |  | List placed symbols. | `--sheet` `--no-power` `--match` |
 | `kce sch text` | TEXT |  | `--at` `--angle` `--size` `--sheet` |
 | `kce sch title` |  | Set title block fields. | `--title` `--date` `--rev` `--company` `--comment` `--sheet` |

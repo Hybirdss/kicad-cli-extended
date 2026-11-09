@@ -817,7 +817,7 @@ class TestLibraries:
         again = run(["--json", *args], check=False)
         assert again.returncode == 2
         err = json.loads(again.stderr)
-        assert err["type"] == "FileExistsError" and err["category"] == "input"
+        assert err["type"] == "FileExists" and err["category"] == "input"
         assert "exists" in err["error"] and "--overwrite" in err["error"]
         r2 = rj(args + ["--overwrite"])
         assert r2["overwrote"] is True
@@ -1066,7 +1066,7 @@ class TestCLISubprocess:
         r = run(["--json", "--project", p, "sch", "show", "R99"], check=False)
         assert r.returncode == 2  # input: unknown reference
         err = json.loads(r.stderr)
-        assert err["type"] == "KeyError" and "R99" in err["error"]
+        assert err["type"] == "NotFound" and "R99" in err["error"]
         assert err["hint"] == f"{COMMAND} sch symbols"  # every error names the next command
 
     @pytest.mark.smoke

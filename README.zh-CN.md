@@ -269,13 +269,13 @@ kce --json -p sensor run board-stage.json
 
   | 分类 (`category`) | 退出码 | 含义 | 主要 `type` 值 |
   |---|:-:|---|---|
-  | `input` | 2 | 参数错误、未知位号或引脚、文件缺失、输入格式错误、锁定对象 | `UsageError`, `KicadInputError`, `KeyError`, `ValueError`, `SexprError`, `FileNotFoundError`, `FileExistsError`, `ItemLocked`, `RuntimeError` |
-  | `design` | 3 | 因违反设计规则或会导致错误连接而被拒绝 | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `RuntimeError` (ERC/DRC 失败) |
+  | `input` | 2 | 参数错误、未知位号或引脚、文件缺失、输入格式错误、锁定对象 | `UsageError`, `KicadInputError`, `NotFound`, `InvalidInput`, `SexprError`, `FileNotFound`, `FileExists`, `ItemLocked`, `InvalidState`, `ConcurrentEdit` |
+  | `design` | 3 | 因违反设计规则或会导致错误连接而被拒绝 | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `GateFailed` (ERC/DRC 失败) |
   | `validation` | 4 | KiCad 拒绝了保存的文件（修改已回滚），或对比门禁发现预期外改动 | `ValidationError` |
   | `crash` | 5 | `kicad-cli` 或 `pcbnew` 工作进程崩溃或返回非法数据 | `KicadCrash` |
   | `timeout` | 6 | `kicad-cli` 超过 `KCE_TIMEOUT`（默认 1800 秒）或工作进程超时 | `KicadTimeout`, `ToolTimeout` |
-  | `environment` | 7 | 未找到 KiCad 或外部工具，或发生操作系统级 I/O 错误 | `KicadNotFound`, `OSError`, `RuntimeError` |
-  | `internal` | 1 | `kce` 内部缺陷（请提交反馈），`details.traceback` 含调用栈 | `KicadError`, `RuntimeError`, `InternalError`, `TypeError`, `IndexError` |
+  | `environment` | 7 | 未找到 KiCad 或外部工具，或发生操作系统级 I/O 错误 | `KicadNotFound`, `ToolUnavailable`, `IOFailure` |
+  | `internal` | 1 | `kce` 内部缺陷（请提交反馈），`details.traceback` 含调用栈 | `KicadError`, `InternalError` |
 
 ---
 

@@ -291,13 +291,13 @@ kce sch verify --expect intent.json  # {"match": true, ...}
 
   | 카테고리 (`category`) | 종료 코드 | 의미 | 주요 `type` 값 |
   |---|:-:|---|---|
-  | `input` | 2 | 잘못된 인자, 존재하지 않는 레퍼런스/핀, 파일 누락, 손상된 입력 파일, 잠긴 항목 | `UsageError`, `KicadInputError`, `KeyError`, `ValueError`, `SexprError`, `FileNotFoundError`, `FileExistsError`, `ItemLocked`, `RuntimeError` |
-  | `design` | 3 | 설계 규칙 위반 또는 의도하지 않은 회로 변경으로 인해 거부됨 | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `RuntimeError` (ERC/DRC 실패) |
+  | `input` | 2 | 잘못된 인자, 존재하지 않는 레퍼런스/핀, 파일 누락, 손상된 입력 파일, 잠긴 항목 | `UsageError`, `KicadInputError`, `NotFound`, `InvalidInput`, `SexprError`, `FileNotFound`, `FileExists`, `ItemLocked`, `InvalidState`, `ConcurrentEdit` |
+  | `design` | 3 | 설계 규칙 위반 또는 의도하지 않은 회로 변경으로 인해 거부됨 | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `GateFailed` (ERC/DRC 실패) |
   | `validation` | 4 | 저장된 파일을 KiCad가 거부함(변경 사항 자동 롤백) 또는 비교 게이트에서 허용되지 않은 변경 감지 | `ValidationError` |
   | `crash` | 5 | `kicad-cli` 또는 `pcbnew` 워커 비정상 종료 | `KicadCrash` |
   | `timeout` | 6 | `kicad-cli`가 `KCE_TIMEOUT`(기본 1800초)을 초과하거나 워커가 제한시간을 초과함 | `KicadTimeout`, `ToolTimeout` |
-  | `environment` | 7 | KiCad 또는 외부 도구 미설치, OS 수준 I/O 오류 | `KicadNotFound`, `OSError`, `RuntimeError` |
-  | `internal` | 1 | `kce` 내부 버그 (`details.traceback`에 스택 포함) | `KicadError`, `RuntimeError`, `InternalError`, `TypeError`, `IndexError` |
+  | `environment` | 7 | KiCad 또는 외부 도구 미설치, OS 수준 I/O 오류 | `KicadNotFound`, `ToolUnavailable`, `IOFailure` |
+  | `internal` | 1 | `kce` 내부 버그 (`details.traceback`에 스택 포함) | `KicadError`, `InternalError` |
 
 ---
 
