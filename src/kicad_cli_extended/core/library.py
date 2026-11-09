@@ -155,7 +155,8 @@ def _libs_signature(rows: List[Tuple[str, str]]) -> str:
     h.update(kb.kicad_version().encode())
     for lib, path in rows:
         try:
-            h.update(f"{lib}|{path}|{os.path.getmtime(path)}".encode())
+            st = os.stat(path)
+            h.update(f"{lib}|{path}|{st.st_mtime_ns}|{st.st_size}".encode())
         except OSError:
             h.update(f"{lib}|{path}|missing".encode())
     return h.hexdigest()[:16]
@@ -369,7 +370,8 @@ _LIB_CACHE: Dict[str, SList] = {}
 
 
 def load_symbol_lib(path: str) -> SList:
-    key = f"{path}:{os.path.getmtime(path)}"
+    st = os.stat(path)  # a rewrite can keep the mtime on a coarse clock, but rarely the size too
+    key = f"{path}:{st.st_mtime_ns}:{st.st_size}"
     if key not in _LIB_CACHE:
         _LIB_CACHE[key] = sexpr.load(path)
     return _LIB_CACHE[key]
