@@ -381,6 +381,16 @@ class TestFailureSignals:
         with open(sch, encoding="utf-8") as f:
             assert f.read() == before
 
+    def test_rolled_back_save_prints_no_result(self, blink):
+        board = os.path.join(blink, "blink.kicad_pcb")
+        with open(board, "rb") as f:
+            before = f.read()
+        r, err = kce_err(["raw", "set", "blink.kicad_pcb", "general/thickness", "banana"], cwd=blink)
+        assert (r.returncode, err["category"]) == (4, "validation")
+        assert r.stdout == ""
+        with open(board, "rb") as f:
+            assert f.read() == before
+
     def test_crash_kicad_cli_fails(self, blink, tmp_dir):
         exe = fake_kicad_cli(tmp_dir, "sys.stderr.write('simulated crash\\n')\nsys.exit(2)\n")
         r, err = kce_err(["sch", "nets"], cwd=blink, env={"KCE_KICAD_CLI": exe})

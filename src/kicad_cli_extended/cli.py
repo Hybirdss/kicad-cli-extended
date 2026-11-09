@@ -64,6 +64,7 @@ _progress = False
 _had_error = False
 _capture: Optional[List[Any]] = None
 _raise_errors = False
+_held: List[Tuple[Any, str]] = []  # stdout documents of a one-shot edit, printed once its save holds
 
 
 def get_session() -> Session:
@@ -79,16 +80,6 @@ def progress_event(event, **fields):
         request = current.get()
         click.echo(json.dumps({"progress": event, "request_id": request.request_id if request else None,
                                **fields}), err=True)
-
-
-def output(data: Any, message: str = "") -> None:
-    try:
-        _output(data, message)
-    except BrokenPipeError:  # e.g. `| head`: the command itself succeeded
-        try:
-            sys.stdout = open(os.devnull, "w", encoding="utf-8")
-        except OSError:
-            pass
 
 
 def _utf8_stream(stream) -> bool:
@@ -109,7 +100,7 @@ def configure_stdio() -> None:
                 pass
 
 
-def _output(data: Any, message: str = "") -> None:
+def output(data: Any, message: str = "") -> None:
     ctx = click.get_current_context(silent=True)
     if isinstance(data, list) and ctx is not None:
         from .core.contract import effect
@@ -153,16 +144,34 @@ def _output(data: Any, message: str = "") -> None:
     if _capture is not None:
         _capture.append(data)
         return
-    if _json_output:
-        # pretty on a terminal, compact when piped (fewer tokens for agents); JSON stays valid in any
-        # console encoding: non-ASCII is escaped when stdout isn't UTF-8
-        tty = getattr(sys.stdout, "isatty", lambda: False)()
-        click.echo(json.dumps(data, default=str, ensure_ascii=not _utf8_stream(sys.stdout),
-                              indent=2 if tty else None, separators=None if tty else (",", ":")))
+    if not (_repl_mode or _plan_mode or _dry_run) and get_session().dirty_docs():
+        _held.append((data, message))
         return
-    if message:
-        click.echo(message)
-    _human(data, 1)
+    _emit(data, message)
+
+
+def _release_output() -> None:
+    while _held:
+        _emit(*_held.pop(0))
+
+
+def _emit(data: Any, message: str = "") -> None:
+    try:
+        if _json_output:
+            # pretty on a terminal, compact when piped (fewer tokens for agents); JSON stays valid in any
+            # console encoding: non-ASCII is escaped when stdout isn't UTF-8
+            tty = getattr(sys.stdout, "isatty", lambda: False)()
+            click.echo(json.dumps(data, default=str, ensure_ascii=not _utf8_stream(sys.stdout),
+                                  indent=2 if tty else None, separators=None if tty else (",", ":")))
+            return
+        if message:
+            click.echo(message)
+        _human(data, 1)
+    except BrokenPipeError:  # e.g. `| head`: the command itself succeeded
+        try:
+            sys.stdout = open(os.devnull, "w", encoding="utf-8")
+        except OSError:
+            pass
 
 
 def _human(data: Any, indent: int) -> None:
@@ -390,6 +399,7 @@ def handle_error(f):
                 e._kce_payload = error_payload(e)
                 raise
             payload = error_payload(e)
+            _release_output()  # a gate that printed its diagnostics before refusing keeps them on stdout
             if _json_output:
                 click.echo(json.dumps(payload, indent=2, default=str), err=True)
             else:
@@ -768,6 +778,7 @@ def auto_save_on_exit(result, **kwargs):
                            + (f", validated by KiCad ({len(res['validation'])} check(s))" if res["validation"] else ""),
                            err=True)
         except Exception as e:  # validation failed -> rolled back
+            _held.clear()
             payload = error_payload(e)
             payload["error"] = f"Auto-save failed: {payload['error']}"
             if _raise_errors:
@@ -777,6 +788,7 @@ def auto_save_on_exit(result, **kwargs):
             sys.exit(EXIT_CODES[payload["category"]])
     else:
         sess.release_lock()
+    _release_output()
 
 
 @cli.command("errors")
