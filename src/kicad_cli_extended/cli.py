@@ -274,7 +274,7 @@ _STATE_ERRORS: Tuple[Tuple[str, str], ...] = (
     ("Nothing to redo", "input"),
     ("ERC failed", "design"),
     ("DRC failed", "design"),
-    ("DRC has ", "design"),
+    ("Autoroute would add ", "design"),
     ("Fab package incomplete", "design"),
     ("BOM check failed", "design"),
     ("PCB score failed", "design"),
@@ -297,6 +297,7 @@ def _state_error(category: str):
 
 # Exceptions the pcbnew worker raises for a bad argument or an unreadable input file.
 _WORKER_INPUT = {"KeyError": "NotFound", "ValueError": "InvalidInput", "OverflowError": "InvalidInput",
+                 "GridTooLarge": "InvalidInput",
                  "FileNotFoundError": "FileNotFound", "FileExistsError": "FileExists"}
 
 # (test, type, category) — first match wins; anything unmatched is InternalError.
@@ -2425,7 +2426,7 @@ def pcb_route(from_pad, to_pad, layer, width, mode, via_points):
 
 @pcb_group.command("autoroute")
 @click.option("--engine", type=click.Choice(["builtin", "freerouting"]), default="builtin")
-@click.option("--grid", default="0.25", help="builtin: positive grid mm, or auto (0.25 → 0.15 → 0.1 → 0.05).")
+@click.option("--grid", default="0.25", help="builtin: positive grid mm, or auto (0.25 → 0.15 → 0.1 → 0.05, stopping with a warning before a grid too large for the board).")
 @click.option("--width", type=float, default=None, help="Default: the net class track width, at least the board minimum.")
 @click.option("--clearance", type=float, default=None, help="Default: the largest net class or board clearance.")
 @click.option("--via-diameter", type=float, default=None, help="Default: the net class via, at least the board minimum.")
@@ -2440,7 +2441,8 @@ def pcb_route(from_pad, to_pad, layer, width, mode, via_points):
 def pcb_autoroute(engine, grid, width, clearance, via_diameter, via_drill, layers, net, skip_nets, passes, refs, area):
     """Autoroute unrouted connections (builtin grid router, or Freerouting via Specctra DSN/SES).
 
-    The builtin router exits 3 and saves nothing when KiCad DRC finds new errors after routing."""
+    The builtin router exits 3 and saves nothing when KiCad DRC finds new errors after routing, or
+    when a route splits copper the board had connected, as by cutting a pour (lost_connections)."""
     if engine != "builtin" and (refs or area):
         raise ValueError("--refs and --area require --engine builtin")
     if grid != "auto":

@@ -15,9 +15,11 @@ import json
 import math
 import os
 import re
+import shutil
 import sys
-import traceback
+import tempfile
 import time
+import traceback
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -1710,7 +1712,105 @@ def a_script(b, a):
 # --- built-in maze router ----------------------------------------------------
 
 
+class GridTooLarge(ValueError):
+    """The routing grid would need more cells than the router allows."""
+
+
+def _copper_key(x):
+    """Name a pad, track, arc, via or copper shape by UUID and position."""
+    cls = x.GetClass()
+    if cls == "PAD":
+        p = x.GetPosition()
+        where = f"{x.GetParentFootprint().GetReference()}:{x.GetNumber()} {p.x},{p.y}"
+    elif cls == "PCB_VIA":
+        p = x.GetPosition()
+        where = f"{p.x},{p.y}"
+    elif cls in ("PCB_TRACK", "PCB_ARC"):
+        ends = sorted([(x.GetStart().x, x.GetStart().y), (x.GetEnd().x, x.GetEnd().y)])
+        mid = x.Cast().GetMid() if cls == "PCB_ARC" else None  # GetTracks() hands arcs out as PCB_TRACK
+        where = f"{x.GetLayer()} {ends} {(mid.x, mid.y) if mid else ''}"
+    else:
+        bb = x.GetBoundingBox()
+        where = f"{x.GetLayer()} {bb.GetX()},{bb.GetY()},{bb.GetWidth()},{bb.GetHeight()}"
+    return f"{cls} {x.m_Uuid.AsString()} {where}"
+
+
+def _joined_copper(b):
+    """Each net's pads, tracks, vias and copper shapes in connected clusters, judged with the pours
+    refilled as KiCad would refill them.
+
+    The refill runs on a copy saved from `b` and loaded back, because refilling also marks zones and
+    board settings, and `b` is the board that gets saved. The copy keeps `b`'s file name and sits next
+    to copies of its project and rules files, so it refills with the same net classes, clearances and
+    text variables (copper text such as ${PROJECTNAME} cuts into a pour by the width of what it
+    resolves to). Two copies saved from the same loaded board give its copper the same UUIDs and
+    positions, while the file `b` came from may not: KiCad 5 stored no pad UUIDs, and the first save
+    can move a pad of a rotated footprint by 1 nm.
+    """
+    original = b.GetFileName()
+    stem = os.path.splitext(original)[0]
+    with tempfile.TemporaryDirectory(prefix="kce-route-check-") as td:
+        name = os.path.basename(stem)
+        for ext in (".kicad_pro", ".kicad_dru"):
+            if os.path.isfile(stem + ext):
+                shutil.copyfile(stem + ext, os.path.join(td, name + ext))
+        path = os.path.join(td, name + ".kicad_pcb")
+        pcbnew.PCB_IO_KICAD_SEXPR().SaveBoard(path, b)
+        copy = load(path)
+    copy.SetFileName(original)
+    try:
+        return _clusters_after_refill(copy)
+    finally:  # a long-lived worker would otherwise keep every copy's project loaded
+        pcbnew.GetSettingsManager().UnloadProject(copy.GetProject(), False)
+
+
+def _clusters_after_refill(copy):
+    a_fill_zones(copy, {})
+    c = copy.GetConnectivity()
+    pads = [pad for fp in copy.GetFootprints() for pad in fp.Pads()]
+    shapes = [d for d in copy.GetDrawings() if isinstance(d, pcbnew.BOARD_CONNECTED_ITEM) and d.IsOnCopperLayer()]
+    items = [x for x in pads + list(copy.GetTracks()) + shapes if x.GetNetCode() > 0]
+    keys = {_copper_key(x) for x in items}
+    clusters, seen = {}, set()
+    for x in items:
+        key = _copper_key(x)
+        if key in seen:
+            continue
+        group = {key} | {_copper_key(y) for y in c.GetConnectedItems(x)} & keys
+        seen |= group
+        clusters.setdefault(x.GetNetname(), []).append(group)
+    return clusters, {_copper_key(p): f"{p.GetParentFootprint().GetReference()}:{p.GetNumber()}" for p in pads}
+
+
+def _lost_connections(before, after):
+    """Copper that one cluster joined before routing and that is split now, per net, with the pads
+    and the number of other copper items in each piece cut off from the largest part."""
+    clusters, labels = before
+    lost = []
+    for net, groups in clusters.items():
+        where = {item: i for i, group in enumerate(after[0].get(net, [])) for item in group}
+        for group in groups:
+            parts = {}
+            for item in group:
+                parts.setdefault(where.get(item), []).append(item)
+            if len(parts) > 1:
+                pieces = sorted(parts.values(), key=lambda piece: (len(piece), sorted(piece)))[:-1]
+                lost.append({"net": net, "cut_off": [{"pads": sorted(labels[i] for i in piece if i in labels),
+                                                       "other_copper": sum(i not in labels for i in piece)}
+                                                      for piece in pieces]})
+    return lost
+
+
 def a_autoroute_builtin(b, a):
+    """Route (`_route`), then list in lost_connections the copper the new routes split, for example
+    by cutting another net's pour."""
+    before = _joined_copper(b)
+    result = _route(b, a)
+    result["lost_connections"] = _lost_connections(before, _joined_copper(b))
+    return result
+
+
+def _route(b, a):
     """Simple 2-layer grid (Lee/A*) router for small boards.
 
     KiCad 10 ships no autorouter; this router only *proposes* geometry —
@@ -1720,8 +1820,15 @@ def a_autoroute_builtin(b, a):
         started = time.monotonic()
         routed, tried = [], []
         for grid in (0.25, 0.15, 0.1, 0.05):
+            try:
+                result = _route(b, dict(a, grid=grid))
+            except GridTooLarge:
+                if not tried:
+                    raise
+                result["warning"] = (f"Stopped at {tried[-1]:g} mm: a {grid:g} mm grid is too large for this routing "
+                                     "area. Route the remaining connections with --area or --engine freerouting.")
+                break
             tried.append(grid)
-            result = a_autoroute_builtin(b, dict(a, grid=grid))
             routed.extend(result["routed"])
             if not result["failed"]:
                 break
@@ -1748,7 +1855,7 @@ def a_autoroute_builtin(b, a):
             raise ValueError("--area does not intersect the board")
     nx, ny = int((xmax - x0) / grid) + 1, int((ymax - y0) / grid) + 1
     if nx * ny * len(lids) > 6_000_000:
-        raise ValueError(f"Grid too large ({nx}x{ny}); increase --grid")
+        raise GridTooLarge(f"Grid too large ({nx}x{ny}); increase --grid")
     L = len(lids)
     FREE = -1
     BLOCK = -2

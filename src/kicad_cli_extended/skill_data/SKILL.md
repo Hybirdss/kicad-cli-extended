@@ -165,8 +165,9 @@ Verify closed outline and zero courtyard_overlaps.count/outside_outline.count. I
 geometry. HPWL/crossings/congestion are heuristics. Gate legalize unmoved[] empty. PlacementBlocked:
 review blockers/radius; reason_code new_drc_violations lists the KiCad DRC errors the move would
 add in new_violations, and nothing was saved. Autoroute takes width and via size from netclass and
-board minimums; grid auto refines 0.25/0.15/0.1/0.05 mm. Read failed[]. New DRC errors exit 3 and
-save nothing. Zone auto is solid SMD/thermal THT. Connector edges need manual move/lock.
+board minimums; grid auto refines 0.25/0.15/0.1/0.05 mm. Read failed[] and warning. New DRC
+errors, or lost_connections from a route that cuts a pour, exit 3 and save nothing. Zone auto is
+solid SMD/thermal THT. Connector edges need manual move/lock.
 
 ### R7: Build a fabrication hand-off
 
