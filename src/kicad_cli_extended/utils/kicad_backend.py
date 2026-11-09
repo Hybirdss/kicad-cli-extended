@@ -55,7 +55,8 @@ INSTALL_HINT = (
     f"Overrides: {ENV_PREFIX}KICAD_CLI=<path to kicad-cli>, {ENV_PREFIX}PYTHON=<python that can import pcbnew>"
 )
 
-_NOISE = re.compile(r"^\d\d:\d\d:\d\d(?: [AP]M)?: Debug: .*$|^\s*$")
+# wx debug lines: a timestamp in the locale's time format, then wx's untranslated "Debug: " prefix
+_NOISE = re.compile(r"^(?:(?!: ).){1,40}: Debug: .*$|^\s*$")
 _ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
 
 WORKER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pcbnew_worker.py")

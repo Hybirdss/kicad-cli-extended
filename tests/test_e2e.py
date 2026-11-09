@@ -662,7 +662,7 @@ class TestDemos:
         dr = rj(P + ["pcb", "export", "drill", "--output", os.path.join(tmp_dir, "g") + os.sep])
         assert any(f["format"] == "excellon" for f in dr["outputs"])
         st = rj(P + ["pcb", "export", "step", "--output", os.path.join(tmp_dir, "b.step")])
-        assert st["outputs"][0]["format"] == "step"
+        assert st["outputs"][0]["format"] == "step" and st["skipped_vrml_models"] is True
         bom = rj(P + ["sch", "export", "bom", "--output", os.path.join(tmp_dir, "bom.csv")])
         rows = read_csv(opath(bom, bom["outputs"][0]))
         assert rows[0][:3] == ["Refs", "Value", "Footprint"] and len(rows) > 10

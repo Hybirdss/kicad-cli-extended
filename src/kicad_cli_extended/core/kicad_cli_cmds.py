@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -96,24 +95,18 @@ def _param_name(i: int) -> str:
     return f"kc_{i}"
 
 
-# 3D exports exit 2 when models are missing or incompatible, although the file is written (10.0.7:
-# EXPORTER_STEP::Export returns false on any error-severity report, see exporter_step.cpp)
 EXPORTS_3D = {"pcb export step", "pcb export stpz", "pcb export brep", "pcb export xao", "pcb export glb",
               "pcb export stl", "pcb export ply", "pcb export u3d", "pcb export 3dpdf", "pcb export vrml"}
-_MISSING_MODEL = re.compile(r"Could not add 3D model for (\S+?)\.?\s*\n\s*File not found: (.+)")
-_FATAL_3D = ("Export aborted", "Unexpected error", "OpenCASCADE error", "Error exporting")
+# Exports that cannot hold VRML models, with the format of the file they write. A board with VRML models
+# makes them exit 2 after writing the file (EXPORTER_STEP::Export fails on any error-severity report), and
+# some KiCad builds print nothing about it, so the board's models decide, not kicad-cli's text.
+VRML_FREE_3D = {"pcb export step": "step", "pcb export stpz": "gzip", "pcb export brep": "brep",
+                "pcb export xao": "xml"}
+_VRML_EXT = (".wrl", ".vrml")
 
 
-def missing_3d_models(text: str) -> List[Dict[str, str]]:
-    """``[{reference, file}]`` from kicad-cli's "Could not add 3D model" messages."""
-    seen, out = set(), []
-    for ref, path in _MISSING_MODEL.findall(text.replace("\\n", "\n")):
-        key = (ref, path.strip())
-        if key not in seen:
-            seen.add(key)
-            out.append({"reference": ref, "file": path.strip()})
-    return out
-
+# kicad-cli exits 1 on these without --layers, and its message about it may never reach the console
+NEEDS_LAYERS = {"pcb export svg", "pcb export dxf", "pcb export pdf", "pcb export ps"}
 
 NO_DEFAULT_OUTPUT = {"jobset run", "sym upgrade", "fp upgrade", "pcb import"}
 NETLIST_EXT = {"kicadxml": ".xml", "cadstar": ".frp", "orcadpcb2": ".net", "spice": ".cir", "spicemodel": ".cir",
@@ -208,6 +201,8 @@ def make_command(kpath: str, spec: Dict[str, Any], ctx_api: Dict[str, Callable])
             inp = os.path.abspath(inp)
         if kpath in ("sch erc", "pcb drc") and not values.get("--format"):
             values["--format"] = "json"  # agent-friendly default (kicad-cli's own default is 'report')
+        if kpath in NEEDS_LAYERS and not values.get("--layers"):
+            raise ValueError(f"{' '.join(command_path(kpath))} needs --layers, for example --layers F.Cu,B.Cu,Edge.Cuts")
         has_output = any(o["long"] == "--output" for o in spec["options"])
         if has_output and not values.get("--output"):
             d = default_output(proj, kpath, spec, values)
@@ -275,12 +270,13 @@ def make_command(kpath: str, spec: Dict[str, Any], ctx_api: Dict[str, Callable])
         log = notable_log(res["stdout"] if "stdout" not in result else "", res["stderr"])
         if log:
             result["log"] = log
-        if kpath == "pcb render" and inp:
+        if inp and (kpath == "pcb render" or kpath in EXPORTS_3D):
             from . import library
             tree = sess.tree(inp)
             models = [dict(model, reference=fp.get_property('Reference', ''))
                       for fp in tree.find_all('footprint')
                       for model in library.model_details(proj, [m.value() for m in fp.find_all('model')], os.path.dirname(inp))]
+        if kpath == "pcb render" and inp:
             result['models'] = {'resolved': sum(m['exists'] for m in models),
                                 'missing': [m for m in models if not m['exists']]}
         if kpath in ("sch erc", "pcb drc") and (values.get("--output") or "").endswith(".json") and \
@@ -290,23 +286,20 @@ def make_command(kpath: str, spec: Dict[str, Any], ctx_api: Dict[str, Callable])
             result["summary"] = {k: s[k] for k in ("total", "errors", "warnings", "by_type", "clean", "hints")}
         ok = res["returncode"] == 0 or (kpath in ("sch erc", "pcb drc") and not values.get("--exit-code-violations"))
         if kpath in EXPORTS_3D:
-            text = res["stdout"] + "\n" + res["stderr"]
-            missing = missing_3d_models(text)
+            missing = [{"reference": m["reference"], "file": m["file"]} for m in models if not m["exists"]]
             if missing:
                 result["missing_3d_models"] = missing[:200]
                 result["hint"] = ("Some 3D model files were not found; the export contains the board without them. "
                                   "List them with `kce pcb models --missing`; install KiCad's 3D library or fix "
                                   "the paths with `kce pcb model set`.")
-            skipped_vrml = "Cannot use VRML models when exporting to non-mesh formats." in text
-            if skipped_vrml:
+            if res["returncode"] == 2 and kpath in VRML_FREE_3D and \
+                    any(m["exists"] and m["resolved_path"].lower().endswith(_VRML_EXT) for m in models):
                 result["skipped_vrml_models"] = True
                 result["hint"] = ((result["hint"] + " ") if result.get("hint") else "") + (
                     "Some footprints use VRML (.wrl) 3D models, which this format cannot contain; the export "
                     "omits them. Give those footprints STEP models with `kce pcb model set`, or use "
                     "`kce pcb export vrml`, which keeps them.")
-            if not ok and res["returncode"] == 2 and (missing or skipped_vrml) and result.get("outputs") \
-                    and not any(f in text for f in _FATAL_3D):
-                ok = True  # the file was written; missing/incompatible models were omitted
+                ok = any(o["format"] == VRML_FREE_3D[kpath] for o in result.get("outputs") or [])
         if not ok and not kw.get("allow_fail"):
             details = dict(result, command=res["command"], stdout=res["stdout"][-4000:], stderr=res["stderr"][-4000:])
             raise kb.KicadError(f"kicad-cli {kpath} failed (exit {res['returncode']}): "
