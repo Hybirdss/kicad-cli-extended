@@ -274,7 +274,7 @@ _STATE_ERRORS: Tuple[Tuple[str, str], ...] = (
     ("Nothing to redo", "input"),
     ("ERC failed", "design"),
     ("DRC failed", "design"),
-    ("DRC has ", "design"),
+    ("Autoroute would add ", "design"),
     ("Fab package incomplete", "design"),
     ("BOM check failed", "design"),
     ("PCB score failed", "design"),
@@ -2441,7 +2441,8 @@ def pcb_route(from_pad, to_pad, layer, width, mode, via_points):
 def pcb_autoroute(engine, grid, width, clearance, via_diameter, via_drill, layers, net, skip_nets, passes, refs, area):
     """Autoroute unrouted connections (builtin grid router, or Freerouting via Specctra DSN/SES).
 
-    The builtin router exits 3 and saves nothing when KiCad DRC finds new errors after routing."""
+    The builtin router exits 3 and saves nothing when KiCad DRC finds new errors after routing, or
+    when a route splits copper the board had connected, as by cutting a pour (lost_connections)."""
     if engine != "builtin" and (refs or area):
         raise ValueError("--refs and --area require --engine builtin")
     if grid != "auto":
