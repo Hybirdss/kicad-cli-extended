@@ -218,7 +218,7 @@ class TestSimulation:
         floating = run(["--json", *P, "sim", "run", "--analysis", ".ac dec 200 10 100k"], check=False)
         assert floating.returncode == 2
         err = json.loads(floating.stderr)
-        assert err["type"] == "ValueError" and "floating_pin" in err["error"] and "C1:2" in err["error"]
+        assert err["type"] == "InvalidInput" and "floating_pin" in err["error"] and "C1:2" in err["error"]
         for pin, net in (("V1:1", "IN"), ("R1:1", "IN"), ("R1:2", "OUT"), ("C1:1", "OUT")):
             rj(P + ["sch", "label-pin", pin, net])
         for pin in ("V1:2", "C1:2"):

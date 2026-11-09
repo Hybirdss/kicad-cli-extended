@@ -48,7 +48,7 @@ from .core import preview as preview_mod
 from .core import project as proj_mod
 from .core import schematic as sch_mod
 from .core import sexpr
-from .core.session import Session, ValidationError
+from .core.session import ConcurrentEdit, Session, ValidationError
 from .core.workspace import materialize, remap
 from .utils import kicad_backend as kb
 from .utils.paths import kicad_uri, same_path
@@ -64,6 +64,7 @@ _progress = False
 _had_error = False
 _capture: Optional[List[Any]] = None
 _raise_errors = False
+_held: List[Tuple[Any, str]] = []  # stdout documents of a one-shot edit, printed once its save holds
 
 
 def get_session() -> Session:
@@ -79,16 +80,6 @@ def progress_event(event, **fields):
         request = current.get()
         click.echo(json.dumps({"progress": event, "request_id": request.request_id if request else None,
                                **fields}), err=True)
-
-
-def output(data: Any, message: str = "") -> None:
-    try:
-        _output(data, message)
-    except BrokenPipeError:  # e.g. `| head`: the command itself succeeded
-        try:
-            sys.stdout = open(os.devnull, "w", encoding="utf-8")
-        except OSError:
-            pass
 
 
 def _utf8_stream(stream) -> bool:
@@ -109,7 +100,7 @@ def configure_stdio() -> None:
                 pass
 
 
-def _output(data: Any, message: str = "") -> None:
+def output(data: Any, message: str = "") -> None:
     ctx = click.get_current_context(silent=True)
     if isinstance(data, list) and ctx is not None:
         from .core.contract import effect
@@ -153,16 +144,34 @@ def _output(data: Any, message: str = "") -> None:
     if _capture is not None:
         _capture.append(data)
         return
-    if _json_output:
-        # pretty on a terminal, compact when piped (fewer tokens for agents); JSON stays valid in any
-        # console encoding: non-ASCII is escaped when stdout isn't UTF-8
-        tty = getattr(sys.stdout, "isatty", lambda: False)()
-        click.echo(json.dumps(data, default=str, ensure_ascii=not _utf8_stream(sys.stdout),
-                              indent=2 if tty else None, separators=None if tty else (",", ":")))
+    if not (_repl_mode or _plan_mode or _dry_run) and get_session().dirty_docs():
+        _held.append((data, message))
         return
-    if message:
-        click.echo(message)
-    _human(data, 1)
+    _emit(data, message)
+
+
+def _release_output() -> None:
+    while _held:
+        _emit(*_held.pop(0))
+
+
+def _emit(data: Any, message: str = "") -> None:
+    try:
+        if _json_output:
+            # pretty on a terminal, compact when piped (fewer tokens for agents); JSON stays valid in any
+            # console encoding: non-ASCII is escaped when stdout isn't UTF-8
+            tty = getattr(sys.stdout, "isatty", lambda: False)()
+            click.echo(json.dumps(data, default=str, ensure_ascii=not _utf8_stream(sys.stdout),
+                                  indent=2 if tty else None, separators=None if tty else (",", ":")))
+            return
+        if message:
+            click.echo(message)
+        _human(data, 1)
+    except BrokenPipeError:  # e.g. `| head`: the command itself succeeded
+        try:
+            sys.stdout = open(os.devnull, "w", encoding="utf-8")
+        except OSError:
+            pass
 
 
 def _human(data: Any, indent: int) -> None:
@@ -263,7 +272,6 @@ _STATE_ERRORS: Tuple[Tuple[str, str], ...] = (
     ("needs a project", "input"),
     ("Nothing to undo", "input"),
     ("Nothing to redo", "input"),
-    ("Project is locked by", "input"),
     ("ERC failed", "design"),
     ("DRC failed", "design"),
     ("DRC has ", "design"),
@@ -287,8 +295,12 @@ def _state_error(category: str):
     return test
 
 
-# (test, type, category) — first match wins.
-_ERROR_TABLE: Tuple[Tuple[Callable[[BaseException], bool], Optional[str], str], ...] = (
+# Exceptions the pcbnew worker raises for a bad argument or an unreadable input file.
+_WORKER_INPUT = {"KeyError": "NotFound", "ValueError": "InvalidInput", "OverflowError": "InvalidInput",
+                 "FileNotFoundError": "FileNotFound", "FileExistsError": "FileExists"}
+
+# (test, type, category) — first match wins; anything unmatched is InternalError.
+_ERROR_TABLE: Tuple[Tuple[Callable[[BaseException], bool], str, str], ...] = (
     (lambda e: isinstance(e, sch_mod.NetMergeError), "NetMergeError", "design"),
     (lambda e: isinstance(e, sch_mod.NetSplitError), "NetSplitError", "design"),
     (lambda e: isinstance(e, sch_mod.RouteBlockedError), "RouteBlocked", "design"),
@@ -297,6 +309,7 @@ _ERROR_TABLE: Tuple[Tuple[Callable[[BaseException], bool], Optional[str], str], 
     (lambda e: isinstance(e, plan_mod.AcceptanceFailed), "AcceptanceFailed", "design"),
     (lambda e: isinstance(e, jobset_mod.JobsetFailed), "JobsetFailed", "design"),
     (lambda e: isinstance(e, ValidationError), "ValidationError", "validation"),
+    (lambda e: isinstance(e, ConcurrentEdit), "ConcurrentEdit", "input"),
     (lambda e: isinstance(e, subprocess.TimeoutExpired), "ToolTimeout", "timeout"),  # Freerouting, ngspice, kikit
     (_kicad_timeout, "KicadTimeout", "timeout"),
     # a locked item surfaces either directly or wrapped by the pcbnew worker's KicadError
@@ -305,34 +318,21 @@ _ERROR_TABLE: Tuple[Tuple[Callable[[BaseException], bool], Optional[str], str], 
     (_kicad_cli_exit(_KICAD_EXIT_DESIGN), "KicadCheckFailed", "design"),
     (_kicad_crash, "KicadCrash", "crash"),
     (lambda e: _worker_error(e) == "PlacementBlocked", "PlacementBlocked", "design"),
-    *((lambda e, n=n: _worker_error(e) == n, n, "input")
-      for n in ("KeyError", "ValueError", "FileNotFoundError", "FileExistsError")),
+    *((lambda e, n=n: _worker_error(e) == n, code, "input") for n, code in _WORKER_INPUT.items()),
     (lambda e: _worker_error(e) is not None, "KicadError", "internal"),
     (lambda e: isinstance(e, kb.KicadError) and any(x in str(e).lower() for x in
          ("not found", "missing file", "requires kicad", "cannot import pcbnew", "no python interpreter")), "KicadNotFound", "environment"),
     (lambda e: isinstance(e, kb.KicadError), "KicadError", "internal"),
-    (_state_error("input"), "RuntimeError", "input"),
-    (_state_error("design"), "RuntimeError", "design"),
-    (_state_error("environment"), "RuntimeError", "environment"),
-    (lambda e: isinstance(e, FileNotFoundError), "FileNotFoundError", "input"),
-    (lambda e: isinstance(e, FileExistsError), "FileExistsError", "input"),
-    (lambda e: isinstance(e, KeyError), "KeyError", "input"),
-    (lambda e: isinstance(e, ValueError), None, "input"),
-    (lambda e: isinstance(e, TypeError), "TypeError", "internal"),
-    (lambda e: isinstance(e, IndexError), "IndexError", "internal"),
-    (lambda e: isinstance(e, AttributeError), "InternalError", "internal"),
-    (lambda e: isinstance(e, OSError), "OSError", "environment"),
-    (lambda e: isinstance(e, RuntimeError), "RuntimeError", "internal"),
+    (_state_error("input"), "InvalidState", "input"),
+    (_state_error("design"), "GateFailed", "design"),
+    (_state_error("environment"), "ToolUnavailable", "environment"),
+    (lambda e: isinstance(e, FileNotFoundError), "FileNotFound", "input"),
+    (lambda e: isinstance(e, FileExistsError), "FileExists", "input"),
+    (lambda e: isinstance(e, KeyError), "NotFound", "input"),
+    (lambda e: isinstance(e, sexpr.SexprError), "SexprError", "input"),
+    (lambda e: isinstance(e, ValueError), "InvalidInput", "input"),
+    (lambda e: isinstance(e, OSError), "IOFailure", "environment"),
 )
-
-
-def _documented_name(exc: BaseException) -> str:
-    """The documented name for a generic input exception (a ValueError stays ``ValueError``
-    even when it is a subclass such as ``json.JSONDecodeError``)."""
-    for base in (sexpr.SexprError, ValueError, TypeError, IndexError):
-        if isinstance(exc, base):
-            return base.__name__
-    return type(exc).__name__
 
 
 def classify_error(exc: BaseException) -> Tuple[str, str]:
@@ -341,7 +341,7 @@ def classify_error(exc: BaseException) -> Tuple[str, str]:
         return exc.type, exc.category
     for test, name, category in _ERROR_TABLE:
         if test(exc):
-            return (name or _documented_name(exc)), category
+            return name, category
     return "InternalError", "internal"
 
 
@@ -356,6 +356,12 @@ def error_payload(exc: BaseException) -> Dict[str, Any]:
         payload["details"] = {k: v for k, v in exc.details.items() if k != "traceback"}
     if hasattr(exc, "runtime_details"):
         payload["details"] = {**payload.get("details", {}), **exc.runtime_details}
+    if isinstance(exc, ConcurrentEdit):
+        payload["details"] = {**payload.get("details", {}), "retryable": True}
+    details = payload.get("details") or {}
+    # Only a serve request tracks commit_state; a one-shot failure checks the files it meant to edit.
+    if details.get("commit_state") == "unknown" and details.get("request_id") is None and get_session().disk_unchanged():
+        details["commit_state"] = "unchanged"
     if getattr(exc, "rollback_failed", False):
         payload['details'] = {**payload.get('details', {}), 'rolled_back': False, 'commit_state': 'unknown',
                               'original_error': str(exc.rollback_cause)}
@@ -390,6 +396,7 @@ def handle_error(f):
                 e._kce_payload = error_payload(e)
                 raise
             payload = error_payload(e)
+            _release_output()  # a gate that printed its diagnostics before refusing keeps them on stdout
             if _json_output:
                 click.echo(json.dumps(payload, indent=2, default=str), err=True)
             else:
@@ -745,6 +752,8 @@ def cli(ctx, use_json, project_path, dry_run, no_validate, read_only, session_di
         sess.set_project(proj)
     if ctx.invoked_subcommand is None:
         ctx.invoke(repl, project_path=project_path)
+    elif ctx.meta.get("effect") == "write" and not _repl_mode:
+        sess._acquire_lock()  # queue behind another kce process before this command reads the project
 
 
 @cli.result_callback()
@@ -768,6 +777,7 @@ def auto_save_on_exit(result, **kwargs):
                            + (f", validated by KiCad ({len(res['validation'])} check(s))" if res["validation"] else ""),
                            err=True)
         except Exception as e:  # validation failed -> rolled back
+            _held.clear()
             payload = error_payload(e)
             payload["error"] = f"Auto-save failed: {payload['error']}"
             if _raise_errors:
@@ -777,14 +787,15 @@ def auto_save_on_exit(result, **kwargs):
             sys.exit(EXIT_CODES[payload["category"]])
     else:
         sess.release_lock()
+    _release_output()
 
 
 @cli.command("errors")
 @handle_error
 def errors():
     """List stable error types, categories, exit codes and recovery commands."""
-    categories = {name: category for _, name, category in _ERROR_TABLE if name}
-    categories.update(SexprError="input", UsageError="input", InternalError="internal", RuntimeError="internal")
+    categories = {name: category for _, name, category in _ERROR_TABLE}
+    categories.update(UsageError="input", InternalError="internal")
     meaning = {
         "input": "Fix arguments or references before retrying.",
         "design": "Design or acceptance gate rejected the change; review the result.",
@@ -798,7 +809,7 @@ def errors():
                      "kce session restore NAME" if c in {"timeout", "crash", "validation"} else
                      "kce check diagnose" if c == "design" else "kce info describe COMMAND" for c in meaning}
     items = [{"type": name, "category": category, "exit_code": EXIT_CODES[category],
-              "meaning": meaning[category] + (" RuntimeError can also describe input/design/environment state; use category." if name == "RuntimeError" else ""),
+              "meaning": meaning[category] + (" Another kce process held or changed the project; rerun the same command (details.retryable)." if name == "ConcurrentEdit" else ""),
               "next_command_pattern": next_commands[category]}
              for name, category in sorted(categories.items())]
     output({"count": len(items), "items": items, "exit_codes": EXIT_CODES})
@@ -1237,15 +1248,18 @@ def sch_symbols(sheet, no_power, match):
 @SHEET_OPT
 @handle_error
 def sch_show(ref, sheet):
-    """Full detail of a placed symbol incl. absolute pin positions."""
+    """Full detail of a placed symbol as one object, with absolute pin positions of every unit.
+
+    Top-level x/y/angle/mirror/unit/uuid describe the lowest placed unit; units[] lists the
+    placement of each unit, and each pin names its unit.
+    """
     _, t = _sch_tree(sheet)
-    out = []
-    for s in sch_mod.find_symbols(t, ref) or [sch_mod.find_symbol(t, ref)]:
-        d = sch_mod.symbol_dict(s, t)
-        d["pins"] = sch_mod.symbol_pins(t, s)
-        d["instances"] = sch_mod.instance_references(s)
-        out.append(d)
-    output(out[0] if len(out) == 1 else out)
+    symbols = sch_mod.find_symbols(t, ref) or [sch_mod.find_symbol(t, ref)]
+    units = sorted(((sch_mod.symbol_dict(s, t), s) for s in symbols), key=lambda u: u[0]["unit"])
+    first, first_symbol = units[0]
+    output(dict(first, pins=[p for _, s in units for p in sch_mod.symbol_pins(t, s)],
+                instances=sch_mod.instance_references(first_symbol),
+                units=[{k: d[k] for k in ("unit", "x", "y", "angle", "mirror", "uuid")} for d, _ in units]))
 
 
 @sch_group.command("pins")

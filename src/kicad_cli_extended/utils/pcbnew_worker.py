@@ -55,7 +55,7 @@ def load(path):
         raise FileNotFoundError(f"Board not found: {path}")
     b = pcbnew.LoadBoard(path)
     if b is None:
-        raise RuntimeError(f"pcbnew failed to load {path}")
+        raise ValueError(f"pcbnew cannot read {path}: the file is empty or not a KiCad board")
     return b
 
 
@@ -124,13 +124,10 @@ def fp_dict(fp, pads=False):
         "exclude_from_bom": bool(fp.IsExcludedFromBOM()) if hasattr(fp, "IsExcludedFromBOM") else False,
         "exclude_from_pos": bool(fp.IsExcludedFromPosFiles()) if hasattr(fp, "IsExcludedFromPosFiles") else False,
     }
-    try:
-        bb = fp.GetCourtyard(pcbnew.B_CrtYd if fp.IsFlipped() else pcbnew.F_CrtYd).BBox()
-        if bb.GetWidth() > 0:
-            d["courtyard"] = {"min": [mm(bb.GetX()), mm(bb.GetY())],
-                              "max": [mm(bb.GetRight()), mm(bb.GetBottom())]}
-    except Exception:
-        pass
+    bb = fp.GetCourtyard(pcbnew.B_CrtYd if fp.IsFlipped() else pcbnew.F_CrtYd).BBox()
+    if bb.GetWidth() > 0:
+        d["courtyard"] = {"min": [mm(bb.GetX()), mm(bb.GetY())],
+                          "max": [mm(bb.GetRight()), mm(bb.GetBottom())]}
     bb = fp.GetBoundingBox(False)
     d["bbox"] = {"min": [mm(bb.GetX()), mm(bb.GetY())], "max": [mm(bb.GetRight()), mm(bb.GetBottom())]}
     if pads:
@@ -196,10 +193,7 @@ def _effective_netclass(b, n):
 
 def op_nets(p):
     b = load(p["path"])
-    try:
-        b.SynchronizeNetsAndNetClasses(True)
-    except Exception:
-        pass
+    b.SynchronizeNetsAndNetClasses(True)
     b.BuildConnectivity()
     c = b.GetConnectivity()
     pads_by_net = {}
@@ -304,11 +298,7 @@ def _clusters(board):
         while remaining:
             seed = remaining.pop(0)
             group = [seed]
-            try:
-                conn = c.GetConnectedItems(seed)
-                ids = {x.m_Uuid.AsString() for x in conn if x.GetClass() == "PAD"}
-            except Exception:
-                ids = set()
+            ids = {x.m_Uuid.AsString() for x in c.GetConnectedItems(seed) if x.GetClass() == "PAD"}
             keep = []
             for q in remaining:
                 if q.m_Uuid.AsString() in ids:
@@ -990,14 +980,11 @@ def _refkey(fp):
 def _fp_rect(fp):
     """(minx, miny, maxx, maxy) in mm: the footprint's courtyard, else its body bounding box."""
     layer = pcbnew.B_CrtYd if fp.IsFlipped() else pcbnew.F_CrtYd
-    try:
-        c = fp.GetCourtyard(layer)
-        if c is not None and c.OutlineCount():
-            bb = c.BBox()
-            if bb.GetWidth() > 0 and bb.GetHeight() > 0:
-                return (mm(bb.GetX()), mm(bb.GetY()), mm(bb.GetRight()), mm(bb.GetBottom()))
-    except Exception:
-        pass
+    c = fp.GetCourtyard(layer)
+    if c is not None and c.OutlineCount():
+        bb = c.BBox()
+        if bb.GetWidth() > 0 and bb.GetHeight() > 0:
+            return (mm(bb.GetX()), mm(bb.GetY()), mm(bb.GetRight()), mm(bb.GetBottom()))
     bb = fp.GetBoundingBox(False)
     return (mm(bb.GetX()), mm(bb.GetY()), mm(bb.GetRight()), mm(bb.GetBottom()))
 

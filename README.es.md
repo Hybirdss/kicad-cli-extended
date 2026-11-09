@@ -266,13 +266,13 @@ Busca nombres normalizados (`lib sym search`, `lib fp search`) o crea componente
 
   | categoría (`category`) | salida | significado | valores de `type` |
   |---|:-:|---|---|
-  | `input` | 2 | argumentos inválidos, referencia o pin desconocido, archivo faltante o mal formado, elemento bloqueado | `UsageError`, `KicadInputError`, `KeyError`, `ValueError`, `SexprError`, `FileNotFoundError`, `FileExistsError`, `ItemLocked`, `RuntimeError` |
-  | `design` | 3 | rechazado porque el resultado violaría el diseño | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `RuntimeError` (ERC/DRC fallido) |
+  | `input` | 2 | argumentos inválidos, referencia o pin desconocido, archivo faltante o mal formado, elemento bloqueado | `UsageError`, `KicadInputError`, `NotFound`, `InvalidInput`, `SexprError`, `FileNotFound`, `FileExists`, `ItemLocked`, `InvalidState`, `ConcurrentEdit` |
+  | `design` | 3 | rechazado porque el resultado violaría el diseño | `NetMergeError`, `NetSplitError`, `RouteBlocked`, `DesignMismatch`, `AcceptanceFailed`, `PlacementBlocked`, `JobsetFailed`, `KicadCheckFailed`, `GateFailed` (ERC/DRC fallido) |
   | `validation` | 4 | KiCad rechazó un archivo guardado (cambio revertido) o `project compare` detectó cambios no permitidos | `ValidationError` |
   | `crash` | 5 | `kicad-cli` o el worker `pcbnew` terminó abruptamente | `KicadCrash` |
   | `timeout` | 6 | `kicad-cli` superó `KCE_TIMEOUT` (por defecto 1800 s) o el worker excedió su tiempo límite | `KicadTimeout`, `ToolTimeout` |
-  | `environment` | 7 | No se encontró KiCad u otra herramienta, o fallo de E/S del sistema operativo | `KicadNotFound`, `OSError`, `RuntimeError` |
-  | `internal` | 1 | error interno en `kce` (`details.traceback` contiene la traza) | `KicadError`, `RuntimeError`, `InternalError`, `TypeError`, `IndexError` |
+  | `environment` | 7 | No se encontró KiCad u otra herramienta, o fallo de E/S del sistema operativo | `KicadNotFound`, `ToolUnavailable`, `IOFailure` |
+  | `internal` | 1 | error interno en `kce` (`details.traceback` contiene la traza) | `KicadError`, `InternalError` |
 
 ---
 

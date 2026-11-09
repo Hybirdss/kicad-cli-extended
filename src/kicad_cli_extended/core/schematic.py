@@ -231,9 +231,12 @@ def parse_pin_ref(s: str) -> Tuple[str, str]:
 def parse_point(s: str) -> Tuple[float, float]:
     try:
         x, y = s.split(",")
-        return float(x), float(y)
+        point = float(x), float(y)
     except ValueError:
         raise ValueError(f"Expected x,y in mm, got {s!r}")
+    if not all(map(math.isfinite, point)):
+        raise ValueError(f"Expected finite x,y in mm, got {s!r}")
+    return point
 
 
 def resolve_point(tree: SList, s: str) -> Tuple[float, float]:

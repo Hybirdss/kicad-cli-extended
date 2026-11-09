@@ -2049,6 +2049,13 @@ class TestInputBoundaryRegressions:
         assert error['category'] == 'input'
         assert result.stdout == ''
 
+    @staticmethod
+    def project_files(root):
+        # a write command takes the project lock, creating these two files, before it reads the project
+        lock = {Path(STATE_DIR, 'lock'), Path(STATE_DIR, '.gitignore')}
+        return {p.relative_to(root): p.read_bytes() for p in root.rglob('*')
+                if p.is_file() and p.relative_to(root) not in lock}
+
     @pytest.mark.parametrize('op', [[], {}, None, True, 17])
     def test_invalid_predicate_type_preserves_files_and_history(self, tmp_path, monkeypatch, op):
         from click.testing import CliRunner
@@ -2059,11 +2066,11 @@ class TestInputBoundaryRegressions:
         plan.write_text(json.dumps({'version': 1, 'steps': [
             {'args': ['info', 'version']},
             {'args': ['info', 'version'], 'expect': [{'path': 'version', 'op': op}]}]}), encoding='utf-8')
-        before = {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()}
+        before = self.project_files(tmp_path)
         history = sess.list_history()
         result = CliRunner().invoke(m.cli, ['--json', 'run', str(plan)])
         self.assert_input_failure(result)
-        assert {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()} == before
+        assert self.project_files(tmp_path) == before
         assert sess.list_history() == history
 
     @pytest.mark.parametrize('action', ['set', 'remove'])
@@ -2076,14 +2083,14 @@ class TestInputBoundaryRegressions:
         monkeypatch.setattr(m, '_session', sess)
         footprint = tmp_path / 'X.kicad_mod'
         footprint.write_text('(footprint "X"' + (' (model "original.step")' if with_models else '') + ')', encoding='utf-8')
-        before = {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()}
+        before = self.project_files(tmp_path)
         history = sess.list_history()
         args = ['--json', 'lib', 'fp', 'model', action, str(footprint)]
         if action == 'set':
             args += ['replacement.step', '--no-check']
         result = CliRunner().invoke(m.cli, [*args, '--index', str(index)])
         self.assert_input_failure(result)
-        assert {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()} == before
+        assert self.project_files(tmp_path) == before
         assert sess.list_history() == history
 
 
