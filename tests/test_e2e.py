@@ -925,6 +925,34 @@ class TestModifyCompareDiagnose:
         rj(P + ["session", "redo"])
         assert "47uF" in read_text(sch)
 
+    def test_eco_gate_survives_kicad9_board_upgrade(self, tmp_dir):
+        d = demo_copy("interf_u", tmp_dir)
+        board = os.path.join(d, "interf_u.kicad_pcb")
+        assert "(version 20241229)" in read_text(board)
+        P = ["--project", d]
+        run(P + ["session", "checkpoint", "pre-eco"])
+        run(P + ["sch", "add", "Device:C", "--ref", "C99", "--at", "160.02,25.4", "--value", "100nF",
+                 "--footprint", "interf_u:C_Disc_D3.0mm_W2.0mm_P2.50mm"])
+        run(P + ["sch", "power", "VCC", "--at", "C99:1"])
+        run(P + ["sch", "power", "GND", "--at", "C99:2", "--angle", "180"])
+        assert rj(P + ["pcb", "update", "--no-replace", "--no-place", "--lock-existing"])["format_upgrade"] is True
+        assert "format_upgrade" not in rj(P + ["pcb", "move", "C99", "--at", "120.325,103.84"])
+        run(P + ["pcb", "route", "C99:1", "U3:20"])
+        gate = ["--json", *P, "project", "compare", "checkpoint:pre-eco", "--geometry",
+                "--allow", "C99,net:VCC,net:GND", "--fail-on-unexpected"]
+        r = run(gate, check=False)
+        assert r.returncode == 0, r.stdout[-3000:]
+        assert json.loads(r.stdout)["unexpected"] == []
+
+        tree = sexpr.load(board)
+        seg = next(s for s in tree.find_all("segment") if s.value("net") == "/MA0")
+        for end in ("start", "end"):
+            seg.find(end)[2] = str(float(seg.find(end)[2]) + 0.5)
+        sexpr.dump(tree, board)
+        r = run(gate, check=False)
+        assert r.returncode == 4
+        assert json.loads(r.stdout)["unexpected"] == [{"kind": "routing_changed", "ref": "net:/MA0"}]
+
     def test_compare_git_revisions(self, blink):
         subprocess.run(["git", "init", "-q", blink], check=True)
         env = dict(os.environ, GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@t", GIT_COMMITTER_NAME="t",
