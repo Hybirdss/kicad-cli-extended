@@ -188,11 +188,15 @@ def run_erc(sess, output: Optional[str] = None, severity: str = "all", units: st
 
 def run_drc(sess, output: Optional[str] = None, severity: str = "all", units: str = "mm",
             parity: bool = True, refill: bool = True, save_board: bool = False,
-            extra: Optional[List[str]] = None) -> Dict[str, Any]:
+            extra: Optional[List[str]] = None, board_text: Optional[str] = None) -> Dict[str, Any]:
+    """DRC of the session board, or of `board_text` in its place within the project."""
     proj = sess.require_project()
     out = os.path.abspath(output) if output else kb.mkstemp("drc", ".json")
-    with materialize(sess, force=save_board) as ws:
+    with materialize(sess, force=save_board or board_text is not None) as ws:
         pcb_path = remap(proj.pcb_path, proj.dir, ws)
+        if board_text is not None:
+            with open(pcb_path, "w", encoding="utf-8", newline="\n") as f:
+                f.write(board_text)
         args = ["pcb", "drc", "--format", "json", "--units", units, "-o", out]
         args += _severity_args(severity)
         if parity and os.path.exists(remap(proj.sch_path, proj.dir, ws)):
@@ -227,7 +231,7 @@ def new_drc_errors(sess, before_text: str) -> List[Dict[str, Any]]:
     def drc(pcb_path):
         out = os.path.join(os.path.dirname(pcb_path), "kce-placement-drc.json")
         res = kb.run_kicad_cli(["pcb", "drc", "--format", "json", "--units", "mm", "--severity-all",
-                                "--refill-zones", "-o", out, pcb_path], check=False)
+                                "--refill-zones", "--all-track-errors", "-o", out, pcb_path], check=False)
         if not os.path.exists(out):
             raise kb.KicadError(f"DRC produced no report: {res['stderr'] or res['stdout']}")
         with open(out, encoding="utf-8") as f:

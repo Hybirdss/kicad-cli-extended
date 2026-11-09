@@ -41,8 +41,12 @@ def read(sess, op: str, **params) -> Any:
         return kb.run_pcbnew(op, params)
 
 
-def edit(sess, actions: List[Dict[str, Any]], description: str) -> List[Dict[str, Any]]:
-    """Apply worker actions; result board text goes into the session doc."""
+def edit(sess, actions: List[Dict[str, Any]], description: str, keep_loaded: bool = False):
+    """Apply worker actions; result board text goes into the session doc.
+
+    With `keep_loaded`, also return the board as the worker loaded it, saved before the actions. Its
+    items carry the UUIDs the result is saved with, even where the file stored none (KiCad 5 pads),
+    so DRC findings of the two boards match by UUID."""
     from . import safety
     if any(a.get('action') == 'script' for a in actions) and (sess._defer_save or safety._sandbox):
         raise ValueError('Arbitrary Python cannot run inside a dry-run or transaction; use `kce raw pcbnew --help`.')
@@ -55,15 +59,19 @@ def edit(sess, actions: List[Dict[str, Any]], description: str) -> List[Dict[str
         out_dir = kb.mkdtemp("out")
         try:
             out = os.path.join(out_dir, "edited.kicad_pcb")
-            res = kb.run_pcbnew("edit", {"path": inp, "out": out, "actions": actions})
+            loaded = os.path.join(out_dir, "loaded.kicad_pcb") if keep_loaded else None
+            res = kb.run_pcbnew("edit", {"path": inp, "out": out, "actions": actions, "loaded": loaded})
             if thermal_check:
                 _filter_thermal_vias(inp, out, res["results"])
             with open(out, encoding="utf-8") as f:
                 text = f.read()
+            if loaded:
+                with open(loaded, encoding="utf-8") as f:
+                    loaded = f.read()
         finally:
             shutil.rmtree(out_dir, ignore_errors=True)
     sess.doc(path).set_text(text)
-    return res["results"]
+    return (res["results"], loaded) if keep_loaded else res["results"]
 
 
 def _filter_thermal_vias(inp: str, out: str, results: List[Dict[str, Any]]) -> None:
@@ -339,9 +347,10 @@ def _checked_placement(sess, action: Dict[str, Any], description: str, moved, ne
     path = board_path(sess)
     doc = sess.doc(path)
     before, was_dirty = sess.current_text(path), doc.dirty
-    result = edit1(sess, action, description)
+    results, loaded = edit(sess, [action], description, keep_loaded=True)
+    result = results[0]["result"]
     refs = moved(result)
-    new = checks_mod.new_drc_errors(sess, before) if refs else []
+    new = checks_mod.new_drc_errors(sess, loaded) if refs else []
     if new:
         doc.set_text(before)
         doc.dirty = was_dirty
@@ -434,9 +443,13 @@ def autoroute(sess, engine: str = "builtin", **opts) -> Dict[str, Any]:
     if engine == "builtin":
         act = {"action": "autoroute_builtin"}
         act.update({k: v for k, v in opts.items() if v is not None})
-        before = checks_mod.run_drc(sess)
-        res = edit1(sess, act, "autoroute (builtin)")
-        _, new = checks_mod.report_policy(checks_mod.run_drc(sess), baseline=before, fail_on="error")
+        results, loaded = edit(sess, [act], "autoroute (builtin)", keep_loaded=True)
+        res = results[0]["result"]
+        # DRC names one error per track by default, picked by item order, which routing changes; every
+        # error of every track keeps the two reports comparable
+        before = checks_mod.run_drc(sess, board_text=loaded, extra=["--all-track-errors"])
+        after = checks_mod.run_drc(sess, extra=["--all-track-errors"])
+        _, new = checks_mod.report_policy(after, baseline=before, fail_on="error")
         offending = {it["uuid"] for v in new for it in v["items"] if it.get("uuid")}
         clean = []
         for r in res["routed"]:
