@@ -24,6 +24,7 @@ import gzip
 import hashlib
 import json
 import os
+import re
 import shutil
 import tempfile
 import time
@@ -253,6 +254,22 @@ class Document:
             self._bytes = None
             self._text = None
         self.dirty = True
+
+    def format_upgrade(self) -> bool:
+        """Whether saving rewrites an older KiCad file into a newer format or layout, beyond the edit itself."""
+        if not (self.dirty and self.kind == "sexpr" and self.exists_on_disk) or getattr(self, "_deleted", False):
+            return False
+        from .project import PCB_VERSION, SCH_VERSION
+        with open(self.path, "rb") as f:
+            old = f.read().decode("utf-8", errors="replace")
+        before = _FORMAT_HEADER.match(old)
+        if before is None or before[2] >= {"kicad_pcb": PCB_VERSION, "kicad_sch": SCH_VERSION}.get(before[1], before[2]):
+            return False
+        after = _FORMAT_HEADER.match(self.text())
+        return after is None or after[2] != before[2] or sexpr.dumps(sexpr.loads(old), sexpr.mode_for_path(self.path)) != old
+
+
+_FORMAT_HEADER = re.compile(r"\s*\(\s*(\w+)\s*\(\s*version\s+(\d+)\s*\)")
 
 
 def _file_hash(path: str) -> Optional[str]:

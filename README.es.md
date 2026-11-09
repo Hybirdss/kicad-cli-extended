@@ -163,6 +163,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 
 * **Seguridad al sincronizar:** Revisa `replaced[].pads_moved`, `unmatched_pins` y `tracks_ending_on_old_pads` antes de aplicar.
 * **Control de alcance:** `project compare --fail-on-unexpected` rechaza cualquier cambio fuera de la lista `--allow` con código de salida `4`.
+* **Placas de KiCad 9 o anteriores:** `project compare` empareja las redes por nombre e ignora lo que KiCad 10 reescribe al actualizar un archivo antiguo, así que el control sigue siendo válido tras la primera escritura de kce, que devuelve `format_upgrade: true`. Para mantener el cambio de formato fuera del diff del ECO, ejecuta `pcb upgrade` y `sch upgrade` y haz commit o crea un punto de control antes del ECO.
 * **Publicación para ensamblaje:** Ejecuta `fab parts check --offline` y `fab bom-check --require MPN,LCSC,Footprint`, y genera el paquete con `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE`.
 
 ---
@@ -212,7 +213,7 @@ kce --json -p sensor run board-stage.json
 
 ### Cambio de ingeniería (ECO) en un proyecto existente
 
-Registra las redes base, huellas, puntuación y ERC/DRC, y crea el punto de control `pre-eco`. Verifica estrictamente la intención del esquemático (`sch verify --subset --strict`) antes de sincronizar la PCB y comprueba el resultado con `project compare checkpoint:pre-eco --geometry --allow ...`.
+En un proyecto guardado por última vez antes de KiCad 10, ejecuta primero `pcb upgrade` y `sch upgrade`. Registra las redes base, huellas, puntuación y ERC/DRC, y crea el punto de control `pre-eco`. Verifica estrictamente la intención del esquemático (`sch verify --subset --strict`) antes de sincronizar la PCB y comprueba el resultado con `project compare checkpoint:pre-eco --geometry --allow ...`.
 
 ### Integración continua y lanzamientos etiquetados
 

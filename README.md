@@ -166,6 +166,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 
 * **Sync safety:** Inspect `replaced[].pads_moved`, `unmatched_pins`, and `tracks_ending_on_old_pads` in the dry run before applying. An approved footprint swap that moves pads requires omitting `--lock-existing`. Replacements preserve footprint UUIDs and existing tracks.
 * **Scoped gates:** Scoped operations keep other footprints fixed without altering their saved lock flags. `project compare --fail-on-unexpected` rejects changes outside the `--allow` list with exit code `4`.
+* **Boards from KiCad 9 or older:** `project compare` matches nets by name and ignores what KiCad 10 rewrites when it upgrades an older file, so the gate still holds after the first kce write, which reports `format_upgrade: true`. To keep that format change out of the ECO diff, run `pcb upgrade` and `sch upgrade` and commit or checkpoint before the ECO.
 * **Foreign board intake:** Use `project import SOURCE --dir NEW` or `--project TARGET pcb import SOURCE`, then inspect `read_back` and the source-preservation report.
 * **Release packaging:** Run `fab parts check --offline` and `fab bom-check --require MPN,LCSC,Footprint`, then build the release with `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE`. Exports run in staging and publish only when every requested output succeeds (`complete: true`); failures return `complete: false` and `failed_steps` with exit code `3`, preserving any previously accepted package. Review `cpl.review` in the fabricator's viewer. See the [board scenario roadmap](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/BOARD-GAPS-ROADMAP.md) for planned fab capability presets.
 
@@ -226,7 +227,7 @@ kce --json -p sensor run board-stage.json
 
 ### Engineering change on an existing project
 
-1. Capture baseline nets, footprints/pads, placement score, and ERC/DRC, then create checkpoint `pre-eco`.
+1. On a project last saved before KiCad 10, run `pcb upgrade` and `sch upgrade` first. Capture baseline nets, footprints/pads, placement score, and ERC/DRC, then create checkpoint `pre-eco`.
 2. Rehearse and run the schematic plan with read-backs and strict intent verification (`sch verify --subset --strict`) before syncing the PCB.
 3. Scope placement and routing to the ECO components, then run `project compare checkpoint:pre-eco` (or `git:HEAD`) with `--geometry` and an explicit `--allow` list.
 4. Verify pin nets, positions, UUIDs, pad displacement, and routing on allowed refs. On regression, `session restore pre-eco` and verify restored bytes, nets, and score. Generate new outputs into a fresh directory (checkpoints exclude `outputs/`; pass `project archive --include-outputs` when archiving a release).

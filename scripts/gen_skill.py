@@ -50,7 +50,7 @@ def commands_md() -> str:
              "| Nets as data | `sch apply`, `sch verify --expect FILE --strict` | match:true; ERC |",
              "| Atomic stage and rollback | `run PLAN`, `session checkpoint`, `session restore` | plan expect predicates; compare checkpoint:NAME |",
              "| Placement | `pcb score`, `pcb place near`, `pcb legalize --strict` | closed outline; zero overlaps/outside |",
-             "| Preserve an ECO | dry-run `pcb update --stable-uuids --lock-existing`, scoped autoroute, `project compare` | pin nets, UUIDs, pad positions; DRC |",
+             "| Preserve an ECO | dry-run `pcb update --lock-existing`, scoped autoroute, `project compare` | pin nets, UUIDs, pad positions; DRC |",
              "| Explain failed checks | `check diagnose`, `errors` | explicit --fail-on policy |",
              "| Many PCB calls | `serve` | worker_reused; matching request ids; restore on lost outcome |",
              "| Missing part | `lib sym new`, `lib fp new`, `lib fp wizard`, `lib link-check`, `lib fp check` | datasheet pins/pads; coverage; ERC/DRC |",

@@ -7,6 +7,7 @@ import collections
 import json
 import math
 import os
+import re
 import shutil
 import subprocess
 import zipfile
@@ -130,14 +131,41 @@ def schematic_diff(a, b) -> Dict[str, Any]:
 
 
 
-def _geometry(node, names=None):
-    """Canonical native geometry, with object UUIDs omitted and net codes resolved."""
+# What KiCad 10 writes differently when it re-saves a KiCad 9 board, without any change in meaning
+# (classified from `kicad-cli pcb upgrade` on the KiCad 9 demos).
+_UPGRADE_DEFAULTS = {"duplicate_pad_numbers_are_jumpers": ["no"], "capping": ["no"], "filling": ["no"],
+                     "covering": [["front", "no"], ["back", "no"]], "plugging": [["front", "no"], ["back", "no"]],
+                     "island_removal_mode": ["0"]}
+_UPGRADE_DROPPED = {"uuid", "tstamp", "net_name", "filled_areas_thickness", "plotinvisibletext",
+                    "hpglpennumber", "hpglpenspeed", "hpglpendiameter"}
+_TEARDROP_DROPPED = {"name", "thermal_gap", "thermal_bridge_width", "island_area_min"}
+_NUMBER = re.compile(r"-?\d+(\.\d+)?")
+
+
+def _geometry(node, names=None, teardrop=False):
+    """Canonical native geometry: object UUIDs omitted, nets by name, format-upgrade noise removed."""
     if not isinstance(node, sexpr.SList):
+        if not isinstance(node, sexpr.QStr) and _NUMBER.fullmatch(node) and "." in node:
+            return node.rstrip("0").rstrip(".")
         return str(node)
     if node.tag == "net":
         return ["net", (names or {}).get(node.value(), node.value())]
-    return [_geometry(child, names) for child in node
-            if not isinstance(child, sexpr.SList) or child.tag not in ("uuid", "tstamp")]
+    if node.tag == "tenting" and not node.children():
+        sides = node.atoms()
+        return ["tenting"] + [[side, "yes" if side in sides else "no"] for side in ("front", "back")]
+    teardrop = teardrop or (node.tag == "zone" and any(a.find("teardrop") for a in node.find_all("attr")))
+    out = []
+    for child in node:
+        if isinstance(child, sexpr.SList):
+            if child.tag in _UPGRADE_DROPPED or (teardrop and child.tag in _TEARDROP_DROPPED):
+                continue
+            g = _geometry(child, names, teardrop)
+            if g[1:] == _UPGRADE_DEFAULTS.get(child.tag):
+                continue
+            out.append(g)
+        else:
+            out.append(_geometry(child))
+    return out
 
 
 def _fingerprint(nodes, names=None):
@@ -154,10 +182,14 @@ def _board_facts(proj) -> Optional[Dict[str, Any]]:
         if ref in fps:
             raise ValueError(f"Duplicate footprint reference {ref}; ECO comparison requires unique refs")
         at = fp.find("at")
-        native = sexpr.SList([child for child in fp if not isinstance(child, sexpr.SList) or child.tag not in ("at", "layer")])
+        # sheetname/sheetfile mirror the schematic hierarchy and `pcb update` refreshes them; KiCad may
+        # reorder a footprint's items when it re-saves the board, and their order has no meaning
+        native = sexpr.SList([child for child in fp if not isinstance(child, sexpr.SList)
+                              or child.tag not in ("at", "layer", "sheetname", "sheetfile")])
+        native = sorted(json.dumps(item) for item in _geometry(native, names))
         fps[ref] = {"fpid": str(fp[1]), "x": float(at[1]), "y": float(at[2]),
                     "rot": float(at[3]) if len(at) > 3 else 0.0, "layer": fp.value("layer"),
-                    "native": _geometry(native, names), "value": fp.get_property("Value"), "locked": fp.find("locked") is not None
+                    "native": native, "value": fp.get_property("Value"), "locked": fp.find("locked") is not None
                     or "locked" in [str(a) for a in fp.atoms()]}
     tracks = collections.Counter()
     length = collections.defaultdict(float)
@@ -171,7 +203,7 @@ def _board_facts(proj) -> Optional[Dict[str, Any]]:
     vias = collections.Counter(names.get(v.value("net", ""), v.value("net", "")) for v in t.find_all("via"))
     for via in t.find_all("via"):
         routing_geometry[names.get(via.value("net", ""), via.value("net", ""))].append(via)
-    zones = sorted((z.value("net", ""), " ".join(str(a) for a in (z.find("layers") or z.find("layer") or sexpr.S("l")).atoms()))
+    zones = sorted((names.get(z.value("net", ""), z.value("net", "")), " ".join(str(a) for a in (z.find("layers") or z.find("layer") or sexpr.S("l")).atoms()))
                    for z in t.find_all("zone"))
     edge = [g for tag in ("gr_line", "gr_rect", "gr_arc", "gr_circle", "gr_poly") for g in t.find_all(tag)
             if g.value("layer") == "Edge.Cuts"]
