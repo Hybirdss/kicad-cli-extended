@@ -41,11 +41,11 @@ def kill(proc):
     """Kill a process and its group. Cancelling and the call's own cleanup can both get here for one
     process, because Popen.poll() answers None while another thread waits on it; once only an unreaped
     zombie is left in the group, macOS answers EPERM where Linux answers ESRCH."""
+    if os.name == 'nt':
+        proc.kill()
+        return
     try:
-        if os.name != 'nt':
-            os.killpg(proc.pid, signal.SIGKILL)
-        else:
-            proc.kill()
+        os.killpg(proc.pid, signal.SIGKILL)
     except (ProcessLookupError, PermissionError):
         pass
 
