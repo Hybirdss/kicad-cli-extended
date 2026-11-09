@@ -459,6 +459,22 @@ class TestSession:
         with pytest.raises(RuntimeError, match="--project"):
             Session().require_project()
 
+    def test_format_upgrade_marks_rewrites_of_older_files(self, tmp_dir):
+        s = session_for(tmp_dir)
+        kicad7 = os.path.join(tmp_dir, "old.kicad_sch")
+        wr(kicad7, '(kicad_sch (version 20230121) (generator eeschema)\n  (paper "A4")\n)\n')
+        kicad9 = os.path.join(tmp_dir, "nine.kicad_sch")
+        wr(kicad9, sexpr.dumps(sexpr.loads('(kicad_sch (version 20250114) (generator "eeschema") (paper "A4"))'),
+                               "normal"))
+        board = os.path.join(tmp_dir, "b.kicad_pcb")
+        wr(board, sexpr.dumps(S("kicad_pcb", S("version", "20241229")), "normal"))
+        for f in (kicad7, kicad9):
+            s.doc(f).tree().set("paper", Q("A3"))
+            s.doc(f).mark_dirty()
+        s.doc(board).set_text(sexpr.dumps(S("kicad_pcb", S("version", project.PCB_VERSION)), "normal"))
+        assert {os.path.basename(f): s.doc(f).format_upgrade() for f in (kicad7, kicad9, board)} == {
+            "old.kicad_sch": True, "nine.kicad_sch": False, "b.kicad_pcb": True}
+
 
 # ═══════════════════════════════ project ═══════════════════════════════
 

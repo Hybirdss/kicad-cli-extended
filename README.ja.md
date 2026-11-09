@@ -163,6 +163,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 
 * **同期の安全性：** 適用前にドライラン結果の `replaced[].pads_moved`、`unmatched_pins`、`tracks_ending_on_old_pads` を確認します。
 * **スコープ付きゲート：** `project compare --fail-on-unexpected` は、`--allow` リスト外の変更を検出すると終了コード `4` で拒否します。
+* **KiCad 9 以前のボード：** `project compare` はネットを名前で照合し、KiCad 10 が古いファイルをアップグレードする際に書き換える部分を無視するため、`format_upgrade: true` を返す kce の最初の書き込みの後もゲートは有効です。形式の変更を ECO の差分から切り離すには、ECO の前に `pcb upgrade` と `sch upgrade` を実行し、コミットするかチェックポイントを作成してください。
 * **実装用パッケージのリリース：** リリース前に `fab parts check --offline` と `fab bom-check --require MPN,LCSC,Footprint` を実行し、`fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE` でパッケージ化します。
 
 ---
@@ -212,7 +213,7 @@ kce --json -p sensor run board-stage.json
 
 ### 既存プロジェクトの設計変更（ECO）
 
-ベースラインのネット、フットプリント、スコア、ERC/DRC を記録し、`pre-eco` チェックポイントを作成します。回路図プランと厳密なインテント検証（`sch verify --subset --strict`）を経てから PCB を同期し、`project compare checkpoint:pre-eco --geometry --allow ...` で意図しない変更がないことを保証します。
+KiCad 10 より前に保存されたプロジェクトでは、先に `pcb upgrade` と `sch upgrade` を実行します。ベースラインのネット、フットプリント、スコア、ERC/DRC を記録し、`pre-eco` チェックポイントを作成します。回路図プランと厳密なインテント検証（`sch verify --subset --strict`）を経てから PCB を同期し、`project compare checkpoint:pre-eco --geometry --allow ...` で意図しない変更がないことを保証します。
 
 ### 継続的インテグレーション（CI）とリリース
 

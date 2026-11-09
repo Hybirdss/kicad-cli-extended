@@ -143,11 +143,14 @@ Checkpoint pending REPL edits only after session save. Keep trial journals outsi
 ### R5: Make an ECO without disturbing routing
 
 Triggers: ECO, rev B, second source, replace capacitor, add decoupling, regenerate outputs.
+On a project last saved before KiCad 10, run `pcb upgrade` and `sch upgrade` first: the first
+kce write to an older file rewrites it in the KiCad 10 format and reports `format_upgrade: true`.
 Checkpoint pre-eco after capturing approved nets/footprints/score and ERC/DRC baselines.
 Prepare expected-eco.json inside P with only requested changes. Preview `--dry-run run eco.json`,
 then run its schematic setters/read-backs/`sch verify --expect ... --strict`/ERC before PCB sync.
-Preview `--dry-run pcb update --stable-uuids --lock-existing`, inspect added/removed/replaced,
-then apply. Read adopted, replaced[].pads_moved, tracks_ending_on_old_pads and unmatched_pins.
+Preview `--dry-run pcb update --lock-existing`, inspect added/removed/replaced, then apply.
+Leave out `--stable-uuids` on an existing board: it rewrites every footprint UUID.
+Read adopted, replaced[].pads_moved, tracks_ending_on_old_pads and unmatched_pins.
 --lock-existing rejects pad displacement; an approved pad-moving swap needs a separate review.
 
 ```bash
@@ -160,9 +163,9 @@ kce --json -p P check drc --fail-on error
 kce --json -p P project compare checkpoint:pre-eco --geometry --allow C2,C10,net:VCC,net:GND --fail-on-unexpected
 ```
 
-Verify unchanged positions, UUIDs, pad nets and tracks against the baseline. Compare retains
-stdout and exits 4 for unexpected changes; review coverage.excluded and the full allowed-ref
-diff too. Scoped near/legalize/autoroute keep others fixed without changing their lock flags.
+Verify unchanged positions, UUIDs, pad nets and tracks against the baseline. Compare matches
+nets by name and ignores what the KiCad 10 format upgrade rewrites. It retains stdout and exits
+4 for unexpected changes; review coverage.excluded and the full allowed-ref diff too. Scoped near/legalize/autoroute keep others fixed without changing their lock flags.
 Replace-symbol uses pin-number mapping by default; inspect connection changes before sync.
 Reject unrequested merges/splits. R7 regenerates into fresh outputs; restore pre-eco on regression.
 

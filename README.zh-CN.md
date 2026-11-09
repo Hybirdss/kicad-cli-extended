@@ -164,6 +164,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 
 * **同步安全：** 应用同步前先检查预演结果中的 `replaced[].pads_moved`、`unmatched_pins` 与 `tracks_ending_on_old_pads`。若批准的封装替换改变了焊盘位置，则需去掉 `--lock-existing`。
 * **范围门禁：** `project compare --fail-on-unexpected` 会在发现 `--allow` 白名单之外的修改时以退出码 `4` 拒绝通过。
+* **KiCad 9 及更早的电路板：** `project compare` 按名称匹配网络，并忽略 KiCad 10 升级旧文件时重写的内容，因此在 kce 首次写入（返回 `format_upgrade: true`）之后门禁依然有效。如需让格式变更不混入 ECO 差异，请在 ECO 之前运行 `pcb upgrade` 与 `sch upgrade`，并提交或创建检查点。
 * **贴片生产发布：** 发布前运行 `fab parts check --offline` 与 `fab bom-check --require MPN,LCSC,Footprint`，随后使用 `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE` 打包。只有 `complete: true` 才代表所有输出均已就绪。
 
 ---
@@ -215,7 +216,7 @@ kce --json -p sensor run board-stage.json
 
 ### 现有项目的工程变更（ECO）
 
-记录基线网表、封装/焊盘、布局评分与 ERC/DRC，创建 `pre-eco` 检查点。先执行原理图计划并通过严格意图校验（`sch verify --subset --strict`），再同步至 PCB。最后使用 `project compare checkpoint:pre-eco --geometry --allow ...` 检验变更是否严格受控，若出现回退则立即执行 `session restore pre-eco`。
+若项目最后保存于 KiCad 10 之前，请先运行 `pcb upgrade` 与 `sch upgrade`。记录基线网表、封装/焊盘、布局评分与 ERC/DRC，创建 `pre-eco` 检查点。先执行原理图计划并通过严格意图校验（`sch verify --subset --strict`），再同步至 PCB。最后使用 `project compare checkpoint:pre-eco --geometry --allow ...` 检验变更是否严格受控，若出现回退则立即执行 `session restore pre-eco`。
 
 ### 持续集成（CI）与标签发布
 

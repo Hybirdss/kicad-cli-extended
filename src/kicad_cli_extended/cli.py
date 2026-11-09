@@ -116,7 +116,9 @@ def _output(data: Any, message: str = "") -> None:
         path = " ".join(ctx.command_path.split()[1:])
         if path and effect(path, ctx.params) in {"write", "export"}:
             paths = sorted(d.path for d in get_session().dirty_docs())
-            data = [dict(item, dry_run=_dry_run, would_write=paths) if isinstance(item, dict) else item for item in data]
+            upgrade = {"format_upgrade": True} if any(d.format_upgrade() for d in get_session().dirty_docs()) else {}
+            data = [dict(item, dry_run=_dry_run, would_write=paths, **upgrade) if isinstance(item, dict) else item
+                    for item in data]
     if isinstance(data, dict) and ctx is not None and ctx.command_path.endswith('lib init-global-tables'):
         data = {name: dict(item, dry_run=_dry_run,
                           would_write=[item['path']] if item.get('action') == 'installed' else [])
@@ -127,6 +129,8 @@ def _output(data: Any, message: str = "") -> None:
         if path and path != "lib init-global-tables" and effect(path, ctx.params) in {"write", "export"}:
             data = dict(data)
             data.setdefault("dry_run", _dry_run)
+            if any(d.format_upgrade() for d in get_session().dirty_docs()):
+                data["format_upgrade"] = True
             paths = [d.path for d in get_session().dirty_docs()]
             for key in ("created", "saved", "changed_files"):
                 values = data.get(key, [])
