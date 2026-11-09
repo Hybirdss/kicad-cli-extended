@@ -2415,10 +2415,10 @@ def pcb_route(from_pad, to_pad, layer, width, mode, via_points):
 @pcb_group.command("autoroute")
 @click.option("--engine", type=click.Choice(["builtin", "freerouting"]), default="builtin")
 @click.option("--grid", default="0.25", help="builtin: positive grid mm, or auto (0.25 → 0.15 → 0.1 → 0.05).")
-@click.option("--width", type=float, default=0.25)
-@click.option("--clearance", type=float, default=0.2)
-@click.option("--via-diameter", type=float, default=0.6)
-@click.option("--via-drill", type=float, default=0.3)
+@click.option("--width", type=float, default=None, help="Default: the net class track width, at least the board minimum.")
+@click.option("--clearance", type=float, default=None, help="Default: the largest net class or board clearance.")
+@click.option("--via-diameter", type=float, default=None, help="Default: the net class via, at least the board minimum.")
+@click.option("--via-drill", type=float, default=None, help="Default: the net class drill, at least the board minimum.")
 @click.option("--layers", default="F.Cu,B.Cu")
 @click.option("--net", default=None, help="Only this net")
 @click.option("--skip-net", "skip_nets", multiple=True, help="Leave nets for zones (e.g. GND)")
@@ -2427,7 +2427,9 @@ def pcb_route(from_pad, to_pad, layer, width, mode, via_points):
 @click.option("--area", default=None, help="builtin: restrict all routes to x,y,w,h mm.")
 @handle_error
 def pcb_autoroute(engine, grid, width, clearance, via_diameter, via_drill, layers, net, skip_nets, passes, refs, area):
-    """Autoroute unrouted connections (builtin grid router, or Freerouting via Specctra DSN/SES)."""
+    """Autoroute unrouted connections (builtin grid router, or Freerouting via Specctra DSN/SES).
+
+    The builtin router exits 3 and saves nothing when KiCad DRC finds new errors after routing."""
     if engine != "builtin" and (refs or area):
         raise ValueError("--refs and --area require --engine builtin")
     if grid != "auto":
