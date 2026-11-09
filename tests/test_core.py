@@ -1374,7 +1374,7 @@ class TestScenarioRecipes:
             assert 'checkpoint' in recipes[number].lower()
         assert recipes[2].index('sch verify') < recipes[2].index('--dry-run pcb update')
         assert recipes[5].index('Checkpoint') < recipes[5].index('Preview')
-        assert '--fail-on-drc' in recipes[7]
+        assert 'fab package --preset jlcpcb --require-lcsc' in recipes[7] and 'DRC errors refuse' in recipes[7]
         assert 'commit_state' in recipes[9] and 'immutable' in recipes[9]
         assert 'not an editable schematic migration' in recipes[10]
 
@@ -2088,39 +2088,60 @@ class TestInputBoundaryRegressions:
 
 
 class TestFabDrcRejection:
-    def test_cli_returns_drc_failure_preserves_accepted_and_cleans_stage(self, tmp_path, monkeypatch):
-        from click.testing import CliRunner
+    @staticmethod
+    def fake_drc(monkeypatch, tmp_path, violations):
         from kicad_cli_extended import cli as m
         root = tmp_path / 'project'
         root.mkdir()
         sess = session_for(str(root))
         (root / 'p.kicad_pcb').write_text('(kicad_pcb)', encoding='utf-8')
+        monkeypatch.setattr(m, '_session', sess)
+        monkeypatch.setattr(fab.bom_mod, 'components', lambda *a: [])
+        errors = sum(v['severity'] == 'error' for v in violations)
+        drc = {'total': len(violations), 'errors': errors, 'warnings': len(violations) - errors,
+               'unconnected': 0, 'clean': not violations,
+               'by_type': {v['type']: 1 for v in violations}, 'violations': violations}
+        def fake_run_drc(sess, output):
+            Path(output).write_text(json.dumps(drc), encoding='utf-8')
+            return drc
+        monkeypatch.setattr(fab.checks_mod, 'run_drc', fake_run_drc)
+        return m
+
+    def test_cli_returns_drc_failure_preserves_accepted_and_cleans_stage(self, tmp_path, monkeypatch):
+        from click.testing import CliRunner
+        short = {'type': 'shorting_items', 'severity': 'error', 'description': 'Items shorting two nets'}
+        m = self.fake_drc(monkeypatch, tmp_path, [short])
         accepted = tmp_path / 'accepted'
         accepted.mkdir()
         (accepted / 'approved.zip').write_bytes(b'accepted')
-        monkeypatch.setattr(m, '_session', sess)
-        monkeypatch.setattr(fab.bom_mod, 'components', lambda *a: [])
-        drc = {'total': 1, 'errors': 1, 'warnings': 0, 'unconnected': 0,
-               'clean': False, 'by_type': {'shorting_items': 1}}
-        def rejected_drc(sess, output):
-            Path(output).write_text(json.dumps(drc), encoding='utf-8')
-            return drc
-        monkeypatch.setattr(fab.checks_mod, 'run_drc', rejected_drc)
         def unexpected_export(*a, **kw):
             pytest.fail('A DRC rejection must stop before exporting')
         monkeypatch.setattr(fab.kb, 'run_kicad_cli', unexpected_export)
         before = {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()}
-        result = CliRunner().invoke(m.cli, ['--json', 'fab', 'package', '--preset', 'jlcpcb',
-                                           '--fail-on-drc', '-o', str(accepted)])
+        result = CliRunner().invoke(m.cli, ['--json', 'fab', 'package', '--preset', 'jlcpcb', '-o', str(accepted)])
         assert result.exit_code == 3, result.output
         assert result.stdout, 'DRC rejection discarded the incomplete result'
         data = json.loads(result.stdout)
         assert data['complete'] is False and data['failed_steps'] == ['drc']
         assert data['files'] == [] and data['output_dir'] == str(accepted)
-        assert data['drc'] == dict(drc, rules_preset=None)
+        assert data['drc']['errors'] == 1 and data['drc']['error_violations'] == [short]
         assert 'kce check diagnose' in data['next'][0]
         error = json.loads(result.stderr)
         assert error['category'] == 'design' and error['hint'] == 'kce check diagnose'
-        assert 'omit --fail-on-drc' not in result.stderr
         assert {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()} == before
         assert not list(tmp_path.glob('.accepted-stage-*'))
+
+    @pytest.mark.parametrize('severity, args', [('warning', []), ('error', ['--allow-drc-errors'])])
+    def test_warnings_only_or_allowed_errors_proceed_to_export(self, tmp_path, monkeypatch, severity, args):
+        from click.testing import CliRunner
+        m = self.fake_drc(monkeypatch, tmp_path, [{'type': 'silk_overlap', 'severity': severity}])
+        exported = []
+        def export(argv, check=False):
+            exported.append(argv[:3])
+            return {'returncode': 1, 'stdout': '', 'stderr': 'stub'}
+        monkeypatch.setattr(fab.kb, 'run_kicad_cli', export)
+        result = CliRunner().invoke(m.cli, ['--json', 'fab', 'package', '--preset', 'jlcpcb',
+                                           '-o', str(tmp_path / 'out'), *args])
+        data = json.loads(result.stdout)
+        assert 'drc' not in data['failed_steps'] and exported[0] == ['pcb', 'export', 'gerbers']
+        assert ('error_violations' in data['drc']) == (severity == 'error')

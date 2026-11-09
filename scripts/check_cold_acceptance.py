@@ -124,8 +124,8 @@ def check_record(recipe, record):
                 errors.append("pcb update precedes erc gate")
             if not any(starts(later, "pcb score") or design_gate(later, "drc") for later in chain[i + 1:]):
                 errors.append("pcb update has no subsequent score or drc gate")
-        if starts(row, "fab package") and "--fail-on-drc" not in row:
-            errors.append("fab package omits --fail-on-drc")
+        if starts(row, "fab package") and "--allow-drc-errors" in row:
+            errors.append("fab package allows DRC errors")
         if starts(row, "fab package"):
             for check in ("erc", "drc"):
                 if not any(design_gate(previous, check) for previous in chain[:i]):

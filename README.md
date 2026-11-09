@@ -134,7 +134,7 @@ kce --json pcb score
 kce --json pcb autoroute --grid auto
 kce --json pcb connectivity
 kce --json check drc --fail-on-error
-kce --json fab package --preset jlcpcb --fail-on-drc --no-step
+kce --json fab package --preset jlcpcb --no-step
 ```
 
 **What to verify:**
@@ -168,7 +168,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 * **Scoped gates:** Scoped operations keep other footprints fixed without altering their saved lock flags. `project compare --fail-on-unexpected` rejects changes outside the `--allow` list with exit code `4`.
 * **Boards from KiCad 9 or older:** `project compare` matches nets by name and ignores what KiCad 10 rewrites when it upgrades an older file, so the gate still holds after the first kce write, which reports `format_upgrade: true`. To keep that format change out of the ECO diff, run `pcb upgrade` and `sch upgrade` and commit or checkpoint before the ECO.
 * **Foreign board intake:** Use `project import SOURCE --dir NEW` or `--project TARGET pcb import SOURCE`, then inspect `read_back` and the source-preservation report.
-* **Release packaging:** Run `fab parts check --offline` and `fab bom-check --require MPN,LCSC,Footprint`, then build the release with `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE`. Exports run in staging and publish only when every requested output succeeds (`complete: true`); failures return `complete: false` and `failed_steps` with exit code `3`, preserving any previously accepted package. Review `cpl.review` in the fabricator's viewer. See the [board scenario roadmap](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/BOARD-GAPS-ROADMAP.md) for planned fab capability presets.
+* **Release packaging:** Run `fab parts check --offline` and `fab bom-check --require MPN,LCSC,Footprint`, then build the release with `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" -o RELEASE`. Exports run in staging and publish only when every requested output succeeds (`complete: true`); failures return `complete: false` and `failed_steps` with exit code `3`, preserving any previously accepted package. `fab package` refuses to package a board with DRC errors (`complete: false`, `failed_steps: ["drc"]`, exit `3`) and lists them in `drc.error_violations`; `--allow-drc-errors` packages anyway and still lists them. Review `cpl.review` in the fabricator's viewer. See the [board scenario roadmap](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/BOARD-GAPS-ROADMAP.md) for planned fab capability presets.
 
 ---
 
@@ -189,7 +189,7 @@ Supported targets: `agents` (`~/.agents/skills`), `claude` (`~/.claude/skills`),
 
 ## Workflows
 
-The [installed skill](https://github.com/Hybirdss/kicad-cli-extended/blob/main/skills/kicad-cli-extended/SKILL.md#choose-a-scenario-recipe) provides twelve trigger-driven recipes, documented in full in [`docs/AGENT-RECIPES.md`](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/AGENT-RECIPES.md). Always pass explicit check gates (`--fail-on-error`, `--fail-on-drc`, `--strict`): ERC and DRC default to report-only.
+The [installed skill](https://github.com/Hybirdss/kicad-cli-extended/blob/main/skills/kicad-cli-extended/SKILL.md#choose-a-scenario-recipe) provides twelve trigger-driven recipes, documented in full in [`docs/AGENT-RECIPES.md`](https://github.com/Hybirdss/kicad-cli-extended/blob/main/docs/AGENT-RECIPES.md). Always pass explicit check gates (`--fail-on-error`, `--strict`): ERC and DRC default to report-only. `fab package` is the exception and refuses DRC errors unless `--allow-drc-errors` is passed.
 
 | Goal | Key Commands | Section |
 |---|---|---|

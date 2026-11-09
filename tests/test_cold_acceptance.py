@@ -103,12 +103,12 @@ def test_agent_execution_evidence_corresponds_to_its_selected_stages(recipe, pat
 
 def test_discovery_gate_rejects_missing_preview_verify_checkpoint_and_drc():
     record = {"prompt": "ECO", "reads": ["installed SKILL.md"], "chain": [
-        ["pcb", "update"], ["fab", "package"]]}
+        ["pcb", "update"], ["fab", "package", "--allow-drc-errors"]]}
     errors = checker.check_record(5, record)
     assert "pcb update precedes its preview" in errors
     assert "pcb update precedes strict intent verification" in errors
     assert "mutation precedes checkpoint" in errors
-    assert "fab package omits --fail-on-drc" in errors
+    assert "fab package allows DRC errors" in errors
 
 
 @pytest.mark.parametrize("args", [

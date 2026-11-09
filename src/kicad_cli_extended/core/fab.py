@@ -108,7 +108,7 @@ def _pcbway_cpl(src_csv: str, dst_csv: str) -> int:
 
 
 def _make_package(sess, preset: str = "generic", output_dir: Optional[str] = None, zip_name: Optional[str] = None,
-                 run_drc: bool = True, fail_on_drc: bool = False, step: Optional[bool] = None,
+                 run_drc: bool = True, allow_drc_errors: bool = False, step: Optional[bool] = None,
                  extra_gerber_args: Optional[List[str]] = None, bom_fields: Optional[str] = None,
                  parts: Optional[List[Dict[str, Any]]] = None, rotation_fix=None) -> Dict[str, Any]:
     if preset not in PRESETS:
@@ -135,10 +135,12 @@ def _make_package(sess, preset: str = "generic", output_dir: Optional[str] = Non
         d = checks_mod.run_drc(sess, output=os.path.join(out, "drc.json"))
         res["drc"] = {k: d[k] for k in ("total", "errors", "warnings", "unconnected", "clean", "by_type")}
         res["drc"]["rules_preset"] = None
-        if fail_on_drc and d["errors"]:
-            res.update(failed_steps=["drc"], files=[],
-                       next=["Run kce check diagnose, fix the reported DRC errors, then rerun fab package --fail-on-drc"])
-            return res
+        if d["errors"]:
+            res["drc"]["error_violations"] = [v for v in d["violations"] if v["severity"] == "error"]
+            if not allow_drc_errors:
+                res.update(failed_steps=["drc"], files=[],
+                           next=["Run kce check diagnose, fix the reported DRC errors, then rerun fab package"])
+                return res
     with materialize(sess) as ws:
         pcb = remap(proj.pcb_path, proj.dir, ws)
         sch = remap(proj.sch_path, proj.dir, ws)
@@ -239,7 +241,7 @@ def _publish(stage: str, target: str) -> None:
 
 
 def make_package(sess, preset: str = "generic", output_dir: Optional[str] = None, zip_name: Optional[str] = None,
-                 run_drc: bool = True, fail_on_drc: bool = False, step: Optional[bool] = None,
+                 run_drc: bool = True, allow_drc_errors: bool = False, step: Optional[bool] = None,
                  extra_gerber_args: Optional[List[str]] = None, require_lcsc: bool = False,
                  bom_fields: Optional[str] = None, rotation_fix: Optional[str] = None,
                  manifest: bool = False, name_suffix: Optional[str] = None, require_rev: Optional[str] = None) -> Dict[str, Any]:
@@ -293,7 +295,7 @@ def make_package(sess, preset: str = "generic", output_dir: Optional[str] = None
     os.makedirs(os.path.dirname(target), exist_ok=True)
     stage = tempfile.mkdtemp(prefix="." + os.path.basename(target) + "-stage-", dir=os.path.dirname(target))
     try:
-        result = _make_package(sess, preset, stage, zip_name, run_drc, fail_on_drc, step, extra_gerber_args, bom_fields, parts, corrections)
+        result = _make_package(sess, preset, stage, zip_name, run_drc, allow_drc_errors, step, extra_gerber_args, bom_fields, parts, corrections)
         bom["rows"] = result.pop("bom_rows", None)
         result.update(bom=bom, warnings=warnings)
         result["output_dir"] = target

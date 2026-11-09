@@ -134,7 +134,7 @@ kce --json pcb score
 kce --json pcb autoroute --grid auto
 kce --json pcb connectivity
 kce --json check drc --fail-on-error
-kce --json fab package --preset jlcpcb --fail-on-drc --no-step
+kce --json fab package --preset jlcpcb --no-step
 ```
 
 **検証ポイント：**
@@ -164,7 +164,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 * **同期の安全性：** 適用前にドライラン結果の `replaced[].pads_moved`、`unmatched_pins`、`tracks_ending_on_old_pads` を確認します。
 * **スコープ付きゲート：** `project compare --fail-on-unexpected` は、`--allow` リスト外の変更を検出すると終了コード `4` で拒否します。
 * **KiCad 9 以前のボード：** `project compare` はネットを名前で照合し、KiCad 10 が古いファイルをアップグレードする際に書き換える部分を無視するため、`format_upgrade: true` を返す kce の最初の書き込みの後もゲートは有効です。形式の変更を ECO の差分から切り離すには、ECO の前に `pcb upgrade` と `sch upgrade` を実行し、コミットするかチェックポイントを作成してください。
-* **実装用パッケージのリリース：** リリース前に `fab parts check --offline` と `fab bom-check --require MPN,LCSC,Footprint` を実行し、`fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE` でパッケージ化します。
+* **実装用パッケージのリリース：** リリース前に `fab parts check --offline` と `fab bom-check --require MPN,LCSC,Footprint` を実行し、`fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" -o RELEASE` でパッケージ化します。 DRC がエラーを報告した場合、`fab package` はパッケージ化を拒否し（`complete: false`、`failed_steps: ["drc"]`、終了コード `3`）、エラーを `drc.error_violations` に列挙します。`--allow-drc-errors` を指定するとパッケージ化は行いますが、エラー一覧はそのまま残ります。
 
 ---
 

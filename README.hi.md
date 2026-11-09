@@ -134,7 +134,7 @@ kce --json pcb score
 kce --json pcb autoroute --grid auto
 kce --json pcb connectivity
 kce --json check drc --fail-on-error
-kce --json fab package --preset jlcpcb --fail-on-drc --no-step
+kce --json fab package --preset jlcpcb --no-step
 ```
 
 **क्या सत्यापित करें:**
@@ -164,7 +164,7 @@ kce --project board project compare git:HEAD --geometry --allow C2,C10,net:VCC,n
 * **सिंक सुरक्षा:** लागू करने से पहले ड्राई-रन में `replaced[].pads_moved`, `unmatched_pins` और `tracks_ending_on_old_pads` की जाँच करें।
 * **स्कोप्ड गेट्स:** `project compare --fail-on-unexpected` अनुमति सूची (`--allow`) के बाहर किसी भी बदलाव को एग्जिट कोड `4` के साथ अस्वीकार कर देता है।
 * **KiCad 9 या उससे पुराने बोर्ड:** `project compare` नेट्स को नाम से मिलाता है और KiCad 10 द्वारा पुरानी फ़ाइल अपग्रेड करते समय दोबारा लिखे गए हिस्सों को अनदेखा करता है, इसलिए `format_upgrade: true` लौटाने वाले kce के पहले write के बाद भी गेट मान्य रहता है। फ़ॉर्मेट बदलाव को ECO diff से अलग रखने के लिए ECO से पहले `pcb upgrade` और `sch upgrade` चलाएँ और commit करें या चेकपॉइंट बनाएँ।
-* **असेंबली रिलीज़:** रिलीज़ से पहले `fab parts check --offline` और `fab bom-check --require MPN,LCSC,Footprint` चलाएँ, फिर `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" --fail-on-drc -o RELEASE` का उपयोग करें।
+* **असेंबली रिलीज़:** रिलीज़ से पहले `fab parts check --offline` और `fab bom-check --require MPN,LCSC,Footprint` चलाएँ, फिर `fab package --preset jlcpcb --require-lcsc --require-rev v1.3.0 --manifest --name-suffix "{rev}-{preset}" -o RELEASE` का उपयोग करें। यदि DRC त्रुटियाँ रिपोर्ट करता है, तो `fab package` पैकेज बनाने से इनकार करता है (`complete: false`, `failed_steps: ["drc"]`, एग्ज़िट कोड `3`) और उन्हें `drc.error_violations` में सूचीबद्ध करता है; `--allow-drc-errors` देने पर पैकेज फिर भी बनता है और त्रुटियाँ सूची में बनी रहती हैं।
 
 ---
 
