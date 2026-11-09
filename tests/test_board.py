@@ -69,7 +69,7 @@ class TestUpdatePlacement:
         run(["project", "new", p, "--name", "overflow"])
         P = ["--project", p]
         run(P + ["pcb", "outline", "rect", "--at", "40,40",
-                 "--size", "8,6" if standing else "6,4"])
+                 "--size", "8,6" if standing else "6,4.5"])
         fp = "Resistor_SMD:R_0805_2012Metric"
         refs = ["R1", "R2", "R3", "R4"]
         for i, ref in enumerate(refs):
@@ -98,6 +98,17 @@ class TestUpdatePlacement:
         for ref, old in before.items():
             assert (after[ref]["x"], after[ref]["y"]) == (old["x"], old["y"])
         assert score(p)["courtyard_overlaps"]["count"] == 0
+
+    def test_new_parts_keep_the_board_edge_clearance(self, tmp_dir):
+        p = os.path.join(tmp_dir, "edge")
+        run(["project", "new", p, "--name", "edge"])
+        P = ["--project", p]
+        run(P + ["pcb", "outline", "rect", "--at", "40,40", "--size", "6,4"])
+        run(P + ["sch", "add", "Device:R", "--ref", "R1", "--at", "50.8,50.8",
+                 "--footprint", "Resistor_SMD:R_0805_2012Metric"])
+        up = rj(P + ["pcb", "update"])
+        assert up["unplaced_inside_outline"] == ["R1"]
+        assert drc(p, "--no-parity")["errors"] == 0
 
     def test_initial_parts_keep_the_row_layout_when_they_fit(self, tmp_dir):
         p = os.path.join(tmp_dir, "rows")
@@ -428,6 +439,38 @@ class TestPlaceNear:
         assert "U1" in err["details"]["locked_blockers"]
         assert "No legal spot for R9 within 0.5 mm of U1:1" in err["error"]
         assert err["hint"].startswith("kce pcb place near")
+
+    @pytest.mark.parametrize("obstacle", [
+        ["pcb", "track", "41,42.5;59,42.5", "--layer", "F.Cu", "--width", "0.25", "--net", "SIG"],
+        ["pcb", "text", "COPPER", "--at", "45,42.5", "--layer", "F.Cu", "--size", "1.5"],
+        ["pcb", "zone", "keepout", "--layer", "F.Cu", "--rect", "43,41,4,3", "--no-footprints",
+         "--allow-tracks", "--allow-vias", "--allow-fills"],
+    ], ids=["track", "copper-text", "keepout"])
+    def test_place_near_keeps_pads_off_board_copper_and_keepouts(self, tmp_dir, obstacle):
+        p = placement_board(tmp_dir)
+        P = ["--project", p]
+        run(P + obstacle)
+        res = rj(P + ["pcb", "place", "near", "R2", "--to", "R1"])
+        assert res["reference"] == "R2"
+        d = drc(p, "--no-parity")
+        assert d["errors"] == 0, d["by_type"]
+
+    def test_spot_that_drc_rejects_is_undone(self, tmp_dir):
+        p = placement_board(tmp_dir)
+        run(["--project", p, "pcb", "track", "41,41;59,41", "--layer", "F.Cu", "--width", "0.25", "--net", "SIG"])
+        with open(os.path.join(p, "placement.kicad_dru"), "w", encoding="utf-8") as f:
+            f.write("(version 1)\n(rule pad_keepaway (constraint clearance (min 3mm))\n"
+                    "  (condition \"A.NetName == 'SIG' && B.Type == 'Pad'\"))\n")
+        sess = Session()
+        sess.set_project(KicadProject(os.path.join(p, "placement.kicad_pro")))
+        path = os.path.join(p, "placement.kicad_pcb")
+        before, history = sess.current_text(path), sess.list_history()
+        with pytest.raises(pcb.PlacementBlocked) as blocked:
+            pcb.place_near(sess, "R2", "R1")
+        assert {v["type"] for v in blocked.value.details["new_violations"]} == {"clearance"}
+        assert blocked.value.details["commit_state"] == "unchanged"
+        assert sess.current_text(path) == before
+        assert sess.dirty_docs() == [] and sess.list_history() == history
 
     def test_locked_and_self_targets_are_rejected(self, tmp_dir):
         p = placement_board(tmp_dir)

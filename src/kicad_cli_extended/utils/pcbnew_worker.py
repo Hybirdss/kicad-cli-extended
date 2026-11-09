@@ -1099,8 +1099,9 @@ def a_place_grid(b, a):
 
     Every footprint that is not being placed keeps its courtyard (body bbox when it has none) in
     the occupancy grid, grown by half the spacing; each placed footprint claims its own cells the
-    same way. Footprints that fit nowhere inside the outline go in a row below the board and are
-    listed in ``unplaced_inside_outline``. Footprints not in ``refs`` never move.
+    same way, and its pads must clear the board's copper and keepouts (``_Copper``). Footprints
+    that fit nowhere inside the outline go in a row below the board and are listed in
+    ``unplaced_inside_outline``. Footprints not in ``refs`` never move.
     """
     poly = _board_outline(b)
     if a.get("area"):
@@ -1127,15 +1128,12 @@ def a_place_grid(b, a):
     # identity, or every footprint counts as "standing" (even the ones being placed).
     moving_refs = {fp.GetReference() for fp in moving}
     standing = [fp for fp in b.GetFootprints() if fp.GetReference() not in moving_refs]
+    copper = _Copper(b)
     if not standing:
-        return _row_layout(b, moving, a, poly)
+        return _row_layout(b, moving, a, poly, copper)
     grid = _FreeSpace(poly, cell=float(a.get("cell", 0.5)))
     for fp in standing:
         grid.occupy(_grow(_fp_rect(fp), spacing))
-    for t in b.GetTracks():  # routed copper: a new part may not land on a track or via
-        tb = t.GetBoundingBox()
-        grid.occupy((mm(tb.GetX()) - spacing, mm(tb.GetY()) - spacing,
-                     mm(tb.GetRight()) + spacing, mm(tb.GetBottom()) + spacing))
     placed, unplaced = [], []
     bb = poly.BBox()
     cursor_x, cursor_y, row_h = mm(bb.GetX()), mm(bb.GetBottom()) + margin + 2.0, 0.0
@@ -1144,7 +1142,14 @@ def a_place_grid(b, a):
         w, h = rect[2] - rect[0], rect[3] - rect[1]
         px, py = mm(fp.GetPosition().x), mm(fp.GetPosition().y)
         ox, oy = rect[0] - px, rect[1] - py  # footprint origin -> courtyard min corner
-        corner = grid.first_free(rect, accept=lambda r: _rect_inside(poly, r, margin))
+
+        def fits(r, fp=fp, ox=ox, oy=oy):
+            if not _rect_inside(poly, r, margin):
+                return False
+            fp.SetPosition(vec(round(r[0] - ox, 4), round(r[1] - oy, 4)))
+            return copper.clear(fp)
+
+        corner = grid.first_free(rect, accept=fits)
         if corner is not None:
             fp.SetPosition(vec(round(corner[0] - ox, 4), round(corner[1] - oy, 4)))
             grid.occupy(_grow(_fp_rect(fp), spacing))
@@ -1164,7 +1169,7 @@ def a_place_grid(b, a):
     return {"placed": placed, "unplaced_inside_outline": unplaced}
 
 
-def _row_layout(b, fps, a, poly):
+def _row_layout(b, fps, a, poly, copper):
     """Keep the initial row layout for parts that fit; put overflow below the outline."""
     bb = b.GetBoardEdgesBoundingBox()
     if a.get("area"):
@@ -1204,7 +1209,7 @@ def _row_layout(b, fps, a, poly):
         if x + w_ > x0 + w and x > x0:
             x, y, row_h = x0, y + row_h + gap, 0.0
         fp.SetPosition(vec(round(x + w_ / 2 - cx, 3), round(y + h_ / 2 - cy, 3)))
-        inside = _rect_inside(poly, _fp_rect(fp))
+        inside = _rect_inside(poly, _fp_rect(fp)) and copper.clear(fp)
         if not inside:
             if outside_x + w_ > mm(outline_bb.GetRight()):
                 outside_x = mm(outline_bb.GetX())
@@ -1229,6 +1234,83 @@ def _legal_spot(poly, rect, others, clearance):
         if _overlaps(grown, ob):
             return False
     return _rect_inside(poly, rect)
+
+
+def _bbox_mm(item):
+    bb = item.GetBoundingBox()
+    return (mm(bb.GetX()), mm(bb.GetY()), mm(bb.GetRight()), mm(bb.GetBottom()))
+
+
+class _Copper:
+    """Board copper and rule areas that a placed footprint's pads must keep clear of.
+
+    Tracks, vias and copper drawings (text, graphics) block pads of another net, by the larger
+    clearance KiCad's rules give either item; the board edge blocks every pad by the board's copper
+    edge clearance. Keepouts that forbid pads or footprints block them. Copper pours do not block:
+    a refill flows around new pads, and a ground pour usually covers most of the board.
+    """
+
+    def __init__(self, b):
+        ds = b.GetDesignSettings()
+        self.epsilon = ds.GetDRCEpsilon()
+        self.reach = mm(ds.GetBiggestClearanceValue())
+        self.layers = list(b.GetEnabledLayers().CuStack())
+        self.items = []
+        for it in list(b.GetTracks()) + [d for d in b.GetDrawings() if d.IsOnCopperLayer()]:
+            connected = isinstance(it, pcbnew.BOARD_CONNECTED_ITEM)
+            self.items.append((_bbox_mm(it), it.GetNetCode() if connected else 0,
+                               [(l, it.GetEffectiveShape(l), it.GetOwnClearance(l) if connected else 0)
+                                for l in self.layers if it.IsOnLayer(l)]))
+        self.keepouts = [z for z in b.Zones()
+                         if z.GetIsRuleArea() and (z.GetDoNotAllowPads() or z.GetDoNotAllowFootprints())]
+        self.edge_gap = ds.m_CopperEdgeClearance - self.epsilon
+        poly = _board_outline(b)
+        chains = [] if poly is None or self.edge_gap <= 0 else (
+            [poly.Outline(i) for i in range(poly.OutlineCount())]
+            + [poly.Hole(i, j) for i in range(poly.OutlineCount()) for j in range(poly.HoleCount(i))])
+        self.edges = []
+        for chain in chains:
+            for k in range(chain.SegmentCount()):
+                seg = chain.Segment(k)
+                self.edges.append(((mm(min(seg.A.x, seg.B.x)), mm(min(seg.A.y, seg.B.y)),
+                                    mm(max(seg.A.x, seg.B.x)), mm(max(seg.A.y, seg.B.y))), seg))
+        self.buckets = {}
+        for index, (rect, _, _) in enumerate(self.items):
+            for key in self._cells(rect):
+                self.buckets.setdefault(key, []).append(index)
+
+    @staticmethod
+    def _cells(rect, size=5.0):
+        return [(i, j) for i in range(math.floor(rect[0] / size), math.floor(rect[2] / size) + 1)
+                for j in range(math.floor(rect[1] / size), math.floor(rect[3] / size) + 1)]
+
+    def clear(self, fp):
+        """Is ``fp``, where it stands now, clear of foreign copper, the board edge and keepouts?"""
+        court = fp.GetCourtyard(pcbnew.B_CrtYd if fp.IsFlipped() else pcbnew.F_CrtYd)
+        for z in self.keepouts:  # like KiCad's DRC, a footprint without a courtyard is judged by its pads only
+            if (z.GetDoNotAllowFootprints() and z.IsOnLayer(fp.GetLayer()) and court.OutlineCount()
+                    and z.Outline().Collide(court, 0)):
+                return False
+        for pad in fp.Pads():
+            box, own_net = _grow(_bbox_mm(pad), self.reach), pad.GetNetCode()
+            for index in {i for key in self._cells(box) for i in self.buckets.get(key, ())}:
+                rect, net, shapes = self.items[index]
+                if (net and net == own_net) or not _overlaps(box, rect):
+                    continue
+                for layer, shape, own in shapes:
+                    gap = max(pad.GetOwnClearance(layer), own) - self.epsilon
+                    if pad.IsOnLayer(layer) and pad.GetEffectiveShape(layer).Collide(shape, gap):
+                        return False
+            near_edge = _grow(_bbox_mm(pad), mm(self.edge_gap))
+            for rect, seg in self.edges:
+                if _overlaps(near_edge, rect) and any(
+                        pad.IsOnLayer(l) and pad.GetEffectiveShape(l).Collide(seg, self.edge_gap) for l in self.layers):
+                    return False
+            for z in self.keepouts:
+                if z.GetDoNotAllowPads() and any(z.IsOnLayer(l) and z.Outline().Collide(pad.GetEffectiveShape(l), 0)
+                                                 for l in pad.GetLayerSet().CuStack()):
+                    return False
+        return True
 
 
 def _placement_settings(a, command):
@@ -1258,9 +1340,10 @@ def _ring_deltas(grid, max_distance, include_origin=False):
 def a_legalize(b, a):
     """Visit footprints in reference order and accept their nearest legal grid position.
 
-    All other footprints remain obstacles, including locked parts and parts that cannot move.
-    Each search stays within max_distance of the original position; accepted moves cannot create
-    a new overlap with an earlier or later footprint.
+    All other footprints remain obstacles, including locked parts and parts that cannot move, and
+    a legal position keeps the pads clear of the board's copper and keepouts (``_Copper``). Each
+    search stays within max_distance of the original position; accepted moves cannot create a new
+    overlap with an earlier or later footprint.
     """
     clearance, grid, max_distance = _placement_settings(a, "pcb legalize")
     poly = _board_outline(b)
@@ -1272,31 +1355,37 @@ def a_legalize(b, a):
     for ref in selected:
         get_fp(b, ref)
     candidates = _ring_deltas(grid, max_distance)
+    copper = _Copper(b)
     moves = []
     for fp in fps:
         ref = fp.GetReference()
         rect = rects[ref]
         others = [(o, rects[o.GetReference()]) for o in fps if o.GetReference() != ref]
-        if ref not in selected or fp.IsLocked() or _legal_spot(poly, rect, others, clearance):
+        if ref not in selected or fp.IsLocked() or (_legal_spot(poly, rect, others, clearance) and copper.clear(fp)):
             continue
-        start = pt(fp.GetPosition())
+        origin = fp.GetPosition()
+        start = pt(origin)
         for dx, dy, _ in candidates:
             cand = (rect[0] + dx, rect[1] + dy, rect[2] + dx, rect[3] + dy)
             if not _legal_spot(poly, cand, others, clearance):
                 continue
             fp.SetPosition(vec(start[0] + dx, start[1] + dy))
+            if not copper.clear(fp):
+                continue
             rects[ref] = _fp_rect(fp)
             end = pt(fp.GetPosition())
             moves.append({"reference": ref, "from": start, "to": end,
                           "distance": round(math.hypot(end[0] - start[0], end[1] - start[1]), 4)})
             break
+        else:
+            fp.SetPosition(origin)
     unmoved = []
     for fp in fps:
         ref = fp.GetReference()
         if ref not in selected:
             continue
         others = [(o, rects[o.GetReference()]) for o in fps if o.GetReference() != ref]
-        if not _legal_spot(poly, rects[ref], others, clearance):
+        if not (_legal_spot(poly, rects[ref], others, clearance) and copper.clear(fp)):
             reason = "locked" if fp.IsLocked() else f"no legal position within {max_distance:g} mm"
             unmoved.append({"reference": ref, "reason": reason})
     if a.get("strict") and unmoved:
@@ -1340,9 +1429,10 @@ def a_place_near(b, a):
     """Put a footprint at the nearest legal spot to a target footprint or pad.
 
     Legal means what `legalize` means: no courtyard overlap (body bounding box when a footprint has
-    no courtyard) with any other footprint plus ``clearance``, and fully inside the outline. The
-    search walks a ``grid`` ring around the target, nearest first, and stops at ``max_distance``;
-    the target is a footprint's courtyard centre or a pad's position.
+    no courtyard) with any other footprint plus ``clearance``, fully inside the outline, and pads
+    clear of the board's copper and keepouts (``_Copper``). The search walks a ``grid`` ring
+    around the target, nearest first, and stops at ``max_distance``; the target is a footprint's
+    courtyard centre or a pad's position.
     """
     ref, target = a["ref"], a["target"]
     fp = get_fp(b, ref)
@@ -1371,6 +1461,7 @@ def a_place_near(b, a):
         rect = _fp_rect(fp)
         shapes.append((angle, rect[2] - rect[0], rect[3] - rect[1], rect[0] - start[0], rect[1] - start[1]))
     others = [(o, _fp_rect(o)) for o in b.GetFootprints() if o.GetReference() != ref]
+    copper = _Copper(b)
     for dx, dy, d in _ring_deltas(grid, max_distance, include_origin=True):
         for angle, w, h, ox, oy in shapes:
             corner = (round(tx + dx - w / 2, 6), round(ty + dy - h / 2, 6))
@@ -1379,13 +1470,16 @@ def a_place_near(b, a):
                 continue
             fp.SetOrientationDegrees(angle)
             fp.SetPosition(vec(corner[0] - ox, corner[1] - oy))
+            if not copper.clear(fp):
+                continue
             end = pt(fp.GetPosition())
             return {"reference": ref, "target": label, "target_at": [tx, ty], "from": start, "to": end,
                     "moved": round(math.hypot(end[0] - start[0], end[1] - start[1]), 4),
                     "distance": round(d, 4), "side": "back" if fp.IsFlipped() else "front", "rotation": angle,
                     "clearance": clearance, "grid": grid}
     raise PlacementBlocked(f"No legal spot for {ref} within {max_distance:g} mm of {label}: every candidate "
-                     f"overlaps another footprint or leaves the board outline (clearance {clearance:g} mm). "
+                     f"overlaps another footprint (clearance {clearance:g} mm), comes too close to copper of "
+                     f"another net or a keepout, or leaves the board outline. "
                      f"Try `kce pcb place near {ref} --to {label} --max-dist {max_distance * 2:g}` or free space "
                      f"with `kce pcb legalize`.",
         {"ref": ref, "target": label, "radius": max_distance,

@@ -216,6 +216,41 @@ def run_drc(sess, output: Optional[str] = None, severity: str = "all", units: st
     return s
 
 
+def new_drc_errors(sess, before_text: str) -> List[Dict[str, Any]]:
+    """Error-severity DRC violations the session board has and ``before_text`` of it did not.
+
+    Unrouted connections do not count: moving an unrouted part changes which pads a ratsnest
+    line joins without making the board worse.
+    """
+    proj = sess.require_project()
+
+    def drc(pcb_path):
+        out = os.path.join(os.path.dirname(pcb_path), "kce-placement-drc.json")
+        res = kb.run_kicad_cli(["pcb", "drc", "--format", "json", "--units", "mm", "--severity-all",
+                                "--refill-zones", "-o", out, pcb_path], check=False)
+        if not os.path.exists(out):
+            raise kb.KicadError(f"DRC produced no report: {res['stderr'] or res['stdout']}")
+        with open(out, encoding="utf-8") as f:
+            report = summarize(json.load(f), "drc")
+        os.unlink(out)
+        return report
+
+    def errors(report):
+        return [v for v in report["violations"]
+                if v["severity"] == "error" and v["category"] == "violations" and not v["excluded"]]
+
+    with materialize(sess, force=True) as ws:
+        pcb_path = remap(proj.pcb_path, proj.dir, ws)
+        after = drc(pcb_path)
+        if not errors(after):
+            return []
+        with open(pcb_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(before_text)
+        before = drc(pcb_path)
+    _, failed = report_policy(after, baseline=before, fail_on="error")
+    return errors({"violations": failed})
+
+
 def _severity_args(severity: str) -> List[str]:
     m = {"all": ["--severity-all"], "error": ["--severity-error"], "warning": ["--severity-warning"],
          "error+warning": ["--severity-error", "--severity-warning"],
