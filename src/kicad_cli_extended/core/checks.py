@@ -5,9 +5,9 @@ from __future__ import annotations
 import collections
 import json
 import os
-import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
+from . import schematic as sch_mod
 from .workspace import materialize, remap
 from ..utils import kicad_backend as kb
 
@@ -87,7 +87,7 @@ def _violations_flat(report: Dict[str, Any], kind: str) -> List[Dict[str, Any]]:
     if kind == "erc":
         for sh in report.get("sheets", []):
             for v in sh.get("violations", []):
-                out.append(dict(v, sheet=sh.get("path")))
+                out.append(dict(v, sheet=sh.get("path"), sheet_uuid_path=sh.get("uuid_path")))
     else:
         for k in ("violations", "unconnected_items", "schematic_parity"):
             for v in report.get(k, []):
@@ -95,16 +95,33 @@ def _violations_flat(report: Dict[str, Any], kind: str) -> List[Dict[str, Any]]:
     return out
 
 
-_PIN_ITEM = re.compile(r"Symbol\s+(\S+)\s+Pin\s+([^,\s\[]+)")
+PinRefs = Dict[Tuple[str, str], str]
 
 
-def _violation_fix(v: Dict[str, Any]) -> Optional[str]:
+def pin_refs(sess) -> PinRefs:
+    """``(sheet uuid path, pin uuid) -> "REF:PIN"`` for every placed symbol pin in the hierarchy.
+
+    ERC items name a pin by its uuid; their descriptions are in KiCad's UI language.
+    """
+    proj = sess.require_project()
+    refs: PinRefs = {}
+    for sheet in sch_mod.hierarchy(sess.tree, proj.sch_path):
+        if not sheet.get("exists", True):
+            continue
+        for sym in sch_mod.placed_symbols(sess.tree(sheet["file"])):
+            ref = sch_mod.instance_references(sym).get(sheet["path"]) or sch_mod.sym_ref(sym)
+            for pin in sym.find_all("pin"):
+                refs[(sheet["path"], pin.value("uuid"))] = f"{ref}:{pin[1]}"
+    return refs
+
+
+def _violation_fix(v: Dict[str, Any], refs: PinRefs) -> Optional[str]:
     """Exact command that clears this violation, when one exists."""
     if v.get("type") == "pin_not_connected":
         for it in v.get("items", []):
-            m = _PIN_ITEM.search(it.get("description") or "")
-            if m:
-                return f"kce sch no-connect {m.group(1)}:{m.group(2)}"
+            ref = refs.get((v.get("sheet_uuid_path"), it.get("uuid")))
+            if ref:
+                return f"kce sch no-connect {ref}"
     return None
 
 
@@ -121,7 +138,7 @@ def _violation_hint(v: Dict[str, Any]) -> str:
     return HINTS.get(kind, "See the KiCad manual for this check.")
 
 
-def summarize(report: Dict[str, Any], kind: str) -> Dict[str, Any]:
+def summarize(report: Dict[str, Any], kind: str, pins: Optional[PinRefs] = None) -> Dict[str, Any]:
     vs = _violations_flat(report, kind)
     by_sev = collections.Counter(v.get("severity", "?") for v in vs)
     by_type = collections.Counter(v.get("type", "?") for v in vs)
@@ -130,7 +147,7 @@ def summarize(report: Dict[str, Any], kind: str) -> Dict[str, Any]:
     for v in vs:
         simplified.append({
             "type": v.get("type"), "severity": v.get("severity"), "description": v.get("description"),
-            "hint": _violation_hint(v), "fix": _violation_fix(v),
+            "hint": _violation_hint(v), "fix": _violation_fix(v, pins or {}),
             "sheet": v.get("sheet"), "category": v.get("category"), "excluded": v.get("excluded", False),
             "items": [{"description": it.get("description"), "pos": it.get("pos"), "uuid": it.get("uuid")}
                       for it in v.get("items", [])],
@@ -161,7 +178,7 @@ def run_erc(sess, output: Optional[str] = None, severity: str = "all", units: st
     if not os.path.exists(out):
         raise kb.KicadError(f"ERC produced no report: {res['stderr'] or res['stdout']}")
     report = json.load(open(out, encoding="utf-8"))
-    s = summarize(report, "erc")
+    s = summarize(report, "erc", pin_refs(sess))
     s["report"] = out
     if not output:
         os.unlink(out)
