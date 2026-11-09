@@ -1710,6 +1710,10 @@ def a_script(b, a):
 # --- built-in maze router ----------------------------------------------------
 
 
+class GridTooLarge(ValueError):
+    """The routing grid would need more cells than the router allows."""
+
+
 def a_autoroute_builtin(b, a):
     """Simple 2-layer grid (Lee/A*) router for small boards.
 
@@ -1720,8 +1724,15 @@ def a_autoroute_builtin(b, a):
         started = time.monotonic()
         routed, tried = [], []
         for grid in (0.25, 0.15, 0.1, 0.05):
+            try:
+                result = a_autoroute_builtin(b, dict(a, grid=grid))
+            except GridTooLarge:
+                if not tried:
+                    raise
+                result["warning"] = (f"Stopped at {tried[-1]:g} mm: a {grid:g} mm grid is too large for this board. "
+                                     "Route the remaining connections with --area or --engine freerouting.")
+                break
             tried.append(grid)
-            result = a_autoroute_builtin(b, dict(a, grid=grid))
             routed.extend(result["routed"])
             if not result["failed"]:
                 break
@@ -1748,7 +1759,7 @@ def a_autoroute_builtin(b, a):
             raise ValueError("--area does not intersect the board")
     nx, ny = int((xmax - x0) / grid) + 1, int((ymax - y0) / grid) + 1
     if nx * ny * len(lids) > 6_000_000:
-        raise ValueError(f"Grid too large ({nx}x{ny}); increase --grid")
+        raise GridTooLarge(f"Grid too large ({nx}x{ny}); increase --grid")
     L = len(lids)
     FREE = -1
     BLOCK = -2

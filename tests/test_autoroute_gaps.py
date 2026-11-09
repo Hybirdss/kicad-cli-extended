@@ -52,3 +52,38 @@ for i, x in enumerate((5, 15)):
     assert result['grid_tried'] == [0.25]
     assert result['routed'] and result['failed'] == [] and result['unrouted_after'] == 0
     assert kb.run_pcbnew('connectivity', {'path': path})['fully_routed']
+
+
+def test_auto_grid_stops_before_a_grid_too_large_for_the_board(tmp_path):
+    from kicad_cli_extended.utils import kicad_backend as kb
+    path = str(tmp_path / 'p.kicad_pcb')
+    kb.run_pcbnew('new_board', {'path': path})
+    setup = '''
+net = pcbnew.NETINFO_ITEM(board, 'SIGNAL')
+board.Add(net)
+for i, (x, y) in enumerate(((10, 10), (90, 70))):
+    fp = pcbnew.FOOTPRINT(board)
+    fp.SetReference('J' + str(i + 1))
+    board.Add(fp)
+    fp.SetPosition(vec(x, y))
+    pad = pcbnew.PAD(fp)
+    fp.Add(pad)
+    pad.SetNumber('1')
+    pad.SetAttribute(pcbnew.PAD_ATTRIB_PTH)
+    pad.SetSize(vec(1.6, 1.6))
+    pad.SetDrillSize(vec(0.8, 0.8))
+    pad.SetPosition(vec(x, y))
+    pad.SetNet(net)
+'''
+    # keepouts around both pads make the connection unroutable at every grid
+    keepouts = [{'action': 'add_zone', 'keepout': True, 'layers': ['F.Cu', 'B.Cu'], 'rect': [x - 2, y - 2, 4, 4]}
+                for x, y in ((10, 10), (90, 70))]
+    result = kb.run_pcbnew('edit', {'path': path, 'out': path, 'actions': [
+        {'action': 'script', 'code': setup},
+        {'action': 'outline_rect', 'x': 0, 'y': 0, 'width': 100, 'height': 80},
+        *keepouts,
+        {'action': 'autoroute_builtin', 'grid': 'auto'}]})['results'][-1]['result']
+    # a 0.05 mm grid over 100 x 80 mm on two layers is 6.4 million cells, over the router's limit
+    assert result['grid_tried'] == [0.25, 0.15, 0.1]
+    assert [c['net'] for c in result['failed']] == ['SIGNAL']
+    assert '0.05 mm' in result['warning']
