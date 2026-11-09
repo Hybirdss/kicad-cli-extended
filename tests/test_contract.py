@@ -565,7 +565,7 @@ def test_out_of_range_coordinates_are_input_errors(blink, argv):
 
 
 def test_empty_board_file_is_an_input_error(blink):
-    open(os.path.join(blink, "blink.kicad_pcb"), "w").close()
+    open(os.path.join(blink, "blink.kicad_pcb"), "w", encoding="utf-8").close()
     r, err = kce_err(["pcb", "info"], cwd=blink)
     assert (r.returncode, err["category"]) == (2, "input") and err["hint"]
 
