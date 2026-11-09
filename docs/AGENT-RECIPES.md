@@ -189,11 +189,14 @@ kce --json -p P check drc --fail-on error
 Verify outline.closed, courtyard_overlaps.count=0, outside_outline.count=0; inspect geometry
 methods/fallback refs. HPWL/crossings/congestion rank placements, not electrical correctness.
 No closed outline makes score fail with design/3. Place near exhaustion is PlacementBlocked;
-inspect locked_blockers/reason_code. Never unlock anchors to hide failure. Non-strict legalize
-can succeed with unmoved[], so gate it empty. Route uses effective netclass width by default.
-Grid auto refines 0.25/0.15/0.1/0.05 mm; read failed[]/grid_tried. Zone auto is solid SMD,
-thermal THT. Connector edge placement is manual pcb move/lock; no place edge command exists.
-Dense boards may need Freerouting (Java/FREEROUTING_JAR). `check diagnose` supplies fix hints.
+inspect locked_blockers/reason_code. Place near, legalize and pcb update placement keep pads off
+tracks, vias, copper text, the board edge and keepouts; a move that still adds KiCad DRC errors is
+PlacementBlocked with reason_code new_drc_violations and new_violations[], and nothing is saved.
+Never unlock anchors to hide failure. Non-strict legalize can succeed with unmoved[], so gate it
+empty. Route uses effective netclass width by default. Grid auto refines 0.25/0.15/0.1/0.05 mm;
+read failed[]/grid_tried. Zone auto is solid SMD, thermal THT. Connector edge placement is manual
+pcb move/lock; no place edge command exists. Dense boards may need Freerouting
+(Java/FREEROUTING_JAR). `check diagnose` supplies fix hints.
 
 ### R7: Build a fabrication hand-off
 

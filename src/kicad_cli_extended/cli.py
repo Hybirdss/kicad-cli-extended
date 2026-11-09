@@ -318,6 +318,7 @@ _ERROR_TABLE: Tuple[Tuple[Callable[[BaseException], bool], str, str], ...] = (
     (_kicad_cli_exit(_KICAD_EXIT_DESIGN), "KicadCheckFailed", "design"),
     (_kicad_crash, "KicadCrash", "crash"),
     (lambda e: _worker_error(e) == "PlacementBlocked", "PlacementBlocked", "design"),
+    (lambda e: isinstance(e, pcb_mod.PlacementBlocked), "PlacementBlocked", "design"),
     *((lambda e, n=n: _worker_error(e) == n, code, "input") for n, code in _WORKER_INPUT.items()),
     (lambda e: _worker_error(e) is not None, "KicadError", "internal"),
     (lambda e: isinstance(e, kb.KicadError) and any(x in str(e).lower() for x in
@@ -373,6 +374,8 @@ def error_payload(exc: BaseException) -> Dict[str, Any]:
         payload["details"] = exc.report
     if isinstance(exc, sch_mod.NetMergeError):
         payload["details"] = {"merges": exc.merges}
+    if isinstance(exc, pcb_mod.PlacementBlocked):
+        payload["details"] = exc.details
     if category == "internal":  # a kce bug: the report needs the stack
         tb = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
         payload["details"] = {**payload.get("details", {}), "traceback": tb[-4000:]}
@@ -2138,6 +2141,8 @@ def pcb_update(keep_extra, no_replace, no_place, stable_uuids, lock_existing):
 
     For imported boards first use --dry-run pcb update --keep-extra. Review adopted,
     replaced[].pads_moved and unmatched_pins before applying; check DRC after sync.
+    New footprints are placed clear of other parts, copper, the board edge and keepouts; if
+    KiCad's DRC still finds new errors the update exits 3 (PlacementBlocked) and saves nothing.
     """
     r = pcb_mod.update_from_schematic(get_session(), delete_extra=not keep_extra,
                                       replace_footprints=not no_replace, place=not no_place,
@@ -2262,12 +2267,16 @@ def pcb_score(net, bin_size):
 @click.option("--clearance", type=float, default=0.2, help="Gap between courtyards (mm)")
 @click.option("--grid", type=float, default=0.5, help="Candidate position step (mm)")
 @click.option("--max-dist", type=float, default=10.0, help="Furthest a footprint may move (mm)")
-@click.option("--strict", is_flag=True, help="Exit design/3 and save nothing if any footprint remains illegal.")
+@click.option("--strict", is_flag=True, help="Exit design/3 and save nothing if any selected footprint remains illegal.")
 @click.option("--refs", default=None, help="Move only these comma-separated refs; all others stay obstacles.")
 @click.option("--max-move", type=float, default=None, help="Alias for --max-dist.")
 @handle_error
 def pcb_legalize(clearance, grid, max_dist, refs, max_move, strict):
-    """Move overlapping and out-of-outline footprints to the nearest legal spot (locked ones stay)."""
+    """Move overlapping and out-of-outline footprints to the nearest legal spot (locked ones stay).
+
+    A legal spot also keeps pads clear of tracks, vias, copper text, the board edge and keepouts
+    by the board's clearance rules. Moves that add KiCad DRC errors exit 3 (PlacementBlocked) and
+    save nothing."""
     output(pcb_mod.legalize(get_session(), clearance=clearance, grid=grid, max_distance=max_dist if max_move is None else max_move,
                             refs=refs.split(",") if refs else None, strict=strict))
 
@@ -2315,7 +2324,9 @@ def place_near(ref, target, max_dist, side, clearance, grid, net, pad, rotation)
     The target is a footprint reference (its courtyard centre) or a pad ``REF:PIN`` (number or name).
     The moving footprint's courtyard centre is searched around the target. Every spot
     within ``--max-dist`` on ``--grid`` is tried nearest first; the first one that overlaps no
-    other courtyard (plus ``--clearance``) and stays inside the outline wins."""
+    other courtyard (plus ``--clearance``), keeps its pads clear of tracks, vias, copper text, the
+    board edge and keepouts by the board's clearance rules, and stays inside the outline wins. If
+    KiCad's DRC still finds new errors, the command exits 3 (PlacementBlocked) and saves nothing."""
     output(pcb_mod.place_near(get_session(), ref, target, max_distance=max_dist, side=side,
                               clearance=clearance, grid=grid, net=net, pad=pad, rotation=rotation),
            f"Placed {ref} near {target}")

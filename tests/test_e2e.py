@@ -1010,6 +1010,55 @@ class TestModifyCompareDiagnose:
         assert r.returncode == 4
         assert json.loads(r.stdout)["unexpected"] == [{"kind": "routing_changed", "ref": "net:/MA0"}]
 
+    def test_readme_eco_chain_keeps_pic_programmer_drc_clean(self, tmp_dir):
+        d = demo_copy("pic_programmer", tmp_dir)
+        P = ["--project", d]
+        assert rj(P + ["check", "drc"])["total"] == 0
+        run(P + ["sch", "add", "Device:C", "--ref", "C99", "--at", "120.65,30.48", "--value", "100n",
+                 "--footprint", "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"])
+        run(P + ["sch", "label-pin", "C99:1", "VCC"])
+        run(P + ["sch", "label-pin", "C99:2", "GND"])
+        run(P + ["pcb", "update", "--keep-extra", "--lock-existing"])
+        run(P + ["pcb", "place", "near", "C99", "--to", "U2", "--net", "VCC", "--max-dist", "6", "--rotation", "auto"])
+        legalize = run(P + ["pcb", "legalize", "--refs", "C99", "--max-move", "5", "--strict"], check=False)
+        drc = rj(P + ["check", "drc"])
+        assert (legalize.returncode, drc["total"], drc["by_type"]) == (0, 0, {}), legalize.stderr
+
+    def test_eco_on_interf_u_never_adds_drc_errors(self, tmp_dir):
+        d = demo_copy("interf_u", tmp_dir)
+        P = ["--project", d]
+        pcb_path = os.path.join(d, "interf_u.kicad_pcb")
+
+        def drc_errors():
+            return sorted((v["type"], tuple(sorted(i["uuid"] for i in v["items"])))
+                          for v in rj(P + ["check", "drc"])["violations"]
+                          if v["severity"] == "error" and v["category"] == "violations")
+
+        baseline = drc_errors()
+        run(P + ["sch", "add", "Device:C", "--ref", "C99", "--at", "160.02,25.4", "--value", "100nF",
+                 "--footprint", "interf_u:C_Disc_D3.0mm_W2.0mm_P2.50mm"])
+        run(P + ["sch", "power", "VCC", "--at", "C99:1"])
+        run(P + ["sch", "power", "GND", "--at", "C99:2", "--angle", "180"])
+        run(P + ["pcb", "update", "--no-replace", "--lock-existing"])
+        assert drc_errors() == baseline
+        before = read_text(pcb_path)
+        r = run(["--json", *P, "pcb", "place", "near", "C99", "--to", "U3:20", "--max-dist", "12",
+                 "--rotation", "auto"], check=False)
+        assert r.returncode == 3 and r.stdout == ""
+        err = json.loads(r.stderr)
+        assert err["type"] == "PlacementBlocked" and err["details"]["commit_state"] == "unchanged"
+        assert read_text(pcb_path) == before
+        r = run(["--json", *P] + err["hint"].split()[1:] + ["--rotation", "auto"], check=False)
+        assert r.returncode == 3 and r.stdout == ""
+        err = json.loads(r.stderr)
+        assert err["type"] == "PlacementBlocked" and err["details"]["reason_code"] == "new_drc_violations"
+        assert err["details"]["commit_state"] == "unchanged"
+        new = err["details"]["new_violations"]
+        assert new and all(any("C99" in i["description"] for i in v["items"]) for v in new)
+        assert read_text(pcb_path) == before
+        run(P + ["pcb", "legalize", "--refs", "C99", "--max-move", "5", "--strict"])
+        assert drc_errors() == baseline
+
     def test_compare_git_revisions(self, blink):
         subprocess.run(["git", "init", "-q", blink], check=True)
         env = dict(os.environ, GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@t", GIT_COMMITTER_NAME="t",
