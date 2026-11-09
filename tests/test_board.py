@@ -300,6 +300,24 @@ board.Add(cutout)
         assert inside(board(p)["R2"], outline(p))
         assert [f["reference"] for f in score(p)["outside_outline"]["footprints"]] == ["R1"]
 
+    def test_scoped_strict_judges_only_its_refs(self, tmp_dir):
+        p = placement_board(tmp_dir)
+        P = ["--project", p]
+        path = os.path.join(p, "placement.kicad_pcb")
+        run(P + ["pcb", "move", "R1", "--at", "10,10"])
+        run(P + ["pcb", "move", "R2", "--at", "39,50"])
+        res = rj(P + ["pcb", "legalize", "--refs", "R2", "--max-dist", "5", "--strict"])
+        assert [m["reference"] for m in res["moves"]] == ["R2"] and res["unmoved"] == []
+        assert [f["reference"] for f in score(p)["outside_outline"]["footprints"]] == ["R1"]
+        before = read_text(path)
+        r = run(["--json", *P, "pcb", "legalize", "--refs", "R1", "--max-dist", "0", "--strict"], check=False)
+        assert r.returncode == 3 and r.stdout == ""
+        err = json.loads(r.stderr)
+        assert err["type"] == "PlacementBlocked"
+        assert err["details"]["unplaced_refs"] == ["R1"]
+        assert err["details"]["commit_state"] == "unchanged"
+        assert read_text(path) == before
+
     def test_nearest_grid_position_and_reference_order(self, tmp_dir):
         p = placement_board(tmp_dir)
         P = ["--project", p]

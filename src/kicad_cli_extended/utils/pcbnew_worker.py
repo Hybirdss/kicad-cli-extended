@@ -1293,6 +1293,8 @@ def a_legalize(b, a):
     unmoved = []
     for fp in fps:
         ref = fp.GetReference()
+        if ref not in selected:
+            continue
         others = [(o, rects[o.GetReference()]) for o in fps if o.GetReference() != ref]
         if not _legal_spot(poly, rects[ref], others, clearance):
             reason = "locked" if fp.IsLocked() else f"no legal position within {max_distance:g} mm"
@@ -1330,7 +1332,8 @@ def _target_point(b, spec, target_pad=None):
 class PlacementBlocked(RuntimeError):
     def __init__(self, message, details):
         super().__init__(message)
-        self.details = details
+        # raised inside the edit, before the board is written
+        self.details = dict(details, commit_state="unchanged")
 
 
 def a_place_near(b, a):
