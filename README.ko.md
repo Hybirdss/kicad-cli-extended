@@ -236,7 +236,7 @@ KiCad 10 이전에 저장된 프로젝트라면 먼저 `pcb upgrade`와 `sch upg
 
 * **외부 보드 가져오기:** Altium/Eagle 보드는 새 디렉터리로 가져오고(`project import` 또는 `pcb import`), 원본 보존 리포트와 `read_back` 결과를 점검합니다(자매 도구 [`ace`](https://github.com/Hybirdss/altium-cli-extended)로 네이티브 Altium 파일을 직접 분석할 수 있습니다).
 * **SPICE 시뮬레이션:** 스크래치 프로젝트에서 `sim`으로 먼저 검증하고 노드 `0`, AC 자극, 프로브 이름, 경고를 확인합니다.
-* **고속 배선 및 패널화:** 규칙 설정 → 차동 쌍 배선 → 짧은 라인 미앤더 튜닝 → 비아 펜스/스티칭 → 티어드롭 → Zone 리필 → DRC → 길이 리포트 순으로 진행하며, 패널화(`pcb panelize`)는 마지막에 별도 보드 파일로 수행합니다.
+* **고속 배선 및 패널화:** 규칙 설정 → 차동 쌍 배선 → 짧은 라인 미앤더 튜닝 → 비아 펜스/스티칭 → 티어드롭 → Zone 리필 → DRC → 길이 리포트 순으로 진행합니다. `pcb length report`는 넷마다 배선 길이를 구리층별로 나누고(`by_layer`), 넷 클래스의 시간 영역 튜닝 프로파일(tuning profile)로 KiCad가 계산한 트랙·비아·pad-to-die 지연과 그 합(`delay_ps`)을 보여 줍니다. 프로파일이 없을 때처럼 KiCad가 지연을 내지 않는 곳은 값이 `null`이고 `delay_reason`이 이유를 알려 줍니다. 비아 배럴은 길이에 더하지 않으며, `branched`는 구리가 T자, 스텁, 겹침을 이뤄 길이가 한 경로의 길이가 아닌 넷을 표시합니다. 패널화(`pcb panelize`)는 마지막에 별도 보드 파일로 수행합니다.
 
 ---
 

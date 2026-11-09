@@ -294,7 +294,7 @@ insufficient. Simulation does not replace ERC/DRC or prove physical high-speed b
 
 ### R12: Route a high-speed block and panelize
 
-Triggers: differential pair, USB/LVDS/MIPI/DDR, skew, length match, via fence, teardrop, panel.
+Triggers: differential pair, USB/LVDS/MIPI/DDR, skew, length match, delay or phase match, via fence, teardrop, panel.
 Chain: checkpoint pre-hs, inspect stackup/netclasses/pairs, rules, route, shorter-leg tune,
 fence, stitch, scoped teardrops, fill, DRC, length report, separate panel and panel DRC/package.
 
@@ -303,6 +303,7 @@ kce --json -p P pcb diffpair list
 kce --json -p P pcb diffpair rule /USB --gap 0.2 --gap-max 0.25 --max-skew 0.5
 kce --json -p P pcb diffpair route /USB --from U1 --to J1 --layer F.Cu
 kce --json -p P pcb length tune /USB_D- --match /USB_D+ --amplitude 1 --tolerance 0.02
+kce --json -p P pcb length report --net '/USB*'
 kce --json -p P pcb fence --net /CLK --fence-net GND
 kce --json -p P pcb stitch --net GND --pitch 2.5
 kce --json -p P pcb teardrops add --target vias --net /CLK
@@ -310,9 +311,14 @@ kce --json -p P pcb panelize --rows 2 --cols 3 --mode vscore --spacing 0 --stric
 ```
 
 Use actual pair/net names. Verify routed pairs, skew budget, no diff_pair/length violations,
-added/rejected via counts and source hash unchanged. V-score forces spacing zero (warning;
---strict rejects conflicting spacing). Fab panel capability/impedance certification is not
-implemented; obtain independent review. A panel export alone is not a manufacturing package.
+added/rejected via counts and source hash unchanged. In the length report, by_layer gives each
+copper layer's track length and the delay KiCad computes from the net class's time-domain tuning
+profile, and delay_ps adds the vias and pad-to-die paths. A value is null, with delay_reason, where
+KiCad gives no delay. Compare delay_ps, not length, for nets that change layers, such as RF channels.
+KiCad's DRC trims copper inside pads and vias, so a DRC delay rule can see a little less. Vias add no
+length, and a branched net has no single path length. V-score forces spacing zero (warning; --strict
+rejects conflicting spacing). Fab panel capability/impedance certification is not implemented; obtain
+independent review. A panel export alone is not a manufacturing package.
 
 ## Advanced
 

@@ -230,7 +230,7 @@ Busca nombres normalizados (`lib sym search`, `lib fp search`) o crea componente
 ### Placas externas, simulación, ruteo de alta velocidad y paneles
 
 * **Importación de placas externas:** Importa placas de Altium/Eagle en un directorio nuevo, inspecciona `read_back` y utiliza la herramienta complementaria [`ace`](https://github.com/Hybirdss/altium-cli-extended) para auditar archivos nativos de Altium.
-* **Simulación SPICE y alta velocidad:** Simula primero en un proyecto temporal con `sim`. Para bloques de alta velocidad sigue el orden: reglas → ruteo de pares diferenciales → ajuste de longitud (meandros) → vallas/costura de vías → teardrops → relleno de zonas → DRC → informe de longitudes. Paneliza al final en una placa separada con `pcb panelize`.
+* **Simulación SPICE y alta velocidad:** Simula primero en un proyecto temporal con `sim`. Para bloques de alta velocidad sigue el orden: reglas → ruteo de pares diferenciales → ajuste de longitud (meandros) → vallas/costura de vías → teardrops → relleno de zonas → DRC → informe de longitudes. `pcb length report` divide la longitud de pista de cada red por capa de cobre (`by_layer`) y añade el retardo que KiCad calcula con el perfil de ajuste en el dominio del tiempo (tuning profile) de la clase de red para las pistas, las vías y los tramos pad-to-die, sumado en `delay_ps`. Donde KiCad no da retardo, por ejemplo sin perfil, el valor es `null` y `delay_reason` explica por qué. Los barriles de las vías no suman longitud, y `branched` marca el cobre que forma una T, un stub o un solape, cuya longitud no es la de un único camino. Paneliza al final en una placa separada con `pcb panelize`.
 
 ---
 

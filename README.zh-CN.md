@@ -233,7 +233,7 @@ kce --json -p sensor run board-stage.json
 ### 外部导入、仿真、高速布线与拼板
 
 * **外部电路板导入：** 将 Altium/Eagle 电路板导入新目录，检查 `read_back` 与转换损失，并结合姊妹工具 [`ace`](https://github.com/Hybirdss/altium-cli-extended) 对照原始设计清单。
-* **SPICE 仿真与高速布线：** 在临时项目中用 `sim` 验证滤波器与偏置电路；高速模块按“规则设置 → 差分对布线 → 短线蛇形调谐 → 过孔围栏/缝合 → 局部泪滴 → 铺铜重填 → DRC → 长度报告”顺序执行；最后使用 `pcb panelize` 输出独立拼板文件。
+* **SPICE 仿真与高速布线：** 在临时项目中用 `sim` 验证滤波器与偏置电路；高速模块按“规则设置 → 差分对布线 → 短线蛇形调谐 → 过孔围栏/缝合 → 局部泪滴 → 铺铜重填 → DRC → 长度报告”顺序执行。`pcb length report` 按铜层拆分每个网络的走线长度（`by_layer`），并给出 KiCad 根据网络类的时域调谐配置（tuning profile）为走线、过孔和 pad-to-die 段计算的延迟，合计在 `delay_ps` 中。KiCad 不给出延迟时（例如没有配置），值为 `null`，并由 `delay_reason` 说明原因。过孔筒不计入长度。`branched` 标记形成 T 形分支、残桩或重叠的铜，此时长度不是单一路径的长度。最后使用 `pcb panelize` 输出独立拼板文件。
 
 ---
 
