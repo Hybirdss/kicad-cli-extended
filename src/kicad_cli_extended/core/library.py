@@ -155,7 +155,8 @@ def _libs_signature(rows: List[Tuple[str, str]]) -> str:
     h.update(kb.kicad_version().encode())
     for lib, path in rows:
         try:
-            h.update(f"{lib}|{path}|{os.path.getmtime(path)}".encode())
+            st = os.stat(path)
+            h.update(f"{lib}|{path}|{st.st_mtime_ns}|{st.st_size}".encode())
         except OSError:
             h.update(f"{lib}|{path}|missing".encode())
     return h.hexdigest()[:16]

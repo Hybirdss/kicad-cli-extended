@@ -1878,6 +1878,17 @@ class TestUnregisteredLibraries:
         with pytest.raises(ValueError, match="contains 2 symbols"):
             library.symbol_info(None, str(path))
 
+    def test_the_index_signature_changes_when_a_library_is_rewritten_within_one_timestamp(self, tmp_path,
+                                                                                         monkeypatch):
+        monkeypatch.setattr(library.kb, "kicad_version", lambda: "10.0.8")
+        path = tmp_path / "vendor.kicad_sym"
+        path.write_text("(kicad_symbol_lib)", encoding="utf-8")
+        before = library._libs_signature([("vendor", str(path))])
+        st = os.stat(path)
+        path.write_text('(kicad_symbol_lib (symbol "TWO"))', encoding="utf-8")
+        os.utime(path, ns=(st.st_atime_ns, st.st_mtime_ns))
+        assert library._libs_signature([("vendor", str(path))]) != before
+
 
 class TestLibrarySearchTerms:
     def test_punctuation_normalization_preserves_explicit_globs(self):
