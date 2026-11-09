@@ -369,7 +369,8 @@ _LIB_CACHE: Dict[str, SList] = {}
 
 
 def load_symbol_lib(path: str) -> SList:
-    key = f"{path}:{os.path.getmtime(path)}"
+    st = os.stat(path)  # a rewrite can keep the mtime on a coarse clock, but rarely the size too
+    key = f"{path}:{st.st_mtime_ns}:{st.st_size}"
     if key not in _LIB_CACHE:
         _LIB_CACHE[key] = sexpr.load(path)
     return _LIB_CACHE[key]

@@ -1865,6 +1865,20 @@ class TestUnregisteredLibraries:
         assert library.list_library(None, "fp", str(pretty))[0]["name"] == "BODY"
 
 
+    def test_a_library_rewritten_within_one_timestamp_is_read_again(self, tmp_path):
+        lib = library.new_symbol_library()
+        lib.append(library.make_box_symbol("ONE", library.parse_pin_specs(["1:A"])))
+        path = tmp_path / "vendor.kicad_sym"
+        path.write_text(sexpr.dumps(lib), encoding="utf-8")
+        assert library.symbol_info(None, str(path))["pin_count"] == 1
+        st = os.stat(path)
+        lib.append(library.make_box_symbol("TWO", library.parse_pin_specs(["1:X"])))
+        path.write_text(sexpr.dumps(lib), encoding="utf-8")
+        os.utime(path, ns=(st.st_atime_ns, st.st_mtime_ns))  # a coarse clock gives the rewrite the old time
+        with pytest.raises(ValueError, match="contains 2 symbols"):
+            library.symbol_info(None, str(path))
+
+
 class TestLibrarySearchTerms:
     def test_punctuation_normalization_preserves_explicit_globs(self):
         assert library.search_terms("usb-c receptacle") == ["usb", "c", "receptacle"]
