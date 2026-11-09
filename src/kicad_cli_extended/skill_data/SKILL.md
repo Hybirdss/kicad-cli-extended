@@ -128,11 +128,13 @@ session checkpoints lists hashes; undo/redo/history span processes. Save REPL ed
 ### R5: Make an ECO without disturbing routing
 
 Triggers: ECO, rev B, second source, replace capacitor, add decoupling, regenerate outputs.
-Checkpoint pre-eco after capturing approved nets/footprints/score and ERC/DRC baselines.
-Keep approved expected-eco.json inside P. Preview --dry-run run eco.json, then run schematic
-setters/read-backs/sch verify --strict/ERC. Preview --dry-run pcb update --stable-uuids
---lock-existing; review removals/adoption, replaced[].pads_moved, tracks_ending_on_old_pads
-and unmatched_pins before applying. Pad-moving swaps need review.
+Pre-KiCad-10 project: run pcb upgrade and sch upgrade first (format_upgrade:true means a write
+just rewrote an older file). Checkpoint pre-eco after capturing approved nets/footprints/score
+and ERC/DRC baselines. Keep approved expected-eco.json inside P. Preview --dry-run run eco.json,
+then run schematic setters/read-backs/sch verify --strict/ERC. Preview --dry-run pcb update
+--lock-existing (no --stable-uuids on an existing board: it rewrites every UUID); review
+removals/adoption, replaced[].pads_moved, tracks_ending_on_old_pads and unmatched_pins before
+applying. Pad-moving swaps need review.
 
 ```bash
 kce $P pcb place near C10 --to U2 --net VCC --max-dist 6 --rotation auto
