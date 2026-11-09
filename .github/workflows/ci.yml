@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1"      # weekly, so a new KiCad 10.x release is tested before users hit it
 
 permissions:
   contents: read
@@ -45,10 +47,14 @@ jobs:
           kce --json skill path
 
   e2e-linux:
-    name: e2e · ubuntu (full suite, real KiCad)
+    name: e2e · ubuntu · ${{ matrix.lang }} (full suite, real KiCad)
     # PLY export needs OCCT 7.7+; Ubuntu 24.04 supplies 7.6.
     runs-on: ubuntu-26.04
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [C.UTF-8, ko_KR.UTF-8]   # kicad-cli translates its reports; kce must not depend on English text
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -64,13 +70,32 @@ jobs:
           echo "$version"
           test "${version%%.*}" = 10
           /usr/bin/python3 -c "import pcbnew; print('pcbnew', pcbnew.Version())"
+      - name: Generate the Korean locale
+        if: matrix.lang == 'ko_KR.UTF-8'
+        run: sudo locale-gen ko_KR.UTF-8
       - run: python -m pip install ".[test]"
       - run: python scripts/fetch_fixtures.py --tag "$KICAD_TAG"
+      - name: Check that kicad-cli writes its reports in Korean
+        if: matrix.lang == 'ko_KR.UTF-8'
+        env:
+          LANG: ko_KR.UTF-8
+          LC_ALL: ko_KR.UTF-8
+          KICAD_CONFIG_HOME: ${{ runner.temp }}/kicad-config-empty   # no library tables, so DRC has findings
+        run: |
+          cp -r .fixtures/kicad-src/demos/pic_programmer "$RUNNER_TEMP/"
+          kicad-cli pcb drc --format json -o "$RUNNER_TEMP/drc.json" "$RUNNER_TEMP/pic_programmer/pic_programmer.kicad_pcb"
+          python - "$RUNNER_TEMP/drc.json" <<'EOF'
+          import json, sys
+          text = " ".join(v["description"] for v in json.load(open(sys.argv[1], encoding="utf-8"))["violations"])
+          print(text[:200])
+          sys.exit(not any("\uac00" <= ch <= "\ud7a3" for ch in text))
+          EOF
       - run: python scripts/ci_doctor.py
-      - run: kce lib init-global-tables
       - name: Unit + full E2E suite
         env:
           KCE_FORCE_INSTALLED: "1"
+          LANG: ${{ matrix.lang }}
+          LC_ALL: ${{ matrix.lang }}
         run: xvfb-run -a python -X warn_default_encoding -W error::EncodingWarning -m pytest tests -v -rA
 
   e2e-windows:
@@ -87,7 +112,6 @@ jobs:
       - run: python -m pip install ".[test]"
       - run: python scripts/fetch_fixtures.py --tag "$env:KICAD_TAG"
       - run: python scripts/ci_doctor.py
-      - run: kce lib init-global-tables
       - name: E2E smoke subset
         env:
           KCE_FORCE_INSTALLED: "1"
@@ -114,7 +138,6 @@ jobs:
       - run: python scripts/fetch_fixtures.py --tag "$KICAD_TAG"
       - name: Check KiCad through kce (finds the cask on its own)
         run: python scripts/ci_doctor.py
-      - run: kce lib init-global-tables
       - name: E2E smoke subset
         env:
           KCE_FORCE_INSTALLED: "1"
