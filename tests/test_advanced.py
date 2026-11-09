@@ -9,12 +9,15 @@ Every board-changing scenario ends with KiCad's own DRC (and kicad-cli re-loadin
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
 import shutil
+import tempfile
 
 import pytest
 
+from kicad_cli_extended import STATE_DIR
 from test_e2e import (COMMAND, ENV_PREFIX, REPO, artifact, blink, blink_master, demos_dir, read_csv,  # noqa: F401
                       read_text, rj, run, tmp_dir)
 
@@ -130,6 +133,106 @@ class TestDiffPairsAndLengths:
         d = drc(p, "--no-parity")
         assert "length_out_of_range" not in d["by_type"] and "skew_out_of_range" not in d["by_type"]
         assert "clearance" not in d["by_type"] and "tracks_crossing" not in d["by_type"]
+
+    def test_report_splits_length_by_layer_with_kicad_delay_and_flags_branches(self, rf):
+        P = ["--project", rf]
+        f_cu = math.hypot(112 - 100, 116 - 100) + math.hypot(130 - 112, 140 - 116)
+        in1_cu, b_cu, tee = 150 - 130, math.hypot(124 - 100, 167 - 160), (140 - 100) + (188 - 180)
+
+        nets = {n["net"]: n for n in rj(P + ["pcb", "length", "report"])["nets"]}
+        assert nets["RF1"]["delay_ps"] is None and "does not define" in nets["RF1"]["delay_reason"]
+
+        write_tuning_profile(rf, enabled=True)
+        nets = {n["net"]: n for n in rj(P + ["pcb", "length", "report"])["nets"]}
+        rf1, rf2 = nets["RF1"], nets["RF2"]
+        assert rf1["length"] == pytest.approx(f_cu + in1_cu) and rf1["vias"] == 1
+        assert [(r["layer"], r["length"], r["delay_ps"]) for r in rf1["by_layer"]] == [
+            ("F.Cu", pytest.approx(f_cu), pytest.approx(f_cu * F_CU_PS_PER_MM)),
+            ("In1.Cu", pytest.approx(in1_cu), pytest.approx(in1_cu * IN1_CU_PS_PER_MM))]
+        assert rf1["via_delay_ps"] == pytest.approx(VIA_PS) and rf1["pad_to_die_delay_ps"] == 0
+        assert rf1["delay_ps"] == pytest.approx(f_cu * F_CU_PS_PER_MM + in1_cu * IN1_CU_PS_PER_MM + VIA_PS)
+        assert (rf1["tuning_profile"], rf1["delay_reason"], rf1["branched"]) == ("RF50", None, False)
+        assert [(r["layer"], r["length"], r["delay_ps"]) for r in rf2["by_layer"]] == [
+            ("B.Cu", pytest.approx(b_cu), None)]
+        assert rf2["via_delay_ps"] is None and rf2["delay_ps"] is None
+        assert "B.Cu" in rf2["delay_reason"] and "(124.0, 167.0)" in rf2["delay_reason"]
+        assert [(r["layer"], r["length"]) for r in nets["TEE"]["by_layer"]] == [("F.Cu", pytest.approx(tee))]
+        assert nets["TEE"]["branched"] is True and nets["VIA_TEE"]["branched"] is True
+        assert nets["TEE"]["delay_ps"] is None and nets["TEE"]["via_delay_ps"] is None
+        assert nets["TEE"]["tuning_profile"] is None and "Default" in nets["TEE"]["delay_reason"]
+
+        write_tuning_profile(rf, enabled=False)
+        [rf1] = rj(P + ["pcb", "length", "report", "--net", "RF1"])["nets"]
+        assert [r["delay_ps"] for r in rf1["by_layer"]] == [None, None]
+        assert rf1["via_delay_ps"] is None and rf1["delay_ps"] is None and "turned off" in rf1["delay_reason"]
+
+    def test_resident_server_reports_the_tuning_profile_the_project_names_now(self, rf):
+        write_tuning_profile(rf, enabled=True)
+        report = {"jsonrpc": "2.0", "method": "run", "params": {"args": ["pcb", "length", "report", "--net", "RF1"]}}
+        rename = {"jsonrpc": "2.0", "id": 2, "method": "run",
+                  "params": {"args": ["project", "netclass", "set", "RF", "--set", "tuning_profile=OTHER"]}}
+        requests = [dict(report, id=1), rename, dict(report, id=3), {"jsonrpc": "2.0", "id": 4, "method": "shutdown"}]
+        out = run(["--project", rf, "serve"], input="".join(json.dumps(r) + "\n" for r in requests)).stdout
+        results = {r["id"]: r["result"] for r in map(json.loads, out.splitlines())}
+        [before], [after] = results[1]["nets"], results[3]["nets"]
+        assert before["tuning_profile"] == "RF50" and before["delay_ps"] is not None
+        assert after["tuning_profile"] == "OTHER" and after["delay_ps"] is None and "OTHER" in after["delay_reason"]
+
+
+@pytest.fixture(scope="module")
+def rf_master():
+    root = tempfile.mkdtemp(prefix="kce-rf-")
+    yield build_rf_project(root)
+    if os.environ.get(ENV_PREFIX + "KEEP_ARTIFACTS") != "1":
+        shutil.rmtree(root, ignore_errors=True)
+
+
+@pytest.fixture
+def rf(rf_master, tmp_dir):
+    dst = os.path.join(tmp_dir, "rf")
+    shutil.copytree(rf_master, dst, ignore=shutil.ignore_patterns("outputs", STATE_DIR))
+    return dst
+
+
+AS_PER_PS = 10**6  # KiCad keeps time in attoseconds
+F_CU_PS_PER_MM, IN1_CU_PS_PER_MM, VIA_PS = 6.0, 7.1, 9.0
+
+
+def build_rf_project(root: str) -> str:
+    p = os.path.join(root, "rf")
+    run(["project", "new", p, "--name", "rf"])
+    P = ["--project", p]
+    run(P + ["pcb", "set-layers", "4"])
+    run(P + ["pcb", "track", "100,100;112,116;130,140", "--layer", "F.Cu", "--net", "RF1"])
+    run(P + ["pcb", "via", "--at", "130,140", "--net", "RF1"])
+    run(P + ["pcb", "track", "130,140;150,140", "--layer", "In1.Cu", "--net", "RF1"])
+    run(P + ["pcb", "track", "100,160;124,167", "--layer", "B.Cu", "--net", "RF2"])
+    run(P + ["pcb", "via", "--at", "124,167", "--net", "RF2"])
+    run(P + ["pcb", "track", "100,180;140,180", "--net", "TEE"])
+    run(P + ["pcb", "track", "120,180;120,188", "--net", "TEE"])
+    run(P + ["pcb", "track", "100,200;140,200", "--net", "VIA_TEE"])
+    run(P + ["pcb", "via", "--at", "120,200", "--net", "VIA_TEE"])
+    run(P + ["pcb", "track", "120,200;120,210", "--layer", "In1.Cu", "--net", "VIA_TEE"])
+    run(P + ["project", "netclass", "set", "RF", "--set", "tuning_profile=RF50"])
+    run(P + ["project", "netclass", "assign", "RF*", "RF"])
+    return p
+
+
+def write_tuning_profile(project: str, enabled: bool) -> None:
+    def layer(name, top, bottom, ps_per_mm):
+        return {"signal_layer": name, "top_reference_layer": top, "bottom_reference_layer": bottom,
+                "width": 300000, "diff_pair_gap": 0, "delay": round(ps_per_mm * AS_PER_PS)}
+    pro = os.path.join(project, "rf.kicad_pro")
+    data = json.loads(read_text(pro))
+    data["tuning_profiles"] = {"meta": {"version": 0}, "tuning_profiles_impedance_geometric": [{
+        "profile_name": "RF50", "type": 0, "target_impedance": 50.0, "enable_time_domain_tuning": enabled,
+        "layer_entries": [layer("F.Cu", "UNDEFINED", "In1.Cu", F_CU_PS_PER_MM),
+                          layer("In1.Cu", "F.Cu", "In2.Cu", IN1_CU_PS_PER_MM)],
+        "via_prop_delay": 8 * AS_PER_PS,
+        "via_overrides": [{"signal_layer_from": "F.Cu", "signal_layer_to": "In1.Cu", "via_layer_from": "F.Cu",
+                           "via_layer_to": "B.Cu", "delay": round(VIA_PS * AS_PER_PS)}]}]}
+    with open(pro, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

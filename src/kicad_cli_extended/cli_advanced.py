@@ -301,7 +301,17 @@ def length_group():
 @click.option("--netclass", default=None)
 @handle_error
 def length_report(nets, netclass):
-    """Routed length per net (tracks + pad-to-die), spread per net class, skew per pair."""
+    """Routed length per net and per copper layer, KiCad's delay, branched nets, class spread, pair skew.
+
+    length is tracks plus pad-to-die, and by_layer splits the track length by copper layer. Via barrels
+    are in no length; vias counts them. The delays are the picoseconds KiCad 10 computes from the
+    time-domain tuning profile of the net's class: delay_ps in each by_layer row for its tracks,
+    via_delay_ps for vias that join tracks on two or more layers outside any pad, pad_to_die_delay_ps,
+    and their sum delay_ps. KiCad's DRC trims copper that runs inside pads and vias, so its delay can be
+    a little smaller. Where KiCad gives no delay, the value is null and delay_reason says why. branched
+    is true when three or more pieces of copper meet at one place (a T, a stub or tracks that overlap),
+    so length is not the length of one path.
+    """
     output(pcb_mod.read(get_session(), "lengths", nets=list(nets), netclass=netclass))
 
 

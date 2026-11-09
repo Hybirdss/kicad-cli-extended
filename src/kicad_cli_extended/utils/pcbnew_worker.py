@@ -21,6 +21,7 @@ import tempfile
 import time
 import traceback
 import warnings
+from collections import Counter
 
 warnings.filterwarnings("ignore")
 
@@ -2864,29 +2865,170 @@ def a_add_fiducial(b, a):
 # ---------------------------------------------------------------------------
 
 
-def _net_lengths(b):
-    """Per net: routed track length (segments + arcs), via count, pad-to-die length."""
+NO_COPPER = {"tracks": (), "vias": (), "pads": ()}
+AS_PER_PS = 1e6  # KiCad 10 counts time in attoseconds (base_units.h IU_PER_PS)
+GRID = 5_000_000  # 5 mm buckets for finding the copper near a point
+
+
+def _net_copper(b):
     out = {}
     for t in b.GetTracks():
-        d = out.setdefault(t.GetNetCode(), {"track": 0, "vias": 0, "segments": 0, "pad_to_die": 0})
-        if _is_via(t):
-            d["vias"] += 1
-        else:
-            d["track"] += t.GetLength()
-            d["segments"] += 1
+        c = out.setdefault(t.GetNetCode(), {"tracks": [], "vias": [], "pads": []})
+        c["vias" if _is_via(t) else "tracks"].append(t)
     for fp in b.GetFootprints():
         for p in fp.Pads():
-            if p.GetNetCode() > 0 and p.GetPadToDieLength():
-                out.setdefault(p.GetNetCode(), {"track": 0, "vias": 0, "segments": 0, "pad_to_die": 0})
-                out[p.GetNetCode()]["pad_to_die"] += p.GetPadToDieLength()
+            if p.GetNetCode() > 0:
+                out.setdefault(p.GetNetCode(), {"tracks": [], "vias": [], "pads": []})["pads"].append(p)
     return out
 
 
-def _len_entry(b, n, lens):
-    d = lens.get(n.GetNetCode(), {"track": 0, "vias": 0, "segments": 0, "pad_to_die": 0})
-    return {"net": n.GetNetname(), "netclass": _effective_netclass(b, n), "length": mm(d["track"] + d["pad_to_die"]),
-            "track_length": mm(d["track"]), "pad_to_die": mm(d["pad_to_die"]), "vias": d["vias"],
-            "segments": d["segments"]}
+def _net_length(c):
+    return sum(t.GetLength() for t in c["tracks"]), sum(p.GetPadToDieLength() for p in c["pads"])
+
+
+def _len_entry(b, n, copper):
+    c = copper.get(n.GetNetCode(), NO_COPPER)
+    track, pad_to_die = _net_length(c)
+    return {"net": n.GetNetname(), "netclass": _effective_netclass(b, n), "length": mm(track + pad_to_die),
+            "track_length": mm(track), "pad_to_die": mm(pad_to_die), "vias": len(c["vias"]),
+            "segments": len(c["tracks"])}
+
+
+def _tuning_profiles(board_path):
+    # pcbnew's Python API exposes no tuning profiles, so read them where KiCad does
+    try:
+        with open(os.path.splitext(board_path)[0] + ".kicad_pro", encoding="utf-8") as f:
+            rows = json.load(f)["tuning_profiles"]["tuning_profiles_impedance_geometric"]
+        return {r["profile_name"]: r for r in rows if isinstance(r, dict) and "profile_name" in r}
+    except (OSError, ValueError, KeyError, TypeError):
+        return {}
+
+
+def _ps(attoseconds):
+    return None if attoseconds is None else round(attoseconds / AS_PER_PS, 6)
+
+
+def _at(item):
+    return f"({mm(item.GetPosition().x)}, {mm(item.GetPosition().y)})"
+
+
+def _cells(box):
+    return [(i, k) for i in range(box.GetLeft() // GRID, box.GetRight() // GRID + 1)
+            for k in range(box.GetTop() // GRID, box.GetBottom() // GRID + 1)]
+
+
+def _track_ends(c):
+    at_centre, joints = {}, {}
+    for j in [*c["vias"], *c["pads"]]:
+        at_centre.setdefault((j.GetPosition().x, j.GetPosition().y), []).append(j)
+        for cell in _cells(j.GetBoundingBox()):
+            joints.setdefault(cell, []).append(j)
+
+    def place(t, p):
+        hit = next((j for j in joints.get((p.x // GRID, p.y // GRID), ())
+                    if j.IsOnLayer(t.GetLayer()) and j.HitTest(p)), None)
+        return ("joint", hit.GetPosition().x, hit.GetPosition().y) if hit else ("point", t.GetLayer(), p.x, p.y)
+
+    return at_centre, [(t, place(t, p)) for t in c["tracks"] for p in (t.GetStart(), t.GetEnd())]
+
+
+def _branched(c, at_centre, ends):
+    grid = {}
+    for u in c["tracks"]:
+        for cell in _cells(u.GetBoundingBox()):
+            grid.setdefault((u.GetLayer(), *cell), []).append(u)
+    ending = {}
+    for t, place in ends:
+        ending.setdefault(place, set()).add(id(t))
+
+    def runs_through(u, x, y):
+        clear_of_ends = min(math.hypot(x - q.x, y - q.y) for q in (u.GetStart(), u.GetEnd())) > u.GetWidth() / 2
+        return clear_of_ends and u.HitTest(pcbnew.VECTOR2I(x, y))
+
+    def running_through(place):
+        x, y = place[-2:]
+        layers = [place[1]] if place[0] == "point" else \
+            {layer for j in at_centre[(x, y)] for layer in j.GetLayerSet().CuStack()}
+        return sum(runs_through(u, x, y) for layer in layers for u in grid.get((layer, x // GRID, y // GRID), ())
+                   if id(u) not in ending[place])
+
+    pieces = Counter()
+    for (_, a), (_, b) in zip(ends[::2], ends[1::2]):
+        if a != b:
+            pieces.update((a, b))
+    return any(n >= 3 or n + 2 * running_through(place) >= 3 for place, n in pieces.items())
+
+
+def _via_delays(b, c, ends, profile):
+    """KiCad's delay through each via, or why it has none. KiCad's per-via delay spans the layers its
+    tracks join, so it follows the signal only through a via that joins tracks on two or more layers
+    and sits in no pad."""
+    joined = {}
+    for t, place in ends:
+        joined.setdefault(place, set()).add(t.GetLayer())
+    in_pad, one_layer, no_delay, total = [], [], [], 0.0
+    for v in c["vias"]:
+        if any(p.HitTest(v.GetPosition()) or v.HitTest(p.GetPosition()) for p in c["pads"]):
+            in_pad.append(_at(v))
+        elif len(joined.get(("joint", v.GetPosition().x, v.GetPosition().y), ())) < 2:
+            one_layer.append(_at(v))
+        elif not (delay := v.GetDelay()):
+            no_delay.append(_at(v))
+        else:
+            total += delay
+    reasons = []
+    if in_pad:
+        reasons.append("KiCad's per-via delay leaves out the pad around the via at " + ", ".join(in_pad))
+    if one_layer:
+        reasons.append("the via at " + ", ".join(one_layer) + " joins tracks on fewer than two layers")
+    if no_delay:
+        reasons.append(f"tuning profile {profile} gives no delay to the via at " + ", ".join(no_delay)
+                       if b.GetDesignSettings().m_UseHeightForLengthCalcs else
+                       "board setup leaves via height out of length calculations, so KiCad gives vias no delay")
+    return (None, reasons) if reasons else (total, [])
+
+
+def _pad_to_die_delays(c):
+    missing = [f"{p.GetParentFootprint().GetReference()}:{p.GetNumber()}" for p in c["pads"]
+               if p.GetPadToDieLength() and not p.GetPadToDieDelay()]
+    if missing:
+        return None, ["pad " + ", ".join(missing) + " has a pad-to-die length but no pad-to-die delay"]
+    return sum(p.GetPadToDieDelay() for p in c["pads"]), []
+
+
+def _delays(b, nc, c, ends, profiles):
+    """KiCad returns a delay of 0 wherever the net class's tuning profile gives none, so a 0 for copper
+    that has length is reported as null, with the reason."""
+    profile = nc.GetTuningProfile()
+    problems = []
+    if not profile:
+        problems.append(f"net class {nc.GetName()} has no tuning profile")
+    elif profile not in profiles:
+        problems.append(f"net class {nc.GetName()} names tuning profile {profile}, which the project does not define")
+    elif not profiles[profile].get("enable_time_domain_tuning"):
+        problems.append(f"tuning profile {profile} has time-domain tuning turned off")
+    timed = not problems
+    on_layer = {}
+    for t in c["tracks"]:
+        on_layer.setdefault(t.GetLayer(), []).append(t)
+    rows, total = [], 0.0
+    for layer in b.GetEnabledLayers().CuStack():
+        if layer not in on_layer:
+            continue
+        length = sum(t.GetLength() for t in on_layer[layer])
+        delay = sum(t.GetDelay() for t in on_layer[layer]) if timed else None
+        if delay == 0 and length:
+            delay = None
+            problems.append(f"tuning profile {profile} has no delay for {b.GetLayerName(layer)}")
+        rows.append({"layer": b.GetLayerName(layer), "length": mm(length), "delay_ps": _ps(delay)})
+        total += delay or 0
+    vias, pads = (None, []), (None, [])
+    if timed:
+        vias, pads = _via_delays(b, c, ends, profile), _pad_to_die_delays(c)
+    problems += vias[1] + pads[1]
+    return {"by_layer": rows, "via_delay_ps": _ps(vias[0]), "pad_to_die_delay_ps": _ps(pads[0]),
+            "delay_ps": None if problems else _ps(total + vias[0] + pads[0]), "tuning_profile": profile or None,
+            "delay_reason": "; ".join(problems) or None}
 
 
 def _diff_pairs(b):
@@ -2920,18 +3062,28 @@ def _dp_base(name):
 
 
 def op_lengths(p):
+    settings = pcbnew.GetSettingsManager()
+    cached = settings.GetProject(os.path.splitext(os.path.abspath(p["path"]))[0] + ".kicad_pro")
+    if cached:  # a resident worker keeps the project it first loaded; the delays must use the file on disk
+        settings.UnloadProject(cached, False)
     b = load(p["path"])
-    lens = _net_lengths(b)
+    copper = _net_copper(b)
+    profiles = _tuning_profiles(p["path"])
+    netclasses = b.GetDesignSettings().m_NetSettings
     import fnmatch
     nets = []
     for name, n in sorted(b.GetNetsByName().items(), key=lambda kv: str(kv[0])):
         if n.GetNetCode() <= 0:
             continue
-        e = _len_entry(b, n, lens)
+        e = _len_entry(b, n, copper)
         if p.get("nets") and not any(fnmatch.fnmatchcase(e["net"], pat) for pat in p["nets"]):
             continue
         if p.get("netclass") and e["netclass"] != p["netclass"]:
             continue
+        c = copper.get(n.GetNetCode(), NO_COPPER)
+        at_centre, ends = _track_ends(c)
+        e.update(_delays(b, netclasses.GetEffectiveNetClass(n.GetNetname()), c, ends, profiles))
+        e["branched"] = _branched(c, at_centre, ends)
         nets.append(e)
     classes = {}
     for e in nets:
@@ -2943,7 +3095,7 @@ def op_lengths(p):
         c["spread"] = round(c["max"] - c["min"], 6)
     pairs = []
     for pn, nn in _diff_pairs(b):
-        ep, en = _len_entry(b, pn, lens), _len_entry(b, nn, lens)
+        ep, en = _len_entry(b, pn, copper), _len_entry(b, nn, copper)
         if p.get("nets") and not any(fnmatch.fnmatchcase(x, pat) for pat in p["nets"] for x in (ep["net"], en["net"])):
             continue
         pairs.append({"pair": _dp_base(ep["net"]), "p": ep["net"], "n": en["net"], "p_length": ep["length"],
@@ -2954,11 +3106,11 @@ def op_lengths(p):
 
 def op_diffpairs(p):
     b = load(p["path"])
-    lens = _net_lengths(b)
+    copper = _net_copper(b)
     ns = b.GetDesignSettings().m_NetSettings
     out = []
     for pn, nn in _diff_pairs(b):
-        ep, en = _len_entry(b, pn, lens), _len_entry(b, nn, lens)
+        ep, en = _len_entry(b, pn, copper), _len_entry(b, nn, copper)
         try:
             nc = ns.GetEffectiveNetClass(pn.GetNetname())
             width, gap = mm(nc.GetDiffPairWidth()), mm(nc.GetDiffPairGap())
@@ -3071,8 +3223,8 @@ def a_diffpair_route(b, a):
         r = a_add_track(b, {"points": pts_mm, "layer": lay, "net": net.GetNetname(), "width": mm(width)})
         res[net.GetNetname()] = {"segments": len(r["segments"]), "points": [list(q) for q in pts_mm]}
     b.BuildConnectivity()
-    lens = _net_lengths(b)
-    lp, ln_ = lens[pnet.GetNetCode()]["track"], lens[nnet.GetNetCode()]["track"]
+    copper = _net_copper(b)
+    lp, ln_ = _net_length(copper[pnet.GetNetCode()])[0], _net_length(copper[nnet.GetNetCode()])[0]
     return {"p": pnet.GetNetname(), "n": nnet.GetNetname(), "layer": lay, "width": mm(width), "gap": mm(gap),
             "tracks": res, "p_length": mm(lp), "n_length": mm(ln_), "skew": mm(abs(lp - ln_))}
 
@@ -3081,13 +3233,11 @@ def a_tune_length(b, a):
     """Add accordion meanders to a net's longest straight segments until it reaches a target length."""
     net = get_net(b, a["net"])
     code = net.GetNetCode()
-    lens = _net_lengths(b)
-    cur = lens.get(code, {"track": 0, "pad_to_die": 0})
-    current = cur["track"] + cur["pad_to_die"]
+    copper = _net_copper(b)
+    current = sum(_net_length(copper.get(code, NO_COPPER)))
     if a.get("match"):
         other = get_net(b, a["match"])
-        o = lens.get(other.GetNetCode(), {"track": 0, "pad_to_die": 0})
-        target = o["track"] + o["pad_to_die"]
+        target = sum(_net_length(copper.get(other.GetNetCode(), NO_COPPER)))
     else:
         target = MM(a["target"])
     tol = MM(a.get("tolerance", 0.01))
@@ -3150,8 +3300,7 @@ def a_tune_length(b, a):
         used.append({"segment_length": mm(ln), "meanders": k, "amplitude": mm(amp), "spacing": mm(sp), "layer": lay})
         remaining -= 2 * k * amp
     b.BuildConnectivity()
-    after = _net_lengths(b).get(code, {"track": 0, "pad_to_die": 0})
-    final = after["track"] + after["pad_to_die"]
+    final = sum(_net_length(_net_copper(b).get(code, NO_COPPER)))
     res = {"net": a["net"], "length_before": mm(current), "length": mm(final), "target": mm(target),
            "error": mm(target - final), "tuned_segments": used}
     if target - final > tol:
