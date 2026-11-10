@@ -2867,7 +2867,8 @@ def a_add_fiducial(b, a):
 
 NO_COPPER = {"tracks": (), "vias": (), "pads": ()}
 AS_PER_PS = 1e6  # KiCad 10 counts time in attoseconds (base_units.h IU_PER_PS)
-GRID = 5_000_000  # 5 mm buckets for finding the copper near a point
+GRID = 5_000_000  # 5 mm buckets for finding the vias and pads near a track end
+JSON_STRING_OR_COMMENT = re.compile(r'("(?:\\.|[^"\\])*")|//[^\r\n]*|/\*.*?\*/', re.S)
 
 
 def _net_copper(b):
@@ -2895,13 +2896,29 @@ def _len_entry(b, n, copper):
 
 
 def _tuning_profiles(board_path):
-    # pcbnew's Python API exposes no tuning profiles, so read them where KiCad does
+    """Whether each tuning profile of the project has time-domain tuning on. pcbnew's Python API exposes no
+    tuning profiles, so this reads the .kicad_pro the way KiCad does: its JSON parser skips a UTF-8 BOM, and
+    KiCad has it skip comments."""
+    pro = os.path.splitext(board_path)[0] + ".kicad_pro"
     try:
-        with open(os.path.splitext(board_path)[0] + ".kicad_pro", encoding="utf-8") as f:
-            rows = json.load(f)["tuning_profiles"]["tuning_profiles_impedance_geometric"]
-        return {r["profile_name"]: r for r in rows if isinstance(r, dict) and "profile_name" in r}
-    except (OSError, ValueError, KeyError, TypeError):
-        return {}
+        with open(pro, "rb") as f:
+            raw = f.read()
+    except FileNotFoundError:
+        return {}  # tuning profiles live only in the .kicad_pro, so a lone board has none
+    try:
+        data = json.loads(JSON_STRING_OR_COMMENT.sub(lambda m: m[1] or " ", raw.decode("utf-8-sig")))
+    except ValueError as e:
+        raise ValueError(f"Cannot parse {pro}: {e}. KiCad then opens the board without the project's net "
+                         "classes and tuning profiles.") from None
+    try:
+        rows = [r for r in data["tuning_profiles"]["tuning_profiles_impedance_geometric"]
+                if isinstance(r, dict) and "profile_name" in r]
+    except (KeyError, TypeError):
+        return {}  # KiCad reads no tuning profiles from a project without this list
+    if unreadable := [str(r["profile_name"]) for r in rows if not isinstance(r.get("enable_time_domain_tuning"), bool)]:
+        raise ValueError(f"Tuning profile {', '.join(unreadable)} in {pro} has no enable_time_domain_tuning of true or "
+                         "false, and KiCad stops reading the project's tuning profiles there.")
+    return {r["profile_name"]: r["enable_time_domain_tuning"] for r in rows}
 
 
 def _ps(attoseconds):
@@ -2917,60 +2934,70 @@ def _cells(box):
             for k in range(box.GetTop() // GRID, box.GetBottom() // GRID + 1)]
 
 
-def _track_ends(c):
-    at_centre, joints = {}, {}
-    for j in [*c["vias"], *c["pads"]]:
-        at_centre.setdefault((j.GetPosition().x, j.GetPosition().y), []).append(j)
+def _root(parent, x):
+    """The representative of x in the disjoint sets that parent links; a new x starts its own set."""
+    while parent.setdefault(x, x) != x:
+        parent[x] = parent[parent[x]]
+        x = parent[x]
+    return x
+
+
+def _topology(c, conn):
+    """Whether a net's copper is branched, and the layers on which its tracks end in each via.
+
+    A track end lies in the first via or pad on its layer (vias before pads) whose copper holds the end point,
+    else at its own point. KiCad's connectivity says which vias, pads and tracks each track touches. The
+    copper is branched when three or more pieces of track meet at one place, where a track that runs over a
+    via or pad and ends clear of it counts as two, or when the tracks close a loop, such as a track drawn
+    twice."""
+    key = lambda item: int(item.this)  # noqa: E731 (SWIG wraps one C++ item in a new Python object per call)
+    joints = {key(j): j for j in (*c["vias"], *c["pads"])}
+    tracks = {key(t): t for t in c["tracks"]}
+    touching = {k: [key(o) for o in (*conn.GetConnectedTracks(t), *conn.GetConnectedPads(t))] for k, t in tracks.items()}
+    by_cell = {}
+    for o, j in joints.items():
         for cell in _cells(j.GetBoundingBox()):
-            joints.setdefault(cell, []).append(j)
-
-    def place(t, p):
-        hit = next((j for j in joints.get((p.x // GRID, p.y // GRID), ())
-                    if j.IsOnLayer(t.GetLayer()) and j.HitTest(p)), None)
-        return ("joint", hit.GetPosition().x, hit.GetPosition().y) if hit else ("point", t.GetLayer(), p.x, p.y)
-
-    return at_centre, [(t, place(t, p)) for t in c["tracks"] for p in (t.GetStart(), t.GetEnd())]
-
-
-def _branched(c, at_centre, ends):
-    grid = {}
-    for u in c["tracks"]:
-        for cell in _cells(u.GetBoundingBox()):
-            grid.setdefault((u.GetLayer(), *cell), []).append(u)
-    ending = {}
-    for t, place in ends:
-        ending.setdefault(place, set()).add(id(t))
+            by_cell.setdefault(cell, []).append(o)
+    pieces, ending, loops, loop = Counter(), {}, {}, False
+    for k, t in tracks.items():
+        ends = (t.GetStart(), t.GetEnd())
+        a, z = (next((("joint", o) for o in by_cell.get((p.x // GRID, p.y // GRID), ())
+                      if joints[o].IsOnLayer(t.GetLayer()) and joints[o].HitTest(p)), ("point", t.GetLayer(), p.x, p.y))
+                for p in ends)
+        ending.setdefault(a, set()).add(k)
+        ending.setdefault(z, set()).add(k)
+        if a != z:
+            pieces.update((a, z))
+            ra, rz = _root(loops, a), _root(loops, z)
+            loop |= ra == rz
+            loops[ra] = rz
+        near = {o for o in touching[k] if o in joints}
+        for o in near - {o for o in near for p in ends if joints[o].HitTest(p, t.GetWidth() // 2)}:
+            pieces[("joint", o)] += 2
 
     def runs_through(u, x, y):
         clear_of_ends = min(math.hypot(x - q.x, y - q.y) for q in (u.GetStart(), u.GetEnd())) > u.GetWidth() / 2
         return clear_of_ends and u.HitTest(pcbnew.VECTOR2I(x, y))
 
-    def running_through(place):
-        x, y = place[-2:]
-        layers = [place[1]] if place[0] == "point" else \
-            {layer for j in at_centre[(x, y)] for layer in j.GetLayerSet().CuStack()}
-        return sum(runs_through(u, x, y) for layer in layers for u in grid.get((layer, x // GRID, y // GRID), ())
-                   if id(u) not in ending[place])
-
-    pieces = Counter()
-    for (_, a), (_, b) in zip(ends[::2], ends[1::2]):
-        if a != b:
-            pieces.update((a, b))
-    return any(n >= 3 or n + 2 * running_through(place) >= 3 for place, n in pieces.items())
+    for place, enders in ending.items():
+        if place[0] == "point" and place in pieces:
+            _, layer, x, y = place
+            through = {o for k in enders for o in touching[k] if o in tracks and o not in enders
+                       and tracks[o].GetLayer() == layer and runs_through(tracks[o], x, y)}
+            pieces[place] += 2 * len(through)
+    via_layers = [{tracks[k].GetLayer() for k in ending.get(("joint", key(v)), ())} for v in c["vias"]]
+    return loop or any(n >= 3 for n in pieces.values()), via_layers
 
 
-def _via_delays(b, c, ends, profile):
-    """KiCad's delay through each via, or why it has none. KiCad's per-via delay spans the layers its
-    tracks join, so it follows the signal only through a via that joins tracks on two or more layers
-    and sits in no pad."""
-    joined = {}
-    for t, place in ends:
-        joined.setdefault(place, set()).add(t.GetLayer())
+def _via_delays(b, c, via_layers, profile):
+    """KiCad's delay through each via, or why it has none. KiCad's per-via delay spans every layer where a
+    track touches the via, so it follows the signal only through a via in which tracks end on two or more
+    layers and that sits in no pad."""
     in_pad, one_layer, no_delay, total = [], [], [], 0.0
-    for v in c["vias"]:
+    for v, joined in zip(c["vias"], via_layers):
         if any(p.HitTest(v.GetPosition()) or v.HitTest(p.GetPosition()) for p in c["pads"]):
             in_pad.append(_at(v))
-        elif len(joined.get(("joint", v.GetPosition().x, v.GetPosition().y), ())) < 2:
+        elif len(joined) < 2:
             one_layer.append(_at(v))
         elif not (delay := v.GetDelay()):
             no_delay.append(_at(v))
@@ -2980,7 +3007,7 @@ def _via_delays(b, c, ends, profile):
     if in_pad:
         reasons.append("KiCad's per-via delay leaves out the pad around the via at " + ", ".join(in_pad))
     if one_layer:
-        reasons.append("the via at " + ", ".join(one_layer) + " joins tracks on fewer than two layers")
+        reasons.append("tracks end in the via at " + ", ".join(one_layer) + " on fewer than two layers")
     if no_delay:
         reasons.append(f"tuning profile {profile} gives no delay to the via at " + ", ".join(no_delay)
                        if b.GetDesignSettings().m_UseHeightForLengthCalcs else
@@ -2996,7 +3023,7 @@ def _pad_to_die_delays(c):
     return sum(p.GetPadToDieDelay() for p in c["pads"]), []
 
 
-def _delays(b, nc, c, ends, profiles):
+def _delays(b, nc, c, via_layers, profiles):
     """KiCad returns a delay of 0 wherever the net class's tuning profile gives none, so a 0 for copper
     that has length is reported as null, with the reason."""
     profile = nc.GetTuningProfile()
@@ -3005,7 +3032,7 @@ def _delays(b, nc, c, ends, profiles):
         problems.append(f"net class {nc.GetName()} has no tuning profile")
     elif profile not in profiles:
         problems.append(f"net class {nc.GetName()} names tuning profile {profile}, which the project does not define")
-    elif not profiles[profile].get("enable_time_domain_tuning"):
+    elif not profiles[profile]:
         problems.append(f"tuning profile {profile} has time-domain tuning turned off")
     timed = not problems
     on_layer = {}
@@ -3024,7 +3051,7 @@ def _delays(b, nc, c, ends, profiles):
         total += delay or 0
     vias, pads = (None, []), (None, [])
     if timed:
-        vias, pads = _via_delays(b, c, ends, profile), _pad_to_die_delays(c)
+        vias, pads = _via_delays(b, c, via_layers, profile), _pad_to_die_delays(c)
     problems += vias[1] + pads[1]
     return {"by_layer": rows, "via_delay_ps": _ps(vias[0]), "pad_to_die_delay_ps": _ps(pads[0]),
             "delay_ps": None if problems else _ps(total + vias[0] + pads[0]), "tuning_profile": profile or None,
@@ -3070,6 +3097,7 @@ def op_lengths(p):
     copper = _net_copper(b)
     profiles = _tuning_profiles(p["path"])
     netclasses = b.GetDesignSettings().m_NetSettings
+    conn = b.GetConnectivity()
     import fnmatch
     nets = []
     for name, n in sorted(b.GetNetsByName().items(), key=lambda kv: str(kv[0])):
@@ -3081,9 +3109,9 @@ def op_lengths(p):
         if p.get("netclass") and e["netclass"] != p["netclass"]:
             continue
         c = copper.get(n.GetNetCode(), NO_COPPER)
-        at_centre, ends = _track_ends(c)
-        e.update(_delays(b, netclasses.GetEffectiveNetClass(n.GetNetname()), c, ends, profiles))
-        e["branched"] = _branched(c, at_centre, ends)
+        branched, via_layers = _topology(c, conn)
+        e.update(_delays(b, netclasses.GetEffectiveNetClass(n.GetNetname()), c, via_layers, profiles))
+        e["branched"] = branched
         nets.append(e)
     classes = {}
     for e in nets:
