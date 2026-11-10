@@ -315,10 +315,18 @@ added/rejected via counts and source hash unchanged. In the length report, by_la
 copper layer's track length and the delay KiCad computes from the net class's time-domain tuning
 profile, and delay_ps adds the vias and pad-to-die paths. A value is null, with delay_reason, where
 KiCad gives no delay. Compare delay_ps, not length, for nets that change layers, such as RF channels.
-KiCad's DRC trims copper inside pads and vias, so a DRC delay rule can see a little less. Vias add no
-length, and a branched net has no single path length. V-score forces spacing zero (warning; --strict
-rejects conflicting spacing). Fab panel capability/impedance certification is not implemented; obtain
-independent review. A panel export alone is not a manufacturing package.
+Vias add no length. A branched net (a T, a track drawn twice, a track that runs over a pad or via)
+has no single path length. A DRC length rule in ps can read more or less than delay_ps, as measured
+on KiCad's demos with a test tuning profile. DRC measures a track that ends inside a via from the via
+centre: two tracks of video's /TVB1 end 0.38 mm off the centre of a 0.89 mm via, and DRC reads
+2.48 ps more. DRC straightens a track that bends inside the pad whose centre it ends at: video's
+Net-(U23-P87) reads 2.25 ps less. DRC spans a via only across the layers where tracks end in it, while
+KiCad's per-via delay, which kce adds, also reaches a track that runs over the via on a layer beyond
+them: a top-layer track over a via that joins L10 and the bottom layer makes vme-wren's
+/io_drivers_fp/bank3/EN7 read 10.52 ps less in DRC. kce marks such a net branched. V-score forces
+spacing zero (warning; --strict rejects conflicting spacing). Fab panel capability/impedance
+certification is not implemented; obtain independent review. A panel export alone is not a
+manufacturing package.
 
 ## Advanced
 

@@ -306,11 +306,18 @@ def length_report(nets, netclass):
     length is tracks plus pad-to-die, and by_layer splits the track length by copper layer. Via barrels
     are in no length; vias counts them. The delays are the picoseconds KiCad 10 computes from the
     time-domain tuning profile of the net's class: delay_ps in each by_layer row for its tracks,
-    via_delay_ps for vias that join tracks on two or more layers outside any pad, pad_to_die_delay_ps,
-    and their sum delay_ps. KiCad's DRC trims copper that runs inside pads and vias, so its delay can be
-    a little smaller. Where KiCad gives no delay, the value is null and delay_reason says why. branched
-    is true when three or more pieces of copper meet at one place (a T, a stub or tracks that overlap),
-    so length is not the length of one path.
+    via_delay_ps for vias in which tracks end on two or more layers outside any pad, pad_to_die_delay_ps,
+    and their sum delay_ps. Where KiCad gives no delay, the value is null and delay_reason says why.
+    branched is true when the copper is not one path, so length is not the length of one path: three or
+    more pieces of track meet at one place (a T, a stub, overlapping tracks, or a track that runs over a
+    pad or via), or the tracks close a loop (such as a track drawn twice).
+
+    KiCad's DRC sums the same copper but can read more or less. It measures a track that ends inside a
+    via from the via centre, which adds delay when the track stops short of the centre and removes it
+    when the track bends or runs past it. It straightens a track that bends inside the pad whose centre
+    it ends at, which removes delay. It spans a via only across the layers where tracks end in it, while
+    kce's via delay also reaches a track that runs over the via on a layer beyond them, so kce reads more
+    there and the net is branched.
     """
     output(pcb_mod.read(get_session(), "lengths", nets=list(nets), netclass=netclass))
 

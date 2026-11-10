@@ -230,7 +230,7 @@ kce --json -p sensor run board-stage.json
 ### 外部匯入、模擬、高速走線與拼板
 
 * **外部電路板匯入：** 將 Altium/Eagle 電路板匯入新目錄，檢查 `read_back` 與轉換損失，並結合姊妹工具 [`ace`](https://github.com/Hybirdss/altium-cli-extended) 對照原始設計清單。
-* **SPICE 模擬與高速走線：** 在暫存專案中用 `sim` 驗證電路；高速模組依「規則設定 → 差分對走線 → 短線蛇形調諧 → 導孔圍欄/縫合 → 局部淚滴 → 鋪銅重填 → DRC → 長度報告」順序執行。`pcb length report` 依銅層拆分每個網路的走線長度（`by_layer`），並列出 KiCad 依網路類別的時域調諧設定檔（tuning profile）為走線、導孔與 pad-to-die 段計算的延遲，合計於 `delay_ps`。KiCad 未給出延遲時（例如沒有設定檔），值為 `null`，並由 `delay_reason` 說明原因。導孔筒不計入長度。`branched` 標記形成 T 形分支、殘樁或重疊的銅，此時長度不是單一路徑的長度。最後使用 `pcb panelize` 輸出獨立拼板檔案。
+* **SPICE 模擬與高速走線：** 在暫存專案中用 `sim` 驗證電路；高速模組依「規則設定 → 差分對走線 → 短線蛇形調諧 → 導孔圍欄/縫合 → 局部淚滴 → 鋪銅重填 → DRC → 長度報告」順序執行。`pcb length report` 依銅層拆分每個網路的走線長度（`by_layer`），並列出 KiCad 依網路類別的時域調諧設定檔（tuning profile）為走線、導孔與 pad-to-die 段計算的延遲，合計於 `delay_ps`。KiCad 未給出延遲時（例如沒有設定檔），值為 `null`，並由 `delay_reason` 說明原因。導孔筒不計入長度。`branched` 標記不構成單一路徑的銅，例如 T 形分支、畫了兩次的走線，或從焊墊、導孔上方經過的走線，此時長度不是單一路徑的長度。KiCad 的 DRC 從導孔或焊墊中心量測部分走線端，且只在有走線終止的層之間計算導孔，因此 DRC 的延遲可能大於也可能小於 `delay_ps`。最後使用 `pcb panelize` 輸出獨立拼板檔案。
 
 ---
 
