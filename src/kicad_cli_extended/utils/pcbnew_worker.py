@@ -21,7 +21,7 @@ import tempfile
 import time
 import traceback
 import warnings
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 warnings.filterwarnings("ignore")
 
@@ -2869,6 +2869,8 @@ NO_COPPER = {"tracks": (), "vias": (), "pads": ()}
 AS_PER_PS = 1e6  # KiCad 10 counts time in attoseconds (base_units.h IU_PER_PS)
 TAU = 2 * math.pi
 OFF_ROUTE_BOUND = MM(0.2)
+JOIN_TOLERANCE = 3  # nm: a point stored in whole nanometres lies this close to the line or circle it was cut from
+Piece = namedtuple("Piece", "spine layer width tracks ends mid")
 # nlohmann::json, as KiCad calls it, ends a // comment at a line break or a NUL, and fails a /* comment holding a NUL
 JSON_STRING_OR_COMMENT = re.compile(r'("(?:\\.|[^"\\])*")|//[^\r\n\0]*\0?|/\*[^\0]*?\*/')
 LONE_SURROGATE = re.compile("[\ud800-\udfff]")
@@ -3025,15 +3027,28 @@ def _key(item):
     return int(item.this)  # SWIG wraps one C++ item in a new Python object per call
 
 
+def _arc_spine(s, m, e):
+    """The centre line ("arc", cx, cy, radius, start angle, signed sweep) of the arc from s through m to e, in nm,
+    or None where the three points lie on one line."""
+    (x0, y0), (bx, by), (cx, cy) = s, (m[0] - s[0], m[1] - s[1]), (e[0] - s[0], e[1] - s[1])
+    d = 2 * (bx * cy - by * cx)
+    if not d:
+        return None
+    ux = (cy * (bx * bx + by * by) - by * (cx * cx + cy * cy)) / d
+    uy = (bx * (cx * cx + cy * cy) - cx * (bx * bx + by * by)) / d
+    a0, am, a1 = (math.atan2(y - y0 - uy, x - x0 - ux) for x, y in (s, m, e))
+    sweep = (a1 - a0) % TAU
+    return "arc", x0 + ux, y0 + uy, math.hypot(ux, uy), a0, sweep if (am - a0) % TAU <= sweep else sweep - TAU
+
+
+def _xy(p):
+    return p.x, p.y
+
+
 def _spine(t):
     """A track's centre line in nm: ("seg", x0, y0, x1, y1) or ("arc", cx, cy, radius, start angle, signed sweep)."""
-    s, e = t.GetStart(), t.GetEnd()
-    if t.GetClass() == "PCB_ARC" and 0 < t.GetRadius() < math.inf:
-        c, m = t.GetCenter(), t.GetMid()
-        a0, am, a1 = (math.atan2(p.y - c.y, p.x - c.x) for p in (s, m, e))
-        sweep = (a1 - a0) % TAU
-        return "arc", c.x, c.y, t.GetRadius(), a0, sweep if (am - a0) % TAU <= sweep else sweep - TAU
-    return "seg", s.x, s.y, e.x, e.y
+    s, e = _xy(t.GetStart()), _xy(t.GetEnd())
+    return t.GetClass() == "PCB_ARC" and _arc_spine(s, _xy(t.GetMid()), e) or ("seg", *s, *e)
 
 
 def _span(sp):
@@ -3059,21 +3074,6 @@ def _locate(sp, x, y):
     if turned <= abs(sweep):
         return r * turned
     return min((0.0, _span(sp)), key=lambda s: math.dist((x, y), _point_at(sp, s)))
-
-
-def _centre_line(t):
-    if t.GetClass() != "PCB_ARC":
-        return pcbnew.SHAPE_SEGMENT(t.GetStart(), t.GetEnd(), 0)
-    line = t.GetEffectiveShape(t.GetLayer()).Clone()
-    line.SetWidth(0)
-    return line
-
-
-def _nearest(t, shape):
-    """KiCad's nearest points of the centre line of track t and the shape, one on each."""
-    p, q = pcbnew.VECTOR2I(0, 0), pcbnew.VECTOR2I(0, 0)
-    _centre_line(t).NearestPoints(shape, p, q)
-    return (p.x, p.y), (q.x, q.y)
 
 
 def _on_arc(sp, x, y):
@@ -3115,68 +3115,235 @@ def _centre_lines_cross(a, b):
     return [p for p in points if _on_arc(a, *p) and _on_arc(b, *p)]
 
 
+def _continues(a, b, p):
+    """Whether tracks a and b, which both end at p, are one run of copper there: of one layer and width, and
+    segments on one line that leave p in opposite directions, or arcs of one circle that turn the same way."""
+    if a.GetClass() != b.GetClass() or a.GetLayer() != b.GetLayer() or a.GetWidth() != b.GetWidth():
+        return False
+    fa, fb = (_xy(t.GetEnd() if _xy(t.GetStart()) == p else t.GetStart()) for t in (a, b))
+    if a.GetClass() != "PCB_ARC":
+        ux, uy, vx, vy = fa[0] - p[0], fa[1] - p[1], fb[0] - p[0], fb[1] - p[1]
+        return ux * vx + uy * vy < 0 and abs(ux * vy - uy * vx) <= JOIN_TOLERANCE * math.dist(fa, fb)
+    sp, mids = _arc_spine(fa, p, fb), (_xy(a.GetMid()), _xy(b.GetMid()))
+    if sp is None or any(abs(math.dist(m, sp[1:3]) - sp[3]) > JOIN_TOLERANCE for m in mids):
+        return False
+    turned = [(math.atan2(y - sp[2], x - sp[1]) - sp[4]) * math.copysign(1, sp[5]) % TAU
+              for x, y in (mids[0], p, mids[1])]
+    return turned[0] < turned[1] < turned[2] <= abs(sp[5])
+
+
+def _pieces(tracks):
+    """The tracks as Pieces of centre line. Collinear segments of one layer and width that meet end to end are one
+    piece, as are arcs of one circle, so where a run is cut changes no contact. A point where a track could
+    continue two ways joins nothing, and arcs whose run closes on itself stay apart."""
+    at = defaultdict(list)
+    for k, t in tracks.items():
+        at[_xy(t.GetStart())].append((k, 0))
+        at[_xy(t.GetEnd())].append((k, 1))
+    joined = {}
+    for p, here in at.items():
+        pairs = [(x, y) for i, x in enumerate(here) for y in here[i + 1:]
+                 if x[0] != y[0] and _continues(tracks[x[0]], tracks[y[0]], p)]
+        if len({x for pair in pairs for x in pair}) == 2 * len(pairs):
+            for x, y in pairs:
+                joined[x], joined[y] = y, x
+    chains, used = [], set()
+    for k in tracks:
+        for entry in (0, 1):
+            if k in used or (k, entry) in joined:
+                continue
+            chain, end = [], (k, entry)
+            while end and end[0] not in used:
+                used.add(end[0])
+                chain.append(end)
+                end = joined.get((end[0], 1 - end[1]))
+            chains.append(chain)
+    chains += [[(k, 0)] for k in tracks if k not in used]
+    pieces = []
+    for chain in chains:
+        members = [tracks[k] for k, _ in chain]
+        points = [_xy(tracks[k].GetEnd() if e else tracks[k].GetStart()) for k, e in chain]
+        points.append(_xy(tracks[chain[-1][0]].GetStart() if chain[-1][1] else tracks[chain[-1][0]].GetEnd()))
+        if len(chain) == 1:
+            sp = _spine(members[0])
+            points = [points[0], points[-1]] if chain[0][1] == 0 else [points[-1], points[0]]
+        elif members[0].GetClass() == "PCB_ARC":
+            sp = _arc_spine(points[0], points[len(points) // 2], points[-1])
+        else:
+            sp = ("seg", *points[0], *points[-1])
+        if sp is None:
+            pieces += [p for k, _ in chain for p in _pieces({k: tracks[k]})]
+            continue
+        ends = ((0.0, pcbnew.VECTOR2I(*points[0])), (_span(sp), pcbnew.VECTOR2I(*points[-1])))
+        pieces.append(Piece(sp, members[0].GetLayer(), members[0].GetWidth(), members, ends, points[len(points) // 2]))
+    return pieces
+
+
+def _line(piece):
+    """A piece's centre line as a KiCad shape."""
+    if piece.tracks[0].GetClass() != "PCB_ARC":
+        return pcbnew.SHAPE_SEGMENT(piece.ends[0][1], piece.ends[1][1], 0)
+    arc = piece.tracks[0]
+    if len(piece.tracks) > 1:
+        arc = pcbnew.PCB_ARC(arc.GetBoard())
+        arc.SetStart(piece.ends[0][1])
+        arc.SetMid(pcbnew.VECTOR2I(*piece.mid))
+        arc.SetEnd(piece.ends[1][1])
+    line = arc.GetEffectiveShape(piece.layer).Clone()
+    line.SetWidth(0)
+    return line
+
+
+def _nearest(line, shape):
+    """KiCad's nearest points of a centre line and a shape. KiCad 10 returns them in either order, so callers
+    project a point onto the centre line they need instead of trusting which shape it lies on."""
+    p, q = pcbnew.VECTOR2I(0, 0), pcbnew.VECTOR2I(0, 0)
+    line.NearestPoints(shape, p, q)
+    return (p.x, p.y), (q.x, q.y)
+
+
+def _ring(chain):
+    return [(chain.CPoint(i).x, chain.CPoint(i).y) for i in range(chain.PointCount())]
+
+
+def _copper(j, layer):
+    """A via's or pad's copper on a layer where a track touches it, as ("circle", (x, y, r)) and ("polygon", rings).
+    KiCad flashes a via or pad on each layer where its connectivity joins a track to it."""
+    if _is_via(j):
+        return [("circle", (*_xy(j.GetPosition()), j.GetWidth(layer) / 2))]
+    if j.GetShape(layer) == pcbnew.PAD_SHAPE_CIRCLE:
+        c = j.ShapePos(layer)
+        return [("circle", (c.x, c.y, j.GetSize(layer).x / 2))]
+    poly = j.GetEffectivePolygon(layer, pcbnew.ERROR_INSIDE)
+    return [("polygon", [_ring(poly.Outline(i))] + [_ring(poly.Hole(i, h)) for h in range(poly.HoleCount(i))])
+            for i in range(poly.OutlineCount())]
+
+
+def _holds(kind, shape, x, y):
+    """Whether (x, y) lies in a circle, or in polygon rings by the even-odd rule."""
+    if kind == "circle":
+        return math.hypot(x - shape[0], y - shape[1]) <= shape[2]
+    inside = False
+    for ring in shape:
+        for (x0, y0), (x1, y1) in zip(ring, ring[1:] + ring[:1]):
+            if (y0 > y) != (y1 > y) and x < x0 + (y - y0) * (x1 - x0) / (y1 - y0):
+                inside = not inside
+    return inside
+
+
+def _outside(length, stretches):
+    """The stretches of [0, length] that none of the given stretches covers; all of it where none is given."""
+    out, at = [], 0.0
+    for a, b in _merged(stretches):
+        if a > at:
+            out.append((at, a))
+        at = max(at, b)
+    return out + [(at, length)] if at < length or not stretches else out
+
+
+def _merged(stretches):
+    out = []
+    for a, b in sorted(stretches):
+        if out and a <= out[-1][1]:
+            out[-1] = (out[-1][0], max(out[-1][1], b))
+        else:
+            out.append((a, b))
+    return out
+
+
+def _in_copper(sp, copper):
+    """The stretches (from, to) of the centre line sp, in nm along it, that lie inside the copper."""
+    length, found = _span(sp), []
+    for kind, shape in copper:
+        edges = [("arc", *shape, 0.0, TAU)] if kind == "circle" else [
+            ("seg", *a, *b) for ring in shape for a, b in zip(ring, ring[1:] + ring[:1])]
+        cuts = sorted({0.0, length, *(_locate(sp, *q) for e in edges for q in _centre_lines_cross(sp, e))})
+        found += [(a, b) for a, b in zip(cuts, cuts[1:]) if _holds(kind, shape, *_point_at(sp, (a + b) / 2))]
+    return _merged(found)
+
+
 def _copper_graph(c, conn):
     """One net's copper as KiCad's connectivity joins it, for _off_route: nodes are vias, pads and places along
-    the tracks, and edges are (node, cost, track length). Each track is split wherever it touches another item:
-    at each end whose copper reaches the item; at every crossing of two tracks' centre lines; at the nearest
-    points of two tracks touching nowhere else; and, for a track passing over a via or pad, at the point nearest
-    its centre. A link between touching places costs twice the distance it spans. Along a curve drawn as short
-    segments the track between two touching places is at most pi/2 times their distance, so a route keeps to the
-    tracks and cuts across only where their copper merges. Also the layers on which track ends touch each via,
-    and the pads each via touches."""
+    the tracks outside them, and edges are (node, cost, track length). Track whose centre line lies inside a via's
+    or pad's copper on its layer belongs to that via or pad, which is one node: a track joins it where its centre
+    line enters that copper, or, where only the track's copper touches it, at the track's point nearest it. The
+    tracks are read as pieces by _pieces, and touching pieces join at each end whose copper reaches the other, at
+    every crossing of their centre lines, and at their nearest points if they touch nowhere else. A step between
+    touching items costs twice the distance it spans, so along a curve drawn as short segments, where the track
+    between two touching places is at most pi/2 times their distance, a route keeps to the tracks; touching vias
+    and pads join at no cost. Also the total track length outside vias and pads, the layers on which track ends
+    touch each via, and the pads each via touches."""
     tracks = {_key(t): t for t in c["tracks"]}
     joints = {_key(j): j for j in (*c["vias"], *c["pads"])}
-    sp = {k: _spine(t) for k, t in tracks.items()}
-    ends = {k: ((0.0, t.GetStart()), (_span(sp[k]), t.GetEnd())) for k, t in tracks.items()}
-    links, via_layers, via_pads = [], defaultdict(set), defaultdict(list)
+    pieces = _pieces(tracks)
+    piece_of = {_key(t): n for n, piece in enumerate(pieces) for t in piece.tracks}
+    touching_pieces, touched_joints = set(), set()
+    via_layers, via_pads, links = defaultdict(set), defaultdict(list), []
     for k, t in tracks.items():
         layer = t.GetLayer()
         for o in (*conn.GetConnectedTracks(t), *conn.GetConnectedPads(t)):
             ok = _key(o)
             if ok in joints:
-                at = (joints[ok].GetPosition().x, joints[ok].GetPosition().y)
                 shape = joints[ok].GetEffectiveShape(layer)  # the copper KiCad draws: unflashed, a via is its hole
-                hits = [s for s, e in ends[k] if shape.Collide(e, t.GetWidth() // 2)]
-                if hits:
+                if any(shape.Collide(e, t.GetWidth() // 2) for e in (t.GetStart(), t.GetEnd())):
                     via_layers[ok].add(layer)
-                links += [((k, s), ok, math.dist(_point_at(sp[k], s), at)) for s in hits or [_locate(sp[k], *at)]]
-            elif ok in tracks and ok > k:
-                found = []
-                for a, b in ((k, ok), (ok, k)):
-                    other = tracks[b].GetEffectiveShape(layer)
-                    for s, e in ends[a]:
-                        if other.Collide(e, tracks[a].GetWidth() // 2):
-                            sb = _locate(sp[b], e.x, e.y)
-                            found.append(((a, s), (b, sb), math.dist((e.x, e.y), _point_at(sp[b], sb))))
-                found += [((k, _locate(sp[k], x, y)), (ok, _locate(sp[ok], x, y)), 0.0)
-                          for x, y in _centre_lines_cross(sp[k], sp[ok])]
-                if not found:
-                    p, q = _nearest(t, _centre_line(tracks[ok]))
-                    found = [((k, _locate(sp[k], *p)), (ok, _locate(sp[ok], *q)), math.dist(p, q))]
-                links += found
+                touched_joints.add((piece_of[k], ok))
+            elif ok in tracks and piece_of[ok] != piece_of[k]:
+                touching_pieces.add(tuple(sorted((piece_of[k], piece_of[ok]))))
     for jk, j in joints.items():
         for o in (*conn.GetConnectedTracks(j), *conn.GetConnectedPads(j)):
             ok = _key(o)
             if ok in joints and ok > jk:
-                links.append((jk, ok, math.dist((j.GetPosition().x, j.GetPosition().y),
-                                                (o.GetPosition().x, o.GetPosition().y))))
+                links.append((jk, ok, 0))
                 for via, pad in ((j, o), (o, j)):
                     if _is_via(via) and not _is_via(pad):
                         via_pads[_key(via)].append(pad)
-    node = lambda x: x if isinstance(x, int) else (x[0], round(x[1]))  # noqa: E731
-    stops = {k: {0, round(_span(sp[k]))} for k in tracks}
-    for x in (x for a, b, _ in links for x in (a, b) if not isinstance(x, int)):
-        stops[x[0]].add(round(x[1]))
+    covered = defaultdict(list)
+    for n, jk in touched_joints:
+        piece = pieces[n]
+        inside = _in_copper(piece.spine, _copper(joints[jk], piece.layer))
+        covered[n] += [(a, b, jk) for a, b in inside]
+        if not inside:
+            p, q = _nearest(_line(piece), joints[jk].GetEffectiveShape(piece.layer))
+            links.append(((n, _locate(piece.spine, *p)), jk, 2 * round(math.dist(p, q))))
+    for a, b in touching_pieces:
+        pa, pb, found = pieces[a], pieces[b], []
+        for (x, px), (y, py) in (((a, pa), (b, pb)), ((b, pb), (a, pa))):
+            for s, e in px.ends:
+                if any(t.GetEffectiveShape(t.GetLayer()).Collide(e, px.width // 2) for t in py.tracks):
+                    sy = _locate(py.spine, e.x, e.y)
+                    found.append(((x, s), (y, sy), math.dist((e.x, e.y), _point_at(py.spine, sy))))
+        found += [((a, _locate(pa.spine, x, y)), (b, _locate(pb.spine, x, y)), 0.0)
+                  for x, y in _centre_lines_cross(pa.spine, pb.spine)]
+        if not found:
+            p, q = _nearest(_line(pa), _line(pb))
+            found = [((a, _locate(pa.spine, *p)), (b, _locate(pb.spine, *q)), math.dist(p, q))]
+        links += [(x, y, 2 * round(d)) for x, y, d in found]
+
+    def node(x):
+        if not isinstance(x, tuple):
+            return x
+        n, s = x
+        holder = next((jk for a, b, jk in covered[n] if a <= s <= b), None)
+        return (n, round(s)) if holder is None else holder
+
+    edges = [(node(x), node(y), cost) for x, y, cost in links]
+    stops = defaultdict(set)
+    for n, s in (x for a, b, _ in edges for x in (a, b) if isinstance(x, tuple)):
+        stops[n].add(s)
+    total = 0
+    for n, piece in enumerate(pieces):
+        for a, b in _outside(_span(piece.spine), [(a, b) for a, b, _ in covered[n]]):
+            pos = sorted({round(a), round(b)} | {s for s in stops[n] if round(a) <= s <= round(b)})
+            edges += [((n, s0), (n, s1), s1 - s0, s1 - s0) for s0, s1 in zip(pos, pos[1:])]
+            edges += [((n, round(x)), jk, 0) for x in (a, b) for lo, hi, jk in covered[n] if lo <= x <= hi]
+            total += round(b) - round(a)
     graph = defaultdict(list)
-    for k in tracks:
-        pos = sorted(stops[k])
-        for s0, s1 in zip(pos, pos[1:]):
-            graph[(k, s0)].append(((k, s1), s1 - s0, s1 - s0))
-            graph[(k, s1)].append(((k, s0), s1 - s0, s1 - s0))
-    for a, b, distance in links:
-        graph[node(a)].append((node(b), 2 * distance, 0))
-        graph[node(b)].append((node(a), 2 * distance, 0))
-    return graph, sum(round(_span(s)) for s in sp.values()), via_layers, via_pads
+    for x, y, cost, *track in edges:
+        if x != y:
+            graph[x].append((y, cost, track[0] if track else 0))
+            graph[y].append((x, cost, track[0] if track else 0))
+    return graph, total, via_layers, via_pads
 
 
 def _off_route(c, graph, total):
