@@ -136,8 +136,7 @@ class TestDiffPairsAndLengths:
 
     def test_report_splits_length_by_layer_with_kicad_delay_and_flags_branches(self, rf):
         P = ["--project", rf]
-        f_cu = math.hypot(112 - 100, 116 - 100) + math.hypot(130 - 112, 140 - 116)
-        in1_cu, b_cu, tee = 150 - 130, math.hypot(124 - 100, 167 - 160), (140 - 100) + (188 - 180)
+        b_cu, tee = math.hypot(124 - 100, 167 - 160), (140 - 100) + (188 - 180)
 
         nets = {n["net"]: n for n in rj(P + ["pcb", "length", "report"])["nets"]}
         assert nets["RF1"]["delay_ps"] is None and "does not define" in nets["RF1"]["delay_reason"]
@@ -145,12 +144,12 @@ class TestDiffPairsAndLengths:
         write_tuning_profile(rf, enabled=True)
         nets = {n["net"]: n for n in rj(P + ["pcb", "length", "report"])["nets"]}
         rf1, rf2 = nets["RF1"], nets["RF2"]
-        assert rf1["length"] == pytest.approx(f_cu + in1_cu) and rf1["vias"] == 1
+        assert rf1["length"] == pytest.approx(RF1_F_CU + RF1_IN1_CU) and rf1["vias"] == 1
         assert [(r["layer"], r["length"], r["delay_ps"]) for r in rf1["by_layer"]] == [
-            ("F.Cu", pytest.approx(f_cu), pytest.approx(f_cu * F_CU_PS_PER_MM)),
-            ("In1.Cu", pytest.approx(in1_cu), pytest.approx(in1_cu * IN1_CU_PS_PER_MM))]
+            ("F.Cu", pytest.approx(RF1_F_CU), pytest.approx(RF1_F_CU * F_CU_PS_PER_MM)),
+            ("In1.Cu", pytest.approx(RF1_IN1_CU), pytest.approx(RF1_IN1_CU * IN1_CU_PS_PER_MM))]
         assert rf1["via_delay_ps"] == pytest.approx(VIA_PS) and rf1["pad_to_die_delay_ps"] == 0
-        assert rf1["delay_ps"] == pytest.approx(f_cu * F_CU_PS_PER_MM + in1_cu * IN1_CU_PS_PER_MM + VIA_PS)
+        assert rf1["delay_ps"] == pytest.approx(RF1_DELAY_PS)
         assert (rf1["tuning_profile"], rf1["delay_reason"], rf1["branched"]) == ("RF50", None, False)
         assert [(r["layer"], r["length"], r["delay_ps"]) for r in rf2["by_layer"]] == [
             ("B.Cu", pytest.approx(b_cu), None)]
@@ -165,6 +164,40 @@ class TestDiffPairsAndLengths:
         [rf1] = rj(P + ["pcb", "length", "report", "--net", "RF1"])["nets"]
         assert [r["delay_ps"] for r in rf1["by_layer"]] == [None, None]
         assert rf1["via_delay_ps"] is None and rf1["delay_ps"] is None and "turned off" in rf1["delay_reason"]
+
+    def test_branched_sees_a_track_drawn_twice_and_tracks_that_run_over_a_pad_or_via(self, rf):
+        nets = {n["net"]: n for n in rj(["--project", rf, "pcb", "length", "report"])["nets"]}
+        assert {name: (nets[name]["length"], nets[name]["branched"]) for name in
+                ("DUP", "DUP_REV", "PAD_GRAZE", "VIA_GRAZE", "PAD_ON_TRACK")} == {
+            "DUP": (pytest.approx(2 * (120 - 100)), True),
+            "DUP_REV": (pytest.approx(2 * (120 - 100)), True),
+            "PAD_GRAZE": (pytest.approx((125 - 110) + (120 - 100)), True),
+            "VIA_GRAZE": (pytest.approx((110 - 100) + (120 - 110) + (265 - 255)), True),
+            "PAD_ON_TRACK": (pytest.approx(120 - 100), False)}
+
+    def test_report_reads_a_project_file_with_a_bom_and_comments_as_kicad_does(self, rf):
+        write_tuning_profile(rf, enabled=True)
+        pro = os.path.join(rf, "rf.kicad_pro")
+        text = read_text(pro).replace('"tuning_profiles": {', '/* RF */ "tuning_profiles": {', 1)
+        with open(pro, "w", encoding="utf-8") as f:
+            f.write("\ufeff// edited by hand\n" + text)
+        [rf1] = rj(["--project", rf, "pcb", "length", "report", "--net", "RF1"])["nets"]
+        assert (rf1["tuning_profile"], rf1["delay_reason"]) == ("RF50", None)
+        assert rf1["delay_ps"] == pytest.approx(RF1_DELAY_PS)
+
+    @pytest.mark.parametrize("damage", ["cut short", "time-domain flag not true or false"])
+    def test_report_refuses_a_project_file_it_cannot_read(self, rf, damage):
+        write_tuning_profile(rf, enabled=True)
+        pro = os.path.join(rf, "rf.kicad_pro")
+        text = read_text(pro)
+        text = text[:len(text) // 2] if damage == "cut short" else \
+            text.replace('"enable_time_domain_tuning": true', '"enable_time_domain_tuning": 1')
+        with open(pro, "w", encoding="utf-8") as f:
+            f.write(text)
+        r = run(["--json", "--project", rf, "pcb", "length", "report"], check=False)
+        assert r.returncode == 2, r.stdout[:300]
+        error = json.loads(r.stderr)
+        assert error["type"] == "InvalidInput" and "rf.kicad_pro" in error["error"]
 
     def test_resident_server_reports_the_tuning_profile_the_project_names_now(self, rf):
         write_tuning_profile(rf, enabled=True)
@@ -196,6 +229,8 @@ def rf(rf_master, tmp_dir):
 
 AS_PER_PS = 10**6  # KiCad keeps time in attoseconds
 F_CU_PS_PER_MM, IN1_CU_PS_PER_MM, VIA_PS = 6.0, 7.1, 9.0
+RF1_F_CU, RF1_IN1_CU = math.hypot(112 - 100, 116 - 100) + math.hypot(130 - 112, 140 - 116), 150 - 130
+RF1_DELAY_PS = RF1_F_CU * F_CU_PS_PER_MM + RF1_IN1_CU * IN1_CU_PS_PER_MM + VIA_PS
 
 
 def build_rf_project(root: str) -> str:
@@ -213,6 +248,19 @@ def build_rf_project(root: str) -> str:
     run(P + ["pcb", "track", "100,200;140,200", "--net", "VIA_TEE"])
     run(P + ["pcb", "via", "--at", "120,200", "--net", "VIA_TEE"])
     run(P + ["pcb", "track", "120,200;120,210", "--layer", "In1.Cu", "--net", "VIA_TEE"])
+    run(P + ["pcb", "track", "100,230;120,230", "--net", "DUP"])
+    run(P + ["pcb", "track", "100,230;120,230", "--net", "DUP"])
+    run(P + ["pcb", "track", "100,240;120,240", "--net", "DUP_REV"])
+    run(P + ["pcb", "track", "120,240;100,240", "--net", "DUP_REV"])
+    run(P + ["pcb", "hole", "--at", "110,250", "--drill", "1", "--pad", "2", "--net", "PAD_GRAZE"])
+    run(P + ["pcb", "track", "110,250;125,250", "--net", "PAD_GRAZE"])
+    run(P + ["pcb", "track", "100,250.5;120,250.5", "--net", "PAD_GRAZE"])
+    run(P + ["pcb", "via", "--at", "110,260", "--net", "VIA_GRAZE"])
+    run(P + ["pcb", "track", "100,260;110,260", "--net", "VIA_GRAZE"])
+    run(P + ["pcb", "track", "110,260;120,260", "--layer", "In1.Cu", "--net", "VIA_GRAZE"])
+    run(P + ["pcb", "track", "110.2,255;110.2,265", "--layer", "B.Cu", "--net", "VIA_GRAZE"])
+    run(P + ["pcb", "hole", "--at", "110,270", "--drill", "1", "--pad", "2", "--net", "PAD_ON_TRACK"])
+    run(P + ["pcb", "track", "100,270.5;120,270.5", "--net", "PAD_ON_TRACK"])
     run(P + ["project", "netclass", "set", "RF", "--set", "tuning_profile=RF50"])
     run(P + ["project", "netclass", "assign", "RF*", "RF"])
     return p
