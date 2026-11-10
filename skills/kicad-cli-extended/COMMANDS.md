@@ -139,7 +139,7 @@ Start with the triggered recipes in [SKILL.md](SKILL.md). Use this map before co
 | `kce pcb info` |  | Board summary from pcbnew: layers, counts, outline, unrouted connections. |  |
 | `kce pcb layers` |  |  |  |
 | `kce pcb legalize` |  | Move overlapping and out-of-outline footprints to the nearest legal spot (locked ones stay). | `--clearance` `--grid` `--max-dist` `--strict` `--refs` `--max-move` |
-| `kce pcb length report` |  | Routed length per net (tracks + pad-to-die), spread per net class, skew per pair. | `--net` `--netclass` |
+| `kce pcb length report` |  | Routed length per net and per copper layer, KiCad's delay, branched nets, class spread, pair skew. | `--net` `--netclass` |
 | `kce pcb length rule` | NAME | Length-matching rule (custom DRC rule; `kce check drc` reports length_out_of_range / skew). | `--nets` `--netclass` `--min` `--opt` `--max` `--max-skew` |
 | `kce pcb length tune` | NET | Add accordion meanders to a net's straight segments until it reaches --target / --match length. | `--target` `--match` `--amplitude` `--spacing` `--clearance` `--layer` `--tolerance` |
 | `kce pcb lock` | REFS |  | `--unlock` `--all` `--except` |

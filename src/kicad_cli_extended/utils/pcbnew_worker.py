@@ -21,6 +21,7 @@ import tempfile
 import time
 import traceback
 import warnings
+from collections import defaultdict, namedtuple
 
 warnings.filterwarnings("ignore")
 
@@ -2864,29 +2865,589 @@ def a_add_fiducial(b, a):
 # ---------------------------------------------------------------------------
 
 
-def _net_lengths(b):
-    """Per net: routed track length (segments + arcs), via count, pad-to-die length."""
+NO_COPPER = {"tracks": (), "vias": (), "pads": ()}
+AS_PER_PS = 1e6  # KiCad 10 counts time in attoseconds (base_units.h IU_PER_PS)
+TAU = 2 * math.pi
+OFF_ROUTE_BOUND = MM(0.2)
+JOIN_TOLERANCE = 3  # nm: a point stored in whole nanometres lies this close to the line or circle it was cut from
+Piece = namedtuple("Piece", "spine layer width tracks ends mid")
+# nlohmann::json, as KiCad calls it, ends a // comment at a line break or a NUL, and fails a /* comment holding a NUL
+JSON_STRING_OR_COMMENT = re.compile(r'("(?:\\.|[^"\\])*")|//[^\r\n\0]*\0?|/\*[^\0]*?\*/')
+LONE_SURROGATE = re.compile("[\ud800-\udfff]")
+MISSING = object()
+# What nlohmann::json converts to the C++ type that readUserDefinedProfileConfigurationLine (tuning_profiles.cpp)
+# reads each field as; a C++ int also takes true and false.
+KICAD_TYPES = {"string": (lambda v: isinstance(v, str), "a string"),
+               "bool": (lambda v: isinstance(v, bool), "true or false"),
+               "double": (lambda v: isinstance(v, (int, float)) and not isinstance(v, bool), "a number"),
+               "int": (lambda v: isinstance(v, (int, float)), "a number")}
+PROFILE_FIELDS = (("profile_name", "string"), ("type", "double"), ("target_impedance", "double"),
+                  ("enable_time_domain_tuning", "bool"), ("via_prop_delay", "int"))
+LAYER_ENTRY_FIELDS = (("signal_layer", "string"), ("top_reference_layer", "string"),
+                      ("bottom_reference_layer", "string"), ("width", "int"), ("diff_pair_gap", "int"), ("delay", "int"))
+VIA_OVERRIDE_FIELDS = (("signal_layer_from", "string"), ("signal_layer_to", "string"), ("via_layer_from", "string"),
+                       ("via_layer_to", "string"), ("delay", "int"))
+
+
+def _net_copper(b):
     out = {}
     for t in b.GetTracks():
-        d = out.setdefault(t.GetNetCode(), {"track": 0, "vias": 0, "segments": 0, "pad_to_die": 0})
-        if _is_via(t):
-            d["vias"] += 1
-        else:
-            d["track"] += t.GetLength()
-            d["segments"] += 1
+        c = out.setdefault(t.GetNetCode(), {"tracks": [], "vias": [], "pads": []})
+        c["vias" if _is_via(t) else "tracks"].append(t)
     for fp in b.GetFootprints():
         for p in fp.Pads():
-            if p.GetNetCode() > 0 and p.GetPadToDieLength():
-                out.setdefault(p.GetNetCode(), {"track": 0, "vias": 0, "segments": 0, "pad_to_die": 0})
-                out[p.GetNetCode()]["pad_to_die"] += p.GetPadToDieLength()
+            if p.GetNetCode() > 0:
+                out.setdefault(p.GetNetCode(), {"tracks": [], "vias": [], "pads": []})["pads"].append(p)
     return out
 
 
-def _len_entry(b, n, lens):
-    d = lens.get(n.GetNetCode(), {"track": 0, "vias": 0, "segments": 0, "pad_to_die": 0})
-    return {"net": n.GetNetname(), "netclass": _effective_netclass(b, n), "length": mm(d["track"] + d["pad_to_die"]),
-            "track_length": mm(d["track"]), "pad_to_die": mm(d["pad_to_die"]), "vias": d["vias"],
-            "segments": d["segments"]}
+def _net_length(c):
+    return sum(t.GetLength() for t in c["tracks"]), sum(p.GetPadToDieLength() for p in c["pads"])
+
+
+def _len_entry(b, n, copper):
+    c = copper.get(n.GetNetCode(), NO_COPPER)
+    track, pad_to_die = _net_length(c)
+    return {"net": n.GetNetname(), "netclass": _effective_netclass(b, n), "length": mm(track + pad_to_die),
+            "track_length": mm(track), "pad_to_die": mm(pad_to_die), "vias": len(c["vias"]),
+            "segments": len(c["tracks"])}
+
+
+def _not_json(constant):
+    raise ValueError(f"{constant} is not a JSON number")
+
+
+def _finite(text):
+    if math.isinf(value := float(text)):
+        raise OverflowError(f"number overflow parsing '{text}'")  # nlohmann::json's error 406
+    return value
+
+
+def _has_lone_surrogate(x):
+    if isinstance(x, str):
+        return bool(LONE_SURROGATE.search(x))
+    if isinstance(x, dict):
+        return any(_has_lone_surrogate(k) or _has_lone_surrogate(v) for k, v in x.items())
+    return isinstance(x, list) and any(map(_has_lone_surrogate, x))
+
+
+def _project_json(pro, raw):
+    """The .kicad_pro as KiCad's nlohmann::json reads it: one UTF-8 BOM and comments skipped, input ended at a NUL,
+    and no NaN, Infinity, number beyond a double or unpaired surrogate escape."""
+    problem = None
+    try:
+        data = json.loads(JSON_STRING_OR_COMMENT.sub(lambda m: m[1] or " ", raw.decode("utf-8-sig")).split("\0", 1)[0],
+                          parse_constant=_not_json, parse_float=_finite,
+                          parse_int=lambda text: int(text) if -2**63 <= int(text) < 2**64 else _finite(text))
+    except OverflowError as e:
+        raise ValueError(f"Cannot parse {pro}: {e}. KiCad stops loading the board at this number.") from None
+    except ValueError as e:
+        problem = str(e)
+    else:
+        if not isinstance(data, dict):
+            problem = "the file is not a JSON object"
+        elif _has_lone_surrogate(data):
+            problem = "a \\u escape names half a surrogate pair"
+    if problem:
+        raise ValueError(f"Cannot parse {pro}: {problem}. KiCad then opens the board without the project's net "
+                         "classes and tuning profiles.")
+    return data
+
+
+def _kicad_items(value):
+    """The items KiCad's range-for over a nlohmann::json can read: a list's items or an object's values (a scalar
+    visits only itself, which is no object)."""
+    return value if isinstance(value, list) else list(value.values()) if isinstance(value, dict) else []
+
+
+def _unreadable_field(row):
+    """The first field of a tuning profile row, in KiCad's order, that KiCad cannot read: (path, value, type), with
+    MISSING for a field the row lacks. KiCad skips layer entries that are not objects and via overrides without
+    signal_layer_from."""
+    def check(obj, fields, prefix=""):
+        for name, kind in fields:
+            value = obj.get(name, MISSING)
+            if value is MISSING or not KICAD_TYPES[kind][0](value):
+                return prefix + name, value, kind
+        return None
+
+    found = check(row, PROFILE_FIELDS)
+    for key, fields, needs in (("layer_entries", LAYER_ENTRY_FIELDS, None),
+                               ("via_overrides", VIA_OVERRIDE_FIELDS, "signal_layer_from")):
+        if found:
+            return found
+        if key not in row:
+            return key, MISSING, None
+        for i, item in enumerate(_kicad_items(row[key])):
+            if isinstance(item, dict) and (needs is None or needs in item):
+                found = found or check(item, fields, f"{key}[{i}].")
+    return found
+
+
+def _tuning_profiles(board_path):
+    """Whether each tuning profile of the project has time-domain tuning on. pcbnew's Python API exposes no
+    tuning profiles, so this reads the .kicad_pro the way KiCad does, and refuses a row KiCad cannot read: KiCad
+    stops reading the profiles at a field it cannot convert, and aborts at a missing one."""
+    pro = os.path.splitext(board_path)[0] + ".kicad_pro"
+    try:
+        with open(pro, "rb") as f:
+            raw = f.read()
+    except FileNotFoundError:
+        return {}  # tuning profiles live only in the .kicad_pro, so a lone board has none
+    data = _project_json(pro, raw)
+    try:
+        rows = data["tuning_profiles"]["tuning_profiles_impedance_geometric"]
+    except (KeyError, TypeError):
+        return {}  # KiCad reads no tuning profiles from a project without this list
+    profiles = {}
+    for i, row in enumerate(rows if isinstance(rows, list) else ()):
+        if not isinstance(row, dict) or "profile_name" not in row:
+            continue  # KiCad skips these rows
+        if bad := _unreadable_field(row):
+            field, value, kind = bad
+            name = row["profile_name"] if isinstance(row["profile_name"], str) else json.dumps(row["profile_name"])
+            what = (f"has no {field}, without which KiCad cannot load the project" if value is MISSING else
+                    f"has {field} {json.dumps(value)} where KiCad reads {KICAD_TYPES[kind][1]}, so KiCad stops "
+                    "reading tuning profiles at this row")
+            raise ValueError(f"Tuning profile {name} (row {i + 1} of tuning_profiles_impedance_geometric) in {pro} "
+                             f"{what}.")
+        profiles[row["profile_name"].split("\0", 1)[0]] = row["enable_time_domain_tuning"]  # KiCad reads a C string
+    return profiles
+
+
+def _ps(attoseconds):
+    return None if attoseconds is None else round(attoseconds / AS_PER_PS, 6)
+
+
+def _at(item):
+    return f"({mm(item.GetPosition().x)}, {mm(item.GetPosition().y)})"
+
+
+def _key(item):
+    return int(item.this)  # SWIG wraps one C++ item in a new Python object per call
+
+
+def _arc_spine(s, m, e):
+    """The centre line ("arc", cx, cy, radius, start angle, signed sweep) of the arc from s through m to e, in nm,
+    or None where the three points lie on one line."""
+    (x0, y0), (bx, by), (cx, cy) = s, (m[0] - s[0], m[1] - s[1]), (e[0] - s[0], e[1] - s[1])
+    d = 2 * (bx * cy - by * cx)
+    if not d:
+        return None
+    ux = (cy * (bx * bx + by * by) - by * (cx * cx + cy * cy)) / d
+    uy = (bx * (cx * cx + cy * cy) - cx * (bx * bx + by * by)) / d
+    a0, am, a1 = (math.atan2(y - y0 - uy, x - x0 - ux) for x, y in (s, m, e))
+    sweep = (a1 - a0) % TAU
+    return "arc", x0 + ux, y0 + uy, math.hypot(ux, uy), a0, sweep if (am - a0) % TAU <= sweep else sweep - TAU
+
+
+def _xy(p):
+    return p.x, p.y
+
+
+def _spine(t):
+    """A track's centre line in nm: ("seg", x0, y0, x1, y1) or ("arc", cx, cy, radius, start angle, signed sweep)."""
+    s, e = _xy(t.GetStart()), _xy(t.GetEnd())
+    return t.GetClass() == "PCB_ARC" and _arc_spine(s, _xy(t.GetMid()), e) or ("seg", *s, *e)
+
+
+def _span(sp):
+    return math.hypot(sp[3] - sp[1], sp[4] - sp[2]) if sp[0] == "seg" else sp[3] * abs(sp[5])
+
+
+def _point_at(sp, s):
+    if sp[0] == "seg":
+        f = s / _span(sp) if _span(sp) else 0.0
+        return sp[1] + f * (sp[3] - sp[1]), sp[2] + f * (sp[4] - sp[2])
+    _, cx, cy, r, a0, sweep = sp
+    return cx + r * math.cos(a0 + math.copysign(s / r, sweep)), cy + r * math.sin(a0 + math.copysign(s / r, sweep))
+
+
+def _locate(sp, x, y):
+    """How far along the centre line sp lies its point nearest (x, y)."""
+    if sp[0] == "seg":
+        _, ax, ay, bx, by = sp
+        n2 = (bx - ax) ** 2 + (by - ay) ** 2
+        return min(1.0, max(0.0, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / n2)) * math.sqrt(n2) if n2 else 0.0
+    _, cx, cy, r, a0, sweep = sp
+    turned = (math.atan2(y - cy, x - cx) - a0) * math.copysign(1, sweep) % TAU
+    if turned <= abs(sweep):
+        return r * turned
+    return min((0.0, _span(sp)), key=lambda s: math.dist((x, y), _point_at(sp, s)))
+
+
+def _on_arc(sp, x, y):
+    _, cx, cy, _, a0, sweep = sp
+    return (math.atan2(y - cy, x - cx) - a0) * math.copysign(1, sweep) % TAU <= abs(sweep) + 1e-9
+
+
+def _centre_lines_cross(a, b):
+    """The points where the centre lines a and b (from _spine) cross. Parallel segments have none: where they
+    touch, one's end lies on the other."""
+    if a[0] == "arc" and b[0] == "seg":
+        a, b = b, a
+    if a[0] == "seg" and b[0] == "seg":
+        (_, x1, y1, x2, y2), (_, x3, y3, x4, y4) = a, b
+        d = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
+        if not d:
+            return []
+        t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / d
+        u = ((x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1)) / d
+        return [(x1 + t * (x2 - x1), y1 + t * (y2 - y1))] if -1e-9 <= t <= 1 + 1e-9 and -1e-9 <= u <= 1 + 1e-9 else []
+    if a[0] == "seg":
+        (_, x1, y1, x2, y2), (_, cx, cy, r, _, _) = a, b
+        dx, dy, fx, fy = x2 - x1, y2 - y1, x1 - cx, y1 - cy
+        qa, qb, qc = dx * dx + dy * dy, 2 * (fx * dx + fy * dy), fx * fx + fy * fy - r * r
+        disc = qb * qb - 4 * qa * qc
+        if not qa or disc < 0:
+            return []
+        ts = {(-qb - math.sqrt(disc)) / (2 * qa), (-qb + math.sqrt(disc)) / (2 * qa)}
+        points = [(x1 + t * dx, y1 + t * dy) for t in ts if -1e-9 <= t <= 1 + 1e-9]
+        return [p for p in points if _on_arc(b, *p)]
+    (_, x1, y1, r1, _, _), (_, x2, y2, r2, _, _) = a, b
+    d = math.hypot(x2 - x1, y2 - y1)
+    if not d or d > r1 + r2 or d < abs(r1 - r2):
+        return []
+    along = (r1 * r1 - r2 * r2 + d * d) / (2 * d)
+    h = math.sqrt(max(0.0, r1 * r1 - along * along))
+    mx, my = x1 + along * (x2 - x1) / d, y1 + along * (y2 - y1) / d
+    points = {(mx + h * (y2 - y1) / d, my - h * (x2 - x1) / d), (mx - h * (y2 - y1) / d, my + h * (x2 - x1) / d)}
+    return [p for p in points if _on_arc(a, *p) and _on_arc(b, *p)]
+
+
+def _continues(a, b, p):
+    """Whether tracks a and b, which both end at p, are one run of copper there: of one layer and width, and
+    segments on one line that leave p in opposite directions, or arcs of one circle that turn the same way."""
+    if a.GetClass() != b.GetClass() or a.GetLayer() != b.GetLayer() or a.GetWidth() != b.GetWidth():
+        return False
+    fa, fb = (_xy(t.GetEnd() if _xy(t.GetStart()) == p else t.GetStart()) for t in (a, b))
+    if a.GetClass() != "PCB_ARC":
+        ux, uy, vx, vy = fa[0] - p[0], fa[1] - p[1], fb[0] - p[0], fb[1] - p[1]
+        return ux * vx + uy * vy < 0 and abs(ux * vy - uy * vx) <= JOIN_TOLERANCE * math.dist(fa, fb)
+    sp, mids = _arc_spine(fa, p, fb), (_xy(a.GetMid()), _xy(b.GetMid()))
+    if sp is None or any(abs(math.dist(m, sp[1:3]) - sp[3]) > JOIN_TOLERANCE for m in mids):
+        return False
+    turned = [(math.atan2(y - sp[2], x - sp[1]) - sp[4]) * math.copysign(1, sp[5]) % TAU
+              for x, y in (mids[0], p, mids[1])]
+    return turned[0] < turned[1] < turned[2] <= abs(sp[5])
+
+
+def _pieces(tracks):
+    """The tracks as Pieces of centre line. Collinear segments of one layer and width that meet end to end are one
+    piece, as are arcs of one circle, so where a run is cut changes no contact. A point where a track could
+    continue two ways joins nothing, and arcs whose run closes on itself stay apart."""
+    at = defaultdict(list)
+    for k, t in tracks.items():
+        at[_xy(t.GetStart())].append((k, 0))
+        at[_xy(t.GetEnd())].append((k, 1))
+    joined = {}
+    for p, here in at.items():
+        pairs = [(x, y) for i, x in enumerate(here) for y in here[i + 1:]
+                 if x[0] != y[0] and _continues(tracks[x[0]], tracks[y[0]], p)]
+        if len({x for pair in pairs for x in pair}) == 2 * len(pairs):
+            for x, y in pairs:
+                joined[x], joined[y] = y, x
+    chains, used = [], set()
+    for k in tracks:
+        for entry in (0, 1):
+            if k in used or (k, entry) in joined:
+                continue
+            chain, end = [], (k, entry)
+            while end and end[0] not in used:
+                used.add(end[0])
+                chain.append(end)
+                end = joined.get((end[0], 1 - end[1]))
+            chains.append(chain)
+    chains += [[(k, 0)] for k in tracks if k not in used]
+    pieces = []
+    for chain in chains:
+        members = [tracks[k] for k, _ in chain]
+        points = [_xy(tracks[k].GetEnd() if e else tracks[k].GetStart()) for k, e in chain]
+        points.append(_xy(tracks[chain[-1][0]].GetStart() if chain[-1][1] else tracks[chain[-1][0]].GetEnd()))
+        if len(chain) == 1:
+            sp = _spine(members[0])
+            points = [points[0], points[-1]] if chain[0][1] == 0 else [points[-1], points[0]]
+        elif members[0].GetClass() == "PCB_ARC":
+            sp = _arc_spine(points[0], points[len(points) // 2], points[-1])
+        else:
+            sp = ("seg", *points[0], *points[-1])
+        if sp is None:
+            pieces += [p for k, _ in chain for p in _pieces({k: tracks[k]})]
+            continue
+        ends = ((0.0, pcbnew.VECTOR2I(*points[0])), (_span(sp), pcbnew.VECTOR2I(*points[-1])))
+        pieces.append(Piece(sp, members[0].GetLayer(), members[0].GetWidth(), members, ends, points[len(points) // 2]))
+    return pieces
+
+
+def _line(piece):
+    """A piece's centre line as a KiCad shape."""
+    if piece.tracks[0].GetClass() != "PCB_ARC":
+        return pcbnew.SHAPE_SEGMENT(piece.ends[0][1], piece.ends[1][1], 0)
+    arc = piece.tracks[0]
+    if len(piece.tracks) > 1:
+        arc = pcbnew.PCB_ARC(arc.GetBoard())
+        arc.SetStart(piece.ends[0][1])
+        arc.SetMid(pcbnew.VECTOR2I(*piece.mid))
+        arc.SetEnd(piece.ends[1][1])
+    line = arc.GetEffectiveShape(piece.layer).Clone()
+    line.SetWidth(0)
+    return line
+
+
+def _nearest(line, shape):
+    """KiCad's nearest points of a centre line and a shape. KiCad 10 returns them in either order, so callers
+    project a point onto the centre line they need instead of trusting which shape it lies on."""
+    p, q = pcbnew.VECTOR2I(0, 0), pcbnew.VECTOR2I(0, 0)
+    line.NearestPoints(shape, p, q)
+    return (p.x, p.y), (q.x, q.y)
+
+
+def _ring(chain):
+    return [(chain.CPoint(i).x, chain.CPoint(i).y) for i in range(chain.PointCount())]
+
+
+def _copper(j, layer):
+    """A via's or pad's copper on a layer where a track touches it, as ("circle", (x, y, r)) and ("polygon", rings).
+    KiCad flashes a via or pad on each layer where its connectivity joins a track to it."""
+    if _is_via(j):
+        return [("circle", (*_xy(j.GetPosition()), j.GetWidth(layer) / 2))]
+    if j.GetShape(layer) == pcbnew.PAD_SHAPE_CIRCLE:
+        c = j.ShapePos(layer)
+        return [("circle", (c.x, c.y, j.GetSize(layer).x / 2))]
+    poly = j.GetEffectivePolygon(layer, pcbnew.ERROR_INSIDE)
+    return [("polygon", [_ring(poly.Outline(i))] + [_ring(poly.Hole(i, h)) for h in range(poly.HoleCount(i))])
+            for i in range(poly.OutlineCount())]
+
+
+def _holds(kind, shape, x, y):
+    """Whether (x, y) lies in a circle, or in polygon rings by the even-odd rule."""
+    if kind == "circle":
+        return math.hypot(x - shape[0], y - shape[1]) <= shape[2]
+    inside = False
+    for ring in shape:
+        for (x0, y0), (x1, y1) in zip(ring, ring[1:] + ring[:1]):
+            if (y0 > y) != (y1 > y) and x < x0 + (y - y0) * (x1 - x0) / (y1 - y0):
+                inside = not inside
+    return inside
+
+
+def _outside(length, stretches):
+    """The stretches of [0, length] that none of the given stretches covers; all of it where none is given."""
+    out, at = [], 0.0
+    for a, b in _merged(stretches):
+        if a > at:
+            out.append((at, a))
+        at = max(at, b)
+    return out + [(at, length)] if at < length or not stretches else out
+
+
+def _merged(stretches):
+    out = []
+    for a, b in sorted(stretches):
+        if out and a <= out[-1][1]:
+            out[-1] = (out[-1][0], max(out[-1][1], b))
+        else:
+            out.append((a, b))
+    return out
+
+
+def _in_copper(sp, copper):
+    """The stretches (from, to) of the centre line sp, in nm along it, that lie inside the copper."""
+    length, found = _span(sp), []
+    for kind, shape in copper:
+        edges = [("arc", *shape, 0.0, TAU)] if kind == "circle" else [
+            ("seg", *a, *b) for ring in shape for a, b in zip(ring, ring[1:] + ring[:1])]
+        cuts = sorted({0.0, length, *(_locate(sp, *q) for e in edges for q in _centre_lines_cross(sp, e))})
+        found += [(a, b) for a, b in zip(cuts, cuts[1:]) if _holds(kind, shape, *_point_at(sp, (a + b) / 2))]
+    return _merged(found)
+
+
+def _copper_graph(c, conn):
+    """One net's copper as KiCad's connectivity joins it, for _off_route: nodes are vias, pads and places along
+    the tracks outside them, and edges are (node, cost, track length). Track whose centre line lies inside a via's
+    or pad's copper on its layer belongs to that via or pad, which is one node: a track joins it where its centre
+    line enters that copper, or, where only the track's copper touches it, at the track's point nearest it. The
+    tracks are read as pieces by _pieces, and touching pieces join at each end whose copper reaches the other, at
+    every crossing of their centre lines, and at their nearest points if they touch nowhere else. A step between
+    touching items costs twice the distance it spans, so along a curve drawn as short segments, where the track
+    between two touching places is at most pi/2 times their distance, a route keeps to the tracks; touching vias
+    and pads join at no cost. Also the total track length outside vias and pads, the layers on which track ends
+    touch each via, and the pads each via touches."""
+    tracks = {_key(t): t for t in c["tracks"]}
+    joints = {_key(j): j for j in (*c["vias"], *c["pads"])}
+    pieces = _pieces(tracks)
+    piece_of = {_key(t): n for n, piece in enumerate(pieces) for t in piece.tracks}
+    touching_pieces, touched_joints = set(), set()
+    via_layers, via_pads, links = defaultdict(set), defaultdict(list), []
+    for k, t in tracks.items():
+        layer = t.GetLayer()
+        for o in (*conn.GetConnectedTracks(t), *conn.GetConnectedPads(t)):
+            ok = _key(o)
+            if ok in joints:
+                shape = joints[ok].GetEffectiveShape(layer)  # the copper KiCad draws: unflashed, a via is its hole
+                if any(shape.Collide(e, t.GetWidth() // 2) for e in (t.GetStart(), t.GetEnd())):
+                    via_layers[ok].add(layer)
+                touched_joints.add((piece_of[k], ok))
+            elif ok in tracks and piece_of[ok] != piece_of[k]:
+                touching_pieces.add(tuple(sorted((piece_of[k], piece_of[ok]))))
+    for jk, j in joints.items():
+        for o in (*conn.GetConnectedTracks(j), *conn.GetConnectedPads(j)):
+            ok = _key(o)
+            if ok in joints and ok > jk:
+                links.append((jk, ok, 0))
+                for via, pad in ((j, o), (o, j)):
+                    if _is_via(via) and not _is_via(pad):
+                        via_pads[_key(via)].append(pad)
+    covered = defaultdict(list)
+    for n, jk in touched_joints:
+        piece = pieces[n]
+        inside = _in_copper(piece.spine, _copper(joints[jk], piece.layer))
+        covered[n] += [(a, b, jk) for a, b in inside]
+        if not inside:
+            p, q = _nearest(_line(piece), joints[jk].GetEffectiveShape(piece.layer))
+            links.append(((n, _locate(piece.spine, *p)), jk, 2 * round(math.dist(p, q))))
+    for a, b in touching_pieces:
+        pa, pb, found = pieces[a], pieces[b], []
+        for (x, px), (y, py) in (((a, pa), (b, pb)), ((b, pb), (a, pa))):
+            for s, e in px.ends:
+                if any(t.GetEffectiveShape(t.GetLayer()).Collide(e, px.width // 2) for t in py.tracks):
+                    sy = _locate(py.spine, e.x, e.y)
+                    found.append(((x, s), (y, sy), math.dist((e.x, e.y), _point_at(py.spine, sy))))
+        found += [((a, _locate(pa.spine, x, y)), (b, _locate(pb.spine, x, y)), 0.0)
+                  for x, y in _centre_lines_cross(pa.spine, pb.spine)]
+        if not found:
+            p, q = _nearest(_line(pa), _line(pb))
+            found = [((a, _locate(pa.spine, *p)), (b, _locate(pb.spine, *q)), math.dist(p, q))]
+        links += [(x, y, 2 * round(d)) for x, y, d in found]
+
+    def node(x):
+        if not isinstance(x, tuple):
+            return x
+        n, s = x
+        holder = next((jk for a, b, jk in covered[n] if a <= s <= b), None)
+        return (n, round(s)) if holder is None else holder
+
+    edges = [(node(x), node(y), cost) for x, y, cost in links]
+    stops = defaultdict(set)
+    for n, s in (x for a, b, _ in edges for x in (a, b) if isinstance(x, tuple)):
+        stops[n].add(s)
+    total = 0
+    for n, piece in enumerate(pieces):
+        for a, b in _outside(_span(piece.spine), [(a, b) for a, b, _ in covered[n]]):
+            pos = sorted({round(a), round(b)} | {s for s in stops[n] if round(a) <= s <= round(b)})
+            edges += [((n, s0), (n, s1), s1 - s0, s1 - s0) for s0, s1 in zip(pos, pos[1:])]
+            edges += [((n, round(x)), jk, 0) for x in (a, b) for lo, hi, jk in covered[n] if lo <= x <= hi]
+            total += round(b) - round(a)
+    graph = defaultdict(list)
+    for x, y, cost, *track in edges:
+        if x != y:
+            graph[x].append((y, cost, track[0] if track else 0))
+            graph[y].append((x, cost, track[0] if track else 0))
+    return graph, total, via_layers, via_pads
+
+
+def _off_route(c, graph, total):
+    """The track length off the shortest route between the net's two pads, and why the net is branched; a length
+    of None when the net does not have two pads joined by its tracks. Pads of one footprint with one number are
+    one pad. Of routes that cost the same, the one with more track."""
+    name = lambda p: f"{p.GetParentFootprint().GetReference()}:{p.GetNumber()}"  # noqa: E731
+    pads = defaultdict(list)
+    for p in c["pads"]:
+        pads[(_key(p.GetParentFootprint()), p.GetNumber()) if p.GetNumber() else _key(p)].append(_key(p))
+    if len(pads) != 2:
+        return None, f"the net joins {len(pads) or 'no'} pad{'' if len(pads) == 1 else 's'}, so it has no single route"
+    joints = {_key(p): p for p in c["pads"]}
+    (a, sources), (b, targets) = sorted(((name(joints[ks[0]]), ks) for ks in pads.values()))
+    best = {x: (0, 0) for x in sources}
+    heap = [(0, 0, n, x) for n, x in enumerate(sources)]
+    pushed = len(heap)
+    while heap:
+        cost, negative_track, _, x = heapq.heappop(heap)
+        if x in targets:
+            off = max(0, total + negative_track)
+            return off, f"{mm(off)} mm of track lies off the shortest route from {a} to {b}"
+        if (cost, negative_track) > best[x]:
+            continue
+        for y, step, track in graph[x]:
+            if (cost + step, negative_track - track) < best.get(y, (math.inf, 0)):
+                best[y] = (cost + step, negative_track - track)
+                pushed += 1
+                heapq.heappush(heap, (cost + step, negative_track - track, pushed, y))
+    return None, f"its tracks do not join {a} to {b}"
+
+
+def _via_delays(b, c, via_layers, via_pads, profile):
+    """KiCad's delay through each via, or why it has none. KiCad's per-via delay spans every layer where a
+    track touches the via, so it follows the signal only through a via in which tracks end on two or more
+    layers and that sits in no pad."""
+    in_pad, one_layer, no_delay, total = [], [], [], 0.0
+    for v in c["vias"]:
+        if any(p.HitTest(v.GetPosition()) or v.HitTest(p.GetPosition()) for p in via_pads[_key(v)]):
+            in_pad.append(_at(v))
+        elif len(via_layers[_key(v)]) < 2:
+            one_layer.append(_at(v))
+        elif not (delay := v.GetDelay()):
+            no_delay.append(_at(v))
+        else:
+            total += delay
+    reasons = []
+    if in_pad:
+        reasons.append("KiCad's per-via delay leaves out the pad around the via at " + ", ".join(in_pad))
+    if one_layer:
+        reasons.append("tracks end in the via at " + ", ".join(one_layer) + " on fewer than two layers")
+    if no_delay:
+        reasons.append(f"tuning profile {_quoted(profile)} gives no delay to the via at " + ", ".join(no_delay)
+                       if b.GetDesignSettings().m_UseHeightForLengthCalcs else
+                       "board setup leaves via height out of length calculations, so KiCad gives vias no delay")
+    return (None, reasons) if reasons else (total, [])
+
+
+def _pad_to_die_delays(c):
+    missing = [f"{p.GetParentFootprint().GetReference()}:{p.GetNumber()}" for p in c["pads"]
+               if p.GetPadToDieLength() and not p.GetPadToDieDelay()]
+    if missing:
+        return None, ["pad " + ", ".join(missing) + " has a pad-to-die length but no pad-to-die delay"]
+    return sum(p.GetPadToDieDelay() for p in c["pads"]), []
+
+
+def _quoted(name):
+    return json.dumps(name, ensure_ascii=False)
+
+
+def _delays(b, nc, c, via_layers, via_pads, profiles):
+    """KiCad returns a delay of 0 wherever the net class's tuning profile gives none, so a 0 for copper
+    that has length is reported as null, with the reason. KiCad looks the class's profile name up as it is,
+    so a class without one uses a profile with an empty name if the project has one."""
+    profile = nc.GetTuningProfile()
+    problems = []
+    if profile not in profiles:
+        problems.append(f"net class {nc.GetName()} names tuning profile {_quoted(profile)}, which the project does not "
+                        "define" if profile else f"net class {nc.GetName()} has no tuning profile")
+    elif not profiles[profile]:
+        problems.append(f"tuning profile {_quoted(profile)} has time-domain tuning turned off")
+    timed = not problems
+    on_layer = {}
+    for t in c["tracks"]:
+        on_layer.setdefault(t.GetLayer(), []).append(t)
+    rows, total = [], 0.0
+    for layer in b.GetEnabledLayers().CuStack():
+        if layer not in on_layer:
+            continue
+        length = sum(t.GetLength() for t in on_layer[layer])
+        delay = sum(t.GetDelay() for t in on_layer[layer]) if timed else None
+        if delay == 0 and length:
+            delay = None
+            problems.append(f"tuning profile {_quoted(profile)} has no delay for {b.GetLayerName(layer)}")
+        rows.append({"layer": b.GetLayerName(layer), "length": mm(length), "delay_ps": _ps(delay)})
+        total += delay or 0
+    vias, pads = (None, []), (None, [])
+    if timed:
+        vias, pads = _via_delays(b, c, via_layers, via_pads, profile), _pad_to_die_delays(c)
+    problems += vias[1] + pads[1]
+    return {"by_layer": rows, "via_delay_ps": _ps(vias[0]), "pad_to_die_delay_ps": _ps(pads[0]),
+            "delay_ps": None if problems else _ps(total + vias[0] + pads[0]),
+            "tuning_profile": profile if profile or profile in profiles else None,
+            "delay_reason": "; ".join(problems) or None}
 
 
 def _diff_pairs(b):
@@ -2920,18 +3481,32 @@ def _dp_base(name):
 
 
 def op_lengths(p):
+    settings = pcbnew.GetSettingsManager()
+    cached = settings.GetProject(os.path.splitext(os.path.abspath(p["path"]))[0] + ".kicad_pro")
+    if cached:  # a resident worker keeps the project it first loaded; the delays must use the file on disk
+        settings.UnloadProject(cached, False)
+    profiles = _tuning_profiles(p["path"])  # before KiCad loads the project, which aborts at a row missing a field
     b = load(p["path"])
-    lens = _net_lengths(b)
+    copper = _net_copper(b)
+    netclasses = b.GetDesignSettings().m_NetSettings
+    conn = b.GetConnectivity()
     import fnmatch
     nets = []
     for name, n in sorted(b.GetNetsByName().items(), key=lambda kv: str(kv[0])):
         if n.GetNetCode() <= 0:
             continue
-        e = _len_entry(b, n, lens)
+        e = _len_entry(b, n, copper)
         if p.get("nets") and not any(fnmatch.fnmatchcase(e["net"], pat) for pat in p["nets"]):
             continue
         if p.get("netclass") and e["netclass"] != p["netclass"]:
             continue
+        c = copper.get(n.GetNetCode(), NO_COPPER)
+        graph, total, via_layers, via_pads = _copper_graph(c, conn)
+        e.update(_delays(b, netclasses.GetEffectiveNetClass(n.GetNetname()), c, via_layers, via_pads, profiles))
+        off, why = _off_route(c, graph, total)
+        e["off_path_mm"] = None if off is None else mm(off)
+        e["branched"] = bool(c["tracks"]) and (off is None or off > OFF_ROUTE_BOUND)
+        e["branched_reason"] = why if e["branched"] else None
         nets.append(e)
     classes = {}
     for e in nets:
@@ -2943,7 +3518,7 @@ def op_lengths(p):
         c["spread"] = round(c["max"] - c["min"], 6)
     pairs = []
     for pn, nn in _diff_pairs(b):
-        ep, en = _len_entry(b, pn, lens), _len_entry(b, nn, lens)
+        ep, en = _len_entry(b, pn, copper), _len_entry(b, nn, copper)
         if p.get("nets") and not any(fnmatch.fnmatchcase(x, pat) for pat in p["nets"] for x in (ep["net"], en["net"])):
             continue
         pairs.append({"pair": _dp_base(ep["net"]), "p": ep["net"], "n": en["net"], "p_length": ep["length"],
@@ -2954,11 +3529,11 @@ def op_lengths(p):
 
 def op_diffpairs(p):
     b = load(p["path"])
-    lens = _net_lengths(b)
+    copper = _net_copper(b)
     ns = b.GetDesignSettings().m_NetSettings
     out = []
     for pn, nn in _diff_pairs(b):
-        ep, en = _len_entry(b, pn, lens), _len_entry(b, nn, lens)
+        ep, en = _len_entry(b, pn, copper), _len_entry(b, nn, copper)
         try:
             nc = ns.GetEffectiveNetClass(pn.GetNetname())
             width, gap = mm(nc.GetDiffPairWidth()), mm(nc.GetDiffPairGap())
@@ -3071,8 +3646,8 @@ def a_diffpair_route(b, a):
         r = a_add_track(b, {"points": pts_mm, "layer": lay, "net": net.GetNetname(), "width": mm(width)})
         res[net.GetNetname()] = {"segments": len(r["segments"]), "points": [list(q) for q in pts_mm]}
     b.BuildConnectivity()
-    lens = _net_lengths(b)
-    lp, ln_ = lens[pnet.GetNetCode()]["track"], lens[nnet.GetNetCode()]["track"]
+    copper = _net_copper(b)
+    lp, ln_ = _net_length(copper[pnet.GetNetCode()])[0], _net_length(copper[nnet.GetNetCode()])[0]
     return {"p": pnet.GetNetname(), "n": nnet.GetNetname(), "layer": lay, "width": mm(width), "gap": mm(gap),
             "tracks": res, "p_length": mm(lp), "n_length": mm(ln_), "skew": mm(abs(lp - ln_))}
 
@@ -3081,13 +3656,11 @@ def a_tune_length(b, a):
     """Add accordion meanders to a net's longest straight segments until it reaches a target length."""
     net = get_net(b, a["net"])
     code = net.GetNetCode()
-    lens = _net_lengths(b)
-    cur = lens.get(code, {"track": 0, "pad_to_die": 0})
-    current = cur["track"] + cur["pad_to_die"]
+    copper = _net_copper(b)
+    current = sum(_net_length(copper.get(code, NO_COPPER)))
     if a.get("match"):
         other = get_net(b, a["match"])
-        o = lens.get(other.GetNetCode(), {"track": 0, "pad_to_die": 0})
-        target = o["track"] + o["pad_to_die"]
+        target = sum(_net_length(copper.get(other.GetNetCode(), NO_COPPER)))
     else:
         target = MM(a["target"])
     tol = MM(a.get("tolerance", 0.01))
@@ -3150,8 +3723,7 @@ def a_tune_length(b, a):
         used.append({"segment_length": mm(ln), "meanders": k, "amplitude": mm(amp), "spacing": mm(sp), "layer": lay})
         remaining -= 2 * k * amp
     b.BuildConnectivity()
-    after = _net_lengths(b).get(code, {"track": 0, "pad_to_die": 0})
-    final = after["track"] + after["pad_to_die"]
+    final = sum(_net_length(_net_copper(b).get(code, NO_COPPER)))
     res = {"net": a["net"], "length_before": mm(current), "length": mm(final), "target": mm(target),
            "error": mm(target - final), "tuned_segments": used}
     if target - final > tol:

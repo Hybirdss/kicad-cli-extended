@@ -301,7 +301,43 @@ def length_group():
 @click.option("--netclass", default=None)
 @handle_error
 def length_report(nets, netclass):
-    """Routed length per net (tracks + pad-to-die), spread per net class, skew per pair."""
+    """Routed length per net and per copper layer, KiCad's delay, branched nets, class spread, pair skew.
+
+    length is tracks plus pad-to-die, and by_layer splits the track length by copper layer. Via barrels
+    are in no length; vias counts them. The delays are the picoseconds KiCad 10 computes from the
+    time-domain tuning profile of the net's class: delay_ps in each by_layer row for its tracks,
+    via_delay_ps for vias in which tracks end on two or more layers outside any pad, pad_to_die_delay_ps,
+    and their sum delay_ps. Where KiCad gives no delay, the value is null and delay_reason says why.
+
+    off_path_mm is the length of track off the route between the net's two pads. Pads of one footprint
+    with one number count as one pad. Track whose centre line lies inside the copper of a pad or via on
+    its layer belongs to that pad or via, so it is neither on the route nor off it, and track_length less
+    off_path_mm is the route plus that track. The route is the shortest path along track centre lines.
+    Each pad or via on it is one node. A track joins it where the track's centre line enters its copper,
+    and pads and vias whose copper touches join at no cost. Every other step between items that KiCad's
+    connectivity says touch counts twice its length. Such steps
+    start at four kinds of contact: the point of a track nearest a pad or via that only its copper
+    touches, a track end whose copper reaches another track, a crossing of two centre lines, and the
+    nearest points of two tracks that touch nowhere else. Segments on one line, or arcs on one circle,
+    that have one layer and width and meet end to end count as one track, so where a track is cut changes
+    nothing. Copper zones join nothing. Because a step counts twice its length, the route cuts across
+    touching copper only where the track it leaves out is longer than twice the step. Where copper
+    overlaps with no crossing or touching end, as along a spike, in a sharp corner or where a track passes
+    a via, the route keeps to the centre lines. In both cases off_path_mm misses copper that a signal can
+    cut across, such as a short U whose legs touch. branched is true when more than 0.2 mm of track is off
+    the route, as with a stub, a loop or a track drawn twice. It is also true when a net with tracks has
+    other than two pads or its tracks do not join them, and then off_path_mm is null. branched_reason
+    says why.
+
+    KiCad's DRC sums the same copper but can read more or less. It measures a track that ends inside a
+    via from the via centre, which adds delay when the track stops short of the centre and removes it
+    when the track bends or runs past it. It straightens a track that bends inside the pad whose centre
+    it ends at, which removes delay. It spans a via across the layers where a track ends inside the via
+    and the side of a pad the via touches, while KiCad's per-via delay in via_delay_ps spans the layers
+    where tracks touch the via. So kce reads more where, on a layer beyond those, a track runs over the
+    via or ends on its rim or just outside it with its copper touching it, and DRC reads more where the
+    via touches a pad on a layer beyond its tracks.
+    """
     output(pcb_mod.read(get_session(), "lengths", nets=list(nets), netclass=netclass))
 
 

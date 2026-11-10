@@ -253,7 +253,7 @@ with 1/(2*pi*R*C). power:GND alone is not SPICE ground. Simulation does not repl
 
 ### R12: Route a high-speed block and panelize
 
-Triggers: differential pair, USB/LVDS/MIPI/DDR, skew, length match, via fence, teardrop, panel.
+Triggers: differential pair, USB/LVDS/MIPI/DDR, skew, length match, delay or phase match, via fence, teardrop, panel.
 Chain: checkpoint pre-hs, inspect stackup/netclasses/pairs, rules, route, shorter-leg tune,
 fence, stitch, scoped teardrops, fill, DRC, length report, separate panel and panel DRC/package.
 
@@ -261,12 +261,24 @@ fence, stitch, scoped teardrops, fill, DRC, length report, separate panel and pa
 kce $P pcb diffpair rule /USB --gap 0.2 --gap-max 0.25 --max-skew 0.5
 kce $P pcb diffpair route /USB --from U1 --to J1 --layer F.Cu
 kce $P pcb length tune /USB_D- --match /USB_D+ --amplitude 1 --tolerance 0.02
+kce $P pcb length report --net '/USB*'
 kce $P pcb teardrops add --target vias --net /CLK
 kce $P pcb panelize --rows 2 --cols 3 --mode vscore --spacing 0 --strict --drc -o panel/board-panel.kicad_pcb
 ```
 
 Verify routed/skew/length DRC, via counts and unchanged source hash. V-score forces zero spacing;
 --strict rejects conflicts. Independently review impedance/fab capability. Package panels with R7.
+Length report: by_layer track length and KiCad's delay per copper layer from the net class tuning
+profile; delay_ps adds vias and pad-to-die (null plus delay_reason where KiCad gives none). Match
+delay_ps across layers; vias add no length. off_path_mm is track off the route between the net's two
+pads (one footprint's pads with one number are one pad). Track inside a pad's or via's copper belongs
+to that pad or via and counts neither on nor off the route. branched means more than 0.2 mm off it,
+or a net with tracks and other than two pads, or whose tracks do not join its two pads (off_path_mm
+null); branched_reason says which. The route keeps to centre lines, so off_path_mm misses copper a
+signal can cut across, such as a short U whose legs touch, a spike or a sharp corner. DRC ps rules
+can read more or less: DRC measures track ends in a via from its centre, straightens bends inside a
+pad whose centre a track ends at, and spans a via by the track ends inside it and the pads it
+touches, not by every track touching it.
 
 ## Advanced
 
