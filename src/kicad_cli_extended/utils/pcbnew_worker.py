@@ -21,7 +21,7 @@ import tempfile
 import time
 import traceback
 import warnings
-from collections import Counter, defaultdict
+from collections import defaultdict
 
 warnings.filterwarnings("ignore")
 
@@ -2868,6 +2868,7 @@ def a_add_fiducial(b, a):
 NO_COPPER = {"tracks": (), "vias": (), "pads": ()}
 AS_PER_PS = 1e6  # KiCad 10 counts time in attoseconds (base_units.h IU_PER_PS)
 TAU = 2 * math.pi
+OFF_ROUTE_BOUND = MM(0.2)
 # nlohmann::json, as KiCad calls it, ends a // comment at a line break or a NUL, and fails a /* comment holding a NUL
 JSON_STRING_OR_COMMENT = re.compile(r'("(?:\\.|[^"\\])*")|//[^\r\n\0]*\0?|/\*[^\0]*?\*/')
 LONE_SURROGATE = re.compile("[\ud800-\udfff]")
@@ -2914,6 +2915,12 @@ def _not_json(constant):
     raise ValueError(f"{constant} is not a JSON number")
 
 
+def _finite(text):
+    if math.isinf(value := float(text)):
+        raise OverflowError(f"number overflow parsing '{text}'")  # nlohmann::json's error 406
+    return value
+
+
 def _has_lone_surrogate(x):
     if isinstance(x, str):
         return bool(LONE_SURROGATE.search(x))
@@ -2924,11 +2931,14 @@ def _has_lone_surrogate(x):
 
 def _project_json(pro, raw):
     """The .kicad_pro as KiCad's nlohmann::json reads it: one UTF-8 BOM and comments skipped, input ended at a NUL,
-    and no NaN, Infinity or unpaired surrogate escape."""
+    and no NaN, Infinity, number beyond a double or unpaired surrogate escape."""
     problem = None
     try:
         data = json.loads(JSON_STRING_OR_COMMENT.sub(lambda m: m[1] or " ", raw.decode("utf-8-sig")).split("\0", 1)[0],
-                          parse_constant=_not_json)
+                          parse_constant=_not_json, parse_float=_finite,
+                          parse_int=lambda text: int(text) if -2**63 <= int(text) < 2**64 else _finite(text))
+    except OverflowError as e:
+        raise ValueError(f"Cannot parse {pro}: {e}. KiCad stops loading the board at this number.") from None
     except ValueError as e:
         problem = str(e)
     else:
@@ -2999,7 +3009,7 @@ def _tuning_profiles(board_path):
                     "reading tuning profiles at this row")
             raise ValueError(f"Tuning profile {name} (row {i + 1} of tuning_profiles_impedance_geometric) in {pro} "
                              f"{what}.")
-        profiles[row["profile_name"]] = row["enable_time_domain_tuning"]
+        profiles[row["profile_name"].split("\0", 1)[0]] = row["enable_time_domain_tuning"]  # KiCad reads a C string
     return profiles
 
 
@@ -3009,14 +3019,6 @@ def _ps(attoseconds):
 
 def _at(item):
     return f"({mm(item.GetPosition().x)}, {mm(item.GetPosition().y)})"
-
-
-def _root(parent, x):
-    """The representative of x in the disjoint sets that parent links; a new x starts its own set."""
-    while parent.setdefault(x, x) != x:
-        parent[x] = parent[parent[x]]
-        x = parent[x]
-    return x
 
 
 def _key(item):
@@ -3074,27 +3076,70 @@ def _nearest(t, shape):
     return (p.x, p.y), (q.x, q.y)
 
 
-def _contacts(c, conn):
-    """Where the net's copper items touch, by KiCad's connectivity, placed along the tracks: an end whose copper
-    reaches the other item touches it there, at the other track's point nearest that end; items touching by no
-    end touch where their centre lines cross or come nearest. Track-track contacts are (reach, (track, s),
-    (track, s)), track-joint ones ((track, s), joint) and joint-joint ones (joint, joint), with s the distance
-    along the track; also the layers on which track ends touch each via."""
+def _on_arc(sp, x, y):
+    _, cx, cy, _, a0, sweep = sp
+    return (math.atan2(y - cy, x - cx) - a0) * math.copysign(1, sweep) % TAU <= abs(sweep) + 1e-9
+
+
+def _centre_lines_cross(a, b):
+    """The points where the centre lines a and b (from _spine) cross. Parallel segments have none: where they
+    touch, one's end lies on the other."""
+    if a[0] == "arc" and b[0] == "seg":
+        a, b = b, a
+    if a[0] == "seg" and b[0] == "seg":
+        (_, x1, y1, x2, y2), (_, x3, y3, x4, y4) = a, b
+        d = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
+        if not d:
+            return []
+        t = ((x3 - x1) * (y4 - y3) - (y3 - y1) * (x4 - x3)) / d
+        u = ((x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1)) / d
+        return [(x1 + t * (x2 - x1), y1 + t * (y2 - y1))] if -1e-9 <= t <= 1 + 1e-9 and -1e-9 <= u <= 1 + 1e-9 else []
+    if a[0] == "seg":
+        (_, x1, y1, x2, y2), (_, cx, cy, r, _, _) = a, b
+        dx, dy, fx, fy = x2 - x1, y2 - y1, x1 - cx, y1 - cy
+        qa, qb, qc = dx * dx + dy * dy, 2 * (fx * dx + fy * dy), fx * fx + fy * fy - r * r
+        disc = qb * qb - 4 * qa * qc
+        if not qa or disc < 0:
+            return []
+        ts = {(-qb - math.sqrt(disc)) / (2 * qa), (-qb + math.sqrt(disc)) / (2 * qa)}
+        points = [(x1 + t * dx, y1 + t * dy) for t in ts if -1e-9 <= t <= 1 + 1e-9]
+        return [p for p in points if _on_arc(b, *p)]
+    (_, x1, y1, r1, _, _), (_, x2, y2, r2, _, _) = a, b
+    d = math.hypot(x2 - x1, y2 - y1)
+    if not d or d > r1 + r2 or d < abs(r1 - r2):
+        return []
+    along = (r1 * r1 - r2 * r2 + d * d) / (2 * d)
+    h = math.sqrt(max(0.0, r1 * r1 - along * along))
+    mx, my = x1 + along * (x2 - x1) / d, y1 + along * (y2 - y1) / d
+    points = {(mx + h * (y2 - y1) / d, my - h * (x2 - x1) / d), (mx - h * (y2 - y1) / d, my + h * (x2 - x1) / d)}
+    return [p for p in points if _on_arc(a, *p) and _on_arc(b, *p)]
+
+
+def _copper_graph(c, conn):
+    """One net's copper as KiCad's connectivity joins it, for _off_route: nodes are vias, pads and places along
+    the tracks, and edges are (node, cost, track length). Each track is split wherever it touches another item:
+    at each end whose copper reaches the item; at every crossing of two tracks' centre lines; at the nearest
+    points of two tracks touching nowhere else; and, for a track passing over a via or pad, at the point nearest
+    its centre. A link between touching places costs twice the distance it spans. Along a curve drawn as short
+    segments the track between two touching places is at most pi/2 times their distance, so a route keeps to the
+    tracks and cuts across only where their copper merges. Also the layers on which track ends touch each via,
+    and the pads each via touches."""
     tracks = {_key(t): t for t in c["tracks"]}
     joints = {_key(j): j for j in (*c["vias"], *c["pads"])}
     sp = {k: _spine(t) for k, t in tracks.items()}
     ends = {k: ((0.0, t.GetStart()), (_span(sp[k]), t.GetEnd())) for k, t in tracks.items()}
-    tt, tj, layers_in = [], [], {}
+    links, via_layers, via_pads = [], defaultdict(set), defaultdict(list)
     for k, t in tracks.items():
         layer = t.GetLayer()
         for o in (*conn.GetConnectedTracks(t), *conn.GetConnectedPads(t)):
             ok = _key(o)
             if ok in joints:
+                at = (joints[ok].GetPosition().x, joints[ok].GetPosition().y)
                 shape = joints[ok].GetEffectiveShape(layer)  # the copper KiCad draws: unflashed, a via is its hole
                 hits = [s for s, e in ends[k] if shape.Collide(e, t.GetWidth() // 2)]
-                tj += [((k, s), ok) for s in hits] or [((k, _locate(sp[k], *_nearest(t, shape)[0])), ok)]
                 if hits:
-                    layers_in.setdefault(ok, set()).add(layer)
+                    via_layers[ok].add(layer)
+                links += [((k, s), ok, math.dist(_point_at(sp[k], s), at)) for s in hits or [_locate(sp[k], *at)]]
             elif ok in tracks and ok > k:
                 found = []
                 for a, b in ((k, ok), (ok, k)):
@@ -3102,102 +3147,77 @@ def _contacts(c, conn):
                     for s, e in ends[a]:
                         if other.Collide(e, tracks[a].GetWidth() // 2):
                             sb = _locate(sp[b], e.x, e.y)
-                            found.append((math.dist((e.x, e.y), _point_at(sp[b], sb)), (a, s), (b, sb)))
+                            found.append(((a, s), (b, sb), math.dist((e.x, e.y), _point_at(sp[b], sb))))
+                found += [((k, _locate(sp[k], x, y)), (ok, _locate(sp[ok], x, y)), 0.0)
+                          for x, y in _centre_lines_cross(sp[k], sp[ok])]
                 if not found:
                     p, q = _nearest(t, _centre_line(tracks[ok]))
-                    found = [(0.0, (k, _locate(sp[k], *p)), (ok, _locate(sp[ok], *q)))]
-                tt += found
-    jj = [(_key(j), _key(o)) for j in joints.values() for o in (*conn.GetConnectedTracks(j), *conn.GetConnectedPads(j))
-          if _key(o) in joints]
-    return tracks, joints, sp, tt, tj, jj, layers_in
-
-
-def _joined(near, a, b, limit):
-    """Whether a and b are already joined by less than limit of copper."""
-    best, heap = {a: 0}, [(0, a)]
-    while heap:
-        d, x = heapq.heappop(heap)
-        if x == b:
-            return True
-        if d <= best[x]:
-            for y, step in near[x]:
-                if d + step < min(limit, best.get(y, math.inf)):
-                    best[y] = d + step
-                    heapq.heappush(heap, (d + step, y))
-    return False
-
-
-def _lies_along(js, t, sp, s0, s1):
-    """Whether the copper of the piece [s0, s1] of track t touches one of the vias and pads js all along it,
-    tested every quarter width."""
-    shapes = [j.GetEffectiveShape(t.GetLayer()) for j in js if j.IsOnLayer(t.GetLayer())]
-    n = max(1, math.ceil(4 * (s1 - s0) / t.GetWidth()))
-    return bool(shapes) and all(any(sh.Collide(pcbnew.VECTOR2I(*map(round, _point_at(sp, s0 + (s1 - s0) * i / n))),
-                                               t.GetWidth() // 2) for sh in shapes) for i in range(n + 1))
-
-
-def _topology(c, conn):
-    """Whether a net's copper is branched, and the layers on which its tracks end in each via.
-
-    KiCad's connectivity says which items touch, and _contacts places each contact along the tracks. Split there,
-    the tracks are pieces between places, and the copper is branched when the pieces loop back on themselves (a
-    track drawn twice or run along another, wherever it lies), or when, with each via and pad one place, three
-    pieces meet or the pieces close a loop. Copper reaches past the centre lines, so three tolerances keep its
-    own shape from reading as a fork: a piece shorter than its width is a point, a contact between places already
-    joined by less than twice the wider track's width of copper is the place they meet, and a piece whose copper
-    touches the vias and pads at its ends all along it belongs to them."""
-    tracks, joints, sp, tt, tj, jj, layers_in = _contacts(c, conn)
-    place = lambda x: x if isinstance(x, int) else (x[0], round(x[1]))  # noqa: E731
+                    found = [((k, _locate(sp[k], *p)), (ok, _locate(sp[ok], *q)), math.dist(p, q))]
+                links += found
+    for jk, j in joints.items():
+        for o in (*conn.GetConnectedTracks(j), *conn.GetConnectedPads(j)):
+            ok = _key(o)
+            if ok in joints and ok > jk:
+                links.append((jk, ok, math.dist((j.GetPosition().x, j.GetPosition().y),
+                                                (o.GetPosition().x, o.GetPosition().y))))
+                for via, pad in ((j, o), (o, j)):
+                    if _is_via(via) and not _is_via(pad):
+                        via_pads[_key(via)].append(pad)
+    node = lambda x: x if isinstance(x, int) else (x[0], round(x[1]))  # noqa: E731
     stops = {k: {0, round(_span(sp[k]))} for k in tracks}
-    for k, s in [x for _, a, b in tt for x in (a, b)] + [a for a, _ in tj]:
-        stops[k].add(round(s))
-    near, short, pieces = defaultdict(list), {}, []
-    for k, t in tracks.items():
+    for x in (x for a, b, _ in links for x in (a, b) if not isinstance(x, int)):
+        stops[x[0]].add(round(x[1]))
+    graph = defaultdict(list)
+    for k in tracks:
         pos = sorted(stops[k])
         for s0, s1 in zip(pos, pos[1:]):
-            near[(k, s0)].append(((k, s1), s1 - s0))
-            near[(k, s1)].append(((k, s0), s1 - s0))
-            if s1 - s0 < t.GetWidth():
-                short[_root(short, (k, s0))] = _root(short, (k, s1))
-            else:
-                pieces.append((k, s0, s1))
-    links = []
-    for _, a, b in sorted(tt, key=lambda contact: contact[0]):
-        a, b = place(a), place(b)
-        if not _joined(near, a, b, 2 * max(tracks[a[0]].GetWidth(), tracks[b[0]].GetWidth())):
-            near[a].append((b, 0))
-            near[b].append((a, 0))
-            links.append((a, b))
-
-    def shape(extra, in_joints):
-        parent = dict(short)
-        for a, b in (*links, *extra):
-            parent[_root(parent, place(a))] = _root(parent, place(b))
-        degree, loops, loop = Counter(), {}, False
-        for k, s0, s1 in pieces:
-            a, b = _root(parent, (k, s0)), _root(parent, (k, s1))
-            if in_joints and a == b and _lies_along([j for jk, j in joints.items() if _root(parent, jk) == a],
-                                                    tracks[k], sp[k], s0, s1):
-                continue
-            degree.update((a, b))
-            la, lb = _root(loops, a), _root(loops, b)
-            loop |= la == lb
-            loops[la] = lb
-        return loop, max(degree.values(), default=0)
-
-    loop, degree = shape((*tj, *jj), True)
-    return shape((), False)[0] or loop or degree >= 3, [layers_in.get(_key(v), set()) for v in c["vias"]]
+            graph[(k, s0)].append(((k, s1), s1 - s0, s1 - s0))
+            graph[(k, s1)].append(((k, s0), s1 - s0, s1 - s0))
+    for a, b, distance in links:
+        graph[node(a)].append((node(b), 2 * distance, 0))
+        graph[node(b)].append((node(a), 2 * distance, 0))
+    return graph, sum(round(_span(s)) for s in sp.values()), via_layers, via_pads
 
 
-def _via_delays(b, c, via_layers, profile):
+def _off_route(c, graph, total):
+    """The track length off the shortest route between the net's two pads, and why the net is branched; a length
+    of None when the net does not have two pads joined by its tracks. Pads of one footprint with one number are
+    one pad. Of routes that cost the same, the one with more track."""
+    name = lambda p: f"{p.GetParentFootprint().GetReference()}:{p.GetNumber()}"  # noqa: E731
+    pads = defaultdict(list)
+    for p in c["pads"]:
+        pads[(_key(p.GetParentFootprint()), p.GetNumber()) if p.GetNumber() else _key(p)].append(_key(p))
+    if len(pads) != 2:
+        return None, f"the net joins {len(pads) or 'no'} pad{'' if len(pads) == 1 else 's'}, so it has no single route"
+    joints = {_key(p): p for p in c["pads"]}
+    (a, sources), (b, targets) = sorted(((name(joints[ks[0]]), ks) for ks in pads.values()))
+    best = {x: (0, 0) for x in sources}
+    heap = [(0, 0, n, x) for n, x in enumerate(sources)]
+    pushed = len(heap)
+    while heap:
+        cost, negative_track, _, x = heapq.heappop(heap)
+        if x in targets:
+            off = max(0, total + negative_track)
+            return off, f"{mm(off)} mm of track lies off the shortest route from {a} to {b}"
+        if (cost, negative_track) > best[x]:
+            continue
+        for y, step, track in graph[x]:
+            if (cost + step, negative_track - track) < best.get(y, (math.inf, 0)):
+                best[y] = (cost + step, negative_track - track)
+                pushed += 1
+                heapq.heappush(heap, (cost + step, negative_track - track, pushed, y))
+    return None, f"its tracks do not join {a} to {b}"
+
+
+def _via_delays(b, c, via_layers, via_pads, profile):
     """KiCad's delay through each via, or why it has none. KiCad's per-via delay spans every layer where a
     track touches the via, so it follows the signal only through a via in which tracks end on two or more
     layers and that sits in no pad."""
     in_pad, one_layer, no_delay, total = [], [], [], 0.0
-    for v, joined in zip(c["vias"], via_layers):
-        if any(p.HitTest(v.GetPosition()) or v.HitTest(p.GetPosition()) for p in c["pads"]):
+    for v in c["vias"]:
+        if any(p.HitTest(v.GetPosition()) or v.HitTest(p.GetPosition()) for p in via_pads[_key(v)]):
             in_pad.append(_at(v))
-        elif len(joined) < 2:
+        elif len(via_layers[_key(v)]) < 2:
             one_layer.append(_at(v))
         elif not (delay := v.GetDelay()):
             no_delay.append(_at(v))
@@ -3209,7 +3229,7 @@ def _via_delays(b, c, via_layers, profile):
     if one_layer:
         reasons.append("tracks end in the via at " + ", ".join(one_layer) + " on fewer than two layers")
     if no_delay:
-        reasons.append(f"tuning profile {profile} gives no delay to the via at " + ", ".join(no_delay)
+        reasons.append(f"tuning profile {_quoted(profile)} gives no delay to the via at " + ", ".join(no_delay)
                        if b.GetDesignSettings().m_UseHeightForLengthCalcs else
                        "board setup leaves via height out of length calculations, so KiCad gives vias no delay")
     return (None, reasons) if reasons else (total, [])
@@ -3223,17 +3243,21 @@ def _pad_to_die_delays(c):
     return sum(p.GetPadToDieDelay() for p in c["pads"]), []
 
 
-def _delays(b, nc, c, via_layers, profiles):
+def _quoted(name):
+    return json.dumps(name, ensure_ascii=False)
+
+
+def _delays(b, nc, c, via_layers, via_pads, profiles):
     """KiCad returns a delay of 0 wherever the net class's tuning profile gives none, so a 0 for copper
-    that has length is reported as null, with the reason."""
+    that has length is reported as null, with the reason. KiCad looks the class's profile name up as it is,
+    so a class without one uses a profile with an empty name if the project has one."""
     profile = nc.GetTuningProfile()
     problems = []
-    if not profile:
-        problems.append(f"net class {nc.GetName()} has no tuning profile")
-    elif profile not in profiles:
-        problems.append(f"net class {nc.GetName()} names tuning profile {profile}, which the project does not define")
+    if profile not in profiles:
+        problems.append(f"net class {nc.GetName()} names tuning profile {_quoted(profile)}, which the project does not "
+                        "define" if profile else f"net class {nc.GetName()} has no tuning profile")
     elif not profiles[profile]:
-        problems.append(f"tuning profile {profile} has time-domain tuning turned off")
+        problems.append(f"tuning profile {_quoted(profile)} has time-domain tuning turned off")
     timed = not problems
     on_layer = {}
     for t in c["tracks"]:
@@ -3246,15 +3270,16 @@ def _delays(b, nc, c, via_layers, profiles):
         delay = sum(t.GetDelay() for t in on_layer[layer]) if timed else None
         if delay == 0 and length:
             delay = None
-            problems.append(f"tuning profile {profile} has no delay for {b.GetLayerName(layer)}")
+            problems.append(f"tuning profile {_quoted(profile)} has no delay for {b.GetLayerName(layer)}")
         rows.append({"layer": b.GetLayerName(layer), "length": mm(length), "delay_ps": _ps(delay)})
         total += delay or 0
     vias, pads = (None, []), (None, [])
     if timed:
-        vias, pads = _via_delays(b, c, via_layers, profile), _pad_to_die_delays(c)
+        vias, pads = _via_delays(b, c, via_layers, via_pads, profile), _pad_to_die_delays(c)
     problems += vias[1] + pads[1]
     return {"by_layer": rows, "via_delay_ps": _ps(vias[0]), "pad_to_die_delay_ps": _ps(pads[0]),
-            "delay_ps": None if problems else _ps(total + vias[0] + pads[0]), "tuning_profile": profile or None,
+            "delay_ps": None if problems else _ps(total + vias[0] + pads[0]),
+            "tuning_profile": profile if profile or profile in profiles else None,
             "delay_reason": "; ".join(problems) or None}
 
 
@@ -3309,9 +3334,12 @@ def op_lengths(p):
         if p.get("netclass") and e["netclass"] != p["netclass"]:
             continue
         c = copper.get(n.GetNetCode(), NO_COPPER)
-        branched, via_layers = _topology(c, conn)
-        e.update(_delays(b, netclasses.GetEffectiveNetClass(n.GetNetname()), c, via_layers, profiles))
-        e["branched"] = branched
+        graph, total, via_layers, via_pads = _copper_graph(c, conn)
+        e.update(_delays(b, netclasses.GetEffectiveNetClass(n.GetNetname()), c, via_layers, via_pads, profiles))
+        off, why = _off_route(c, graph, total)
+        e["off_path_mm"] = None if off is None else mm(off)
+        e["branched"] = bool(c["tracks"]) and (off is None or off > OFF_ROUTE_BOUND)
+        e["branched_reason"] = why if e["branched"] else None
         nets.append(e)
     classes = {}
     for e in nets:
