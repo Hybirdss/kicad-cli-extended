@@ -308,14 +308,16 @@ def length_report(nets, netclass):
     time-domain tuning profile of the net's class: delay_ps in each by_layer row for its tracks,
     via_delay_ps for vias in which tracks end on two or more layers outside any pad, pad_to_die_delay_ps,
     and their sum delay_ps. Where KiCad gives no delay, the value is null and delay_reason says why.
-    branched is true when the tracks fork or loop, so length is more than the length of one path: three
-    or more pieces of track meet at one place (a T, a stub, a crossing, or a track that runs over a pad
-    or via where another track ends), or pieces close a loop (a track drawn twice or laid along
-    another, inside a pad too). Each pad and via is one place, and separate pieces of copper do not
-    make a net branched. KiCad's connectivity says what touches, and copper zones are not counted.
-    Copper within about a track width of a place counts as that place: a piece of track shorter than
-    its width is a point, a touch between places already joined by less than twice the width of copper
-    closes no loop, and track copper that lies along a pad or via is part of it.
+
+    off_path_mm is the track length off the route between the net's two pads, so track_length less
+    off_path_mm is the route's; pads of one footprint with one number count as one pad. The route is the
+    shortest path along track centre lines in which a step between items that KiCad's connectivity says
+    touch counts twice its length, a via or pad standing at its centre. Steps start at a track end whose
+    copper reaches the other item, where two centre lines cross, where a track runs over a via or pad (at
+    its point nearest the centre), and where two tracks touching nowhere else come nearest. Copper zones
+    join nothing. branched is true when more than 0.2 mm of track is off the route, as with a stub, a loop,
+    a track drawn twice or track inside a pad off the route, and when a net with tracks has other than two
+    pads or its tracks do not join them, where off_path_mm is null. branched_reason says why.
 
     KiCad's DRC sums the same copper but can read more or less. It measures a track that ends inside a
     via from the via centre, which adds delay when the track stops short of the centre and removes it
@@ -323,8 +325,8 @@ def length_report(nets, netclass):
     it ends at, which removes delay. It spans a via across the layers where a track ends inside the via
     and the side of a pad the via touches, while KiCad's per-via delay in via_delay_ps spans the layers
     where tracks touch the via. So kce reads more where, on a layer beyond those, a track runs over the
-    via (the net is then branched) or ends just outside it with its copper touching it, and DRC reads
-    more where the via touches a pad on a layer beyond its tracks.
+    via or ends on its rim or just outside it with its copper touching it, and DRC reads more where the
+    via touches a pad on a layer beyond its tracks.
     """
     output(pcb_mod.read(get_session(), "lengths", nets=list(nets), netclass=netclass))
 
