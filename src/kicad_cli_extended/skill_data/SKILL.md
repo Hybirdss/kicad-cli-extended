@@ -270,9 +270,12 @@ Verify routed/skew/length DRC, via counts and unchanged source hash. V-score for
 --strict rejects conflicts. Independently review impedance/fab capability. Package panels with R7.
 Length report: by_layer track length and KiCad's delay per copper layer from the net class tuning
 profile; delay_ps adds vias and pad-to-die (null plus delay_reason where KiCad gives none). Match
-delay_ps across layers; vias add no length; branched nets (a T, a track drawn twice, a track over a
-pad or via) have no single path length. DRC ps rules can read more or less: DRC measures track ends
-in a via from its centre and spans a via only across layers where tracks end.
+delay_ps across layers; vias add no length; branched nets (a T, a crossing, a track drawn twice or
+laid along another, a track over a pad or via where another track ends) have no single path length.
+Copper within about a track width of a meeting place counts as that place, and copper along a pad or
+via as part of it. DRC ps rules can read more or less: DRC measures track ends in a via from its
+centre, straightens bends inside a pad whose centre a track ends at, and spans a via by the track
+ends inside it and the pads it touches, not by every track touching it.
 
 ## Advanced
 
