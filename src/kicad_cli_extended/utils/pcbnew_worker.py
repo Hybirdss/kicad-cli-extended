@@ -21,7 +21,7 @@ import tempfile
 import time
 import traceback
 import warnings
-from collections import Counter
+from collections import Counter, defaultdict
 
 warnings.filterwarnings("ignore")
 
@@ -2867,8 +2867,23 @@ def a_add_fiducial(b, a):
 
 NO_COPPER = {"tracks": (), "vias": (), "pads": ()}
 AS_PER_PS = 1e6  # KiCad 10 counts time in attoseconds (base_units.h IU_PER_PS)
-GRID = 5_000_000  # 5 mm buckets for finding the vias and pads near a track end
-JSON_STRING_OR_COMMENT = re.compile(r'("(?:\\.|[^"\\])*")|//[^\r\n]*|/\*.*?\*/', re.S)
+TAU = 2 * math.pi
+# nlohmann::json, as KiCad calls it, ends a // comment at a line break or a NUL, and fails a /* comment holding a NUL
+JSON_STRING_OR_COMMENT = re.compile(r'("(?:\\.|[^"\\])*")|//[^\r\n\0]*\0?|/\*[^\0]*?\*/')
+LONE_SURROGATE = re.compile("[\ud800-\udfff]")
+MISSING = object()
+# What nlohmann::json converts to the C++ type that readUserDefinedProfileConfigurationLine (tuning_profiles.cpp)
+# reads each field as; a C++ int also takes true and false.
+KICAD_TYPES = {"string": (lambda v: isinstance(v, str), "a string"),
+               "bool": (lambda v: isinstance(v, bool), "true or false"),
+               "double": (lambda v: isinstance(v, (int, float)) and not isinstance(v, bool), "a number"),
+               "int": (lambda v: isinstance(v, (int, float)), "a number")}
+PROFILE_FIELDS = (("profile_name", "string"), ("type", "double"), ("target_impedance", "double"),
+                  ("enable_time_domain_tuning", "bool"), ("via_prop_delay", "int"))
+LAYER_ENTRY_FIELDS = (("signal_layer", "string"), ("top_reference_layer", "string"),
+                      ("bottom_reference_layer", "string"), ("width", "int"), ("diff_pair_gap", "int"), ("delay", "int"))
+VIA_OVERRIDE_FIELDS = (("signal_layer_from", "string"), ("signal_layer_to", "string"), ("via_layer_from", "string"),
+                       ("via_layer_to", "string"), ("delay", "int"))
 
 
 def _net_copper(b):
@@ -2895,30 +2910,97 @@ def _len_entry(b, n, copper):
             "segments": len(c["tracks"])}
 
 
+def _not_json(constant):
+    raise ValueError(f"{constant} is not a JSON number")
+
+
+def _has_lone_surrogate(x):
+    if isinstance(x, str):
+        return bool(LONE_SURROGATE.search(x))
+    if isinstance(x, dict):
+        return any(_has_lone_surrogate(k) or _has_lone_surrogate(v) for k, v in x.items())
+    return isinstance(x, list) and any(map(_has_lone_surrogate, x))
+
+
+def _project_json(pro, raw):
+    """The .kicad_pro as KiCad's nlohmann::json reads it: one UTF-8 BOM and comments skipped, input ended at a NUL,
+    and no NaN, Infinity or unpaired surrogate escape."""
+    problem = None
+    try:
+        data = json.loads(JSON_STRING_OR_COMMENT.sub(lambda m: m[1] or " ", raw.decode("utf-8-sig")).split("\0", 1)[0],
+                          parse_constant=_not_json)
+    except ValueError as e:
+        problem = str(e)
+    else:
+        if not isinstance(data, dict):
+            problem = "the file is not a JSON object"
+        elif _has_lone_surrogate(data):
+            problem = "a \\u escape names half a surrogate pair"
+    if problem:
+        raise ValueError(f"Cannot parse {pro}: {problem}. KiCad then opens the board without the project's net "
+                         "classes and tuning profiles.")
+    return data
+
+
+def _kicad_items(value):
+    """The items KiCad's range-for over a nlohmann::json can read: a list's items or an object's values (a scalar
+    visits only itself, which is no object)."""
+    return value if isinstance(value, list) else list(value.values()) if isinstance(value, dict) else []
+
+
+def _unreadable_field(row):
+    """The first field of a tuning profile row, in KiCad's order, that KiCad cannot read: (path, value, type), with
+    MISSING for a field the row lacks. KiCad skips layer entries that are not objects and via overrides without
+    signal_layer_from."""
+    def check(obj, fields, prefix=""):
+        for name, kind in fields:
+            value = obj.get(name, MISSING)
+            if value is MISSING or not KICAD_TYPES[kind][0](value):
+                return prefix + name, value, kind
+        return None
+
+    found = check(row, PROFILE_FIELDS)
+    for key, fields, needs in (("layer_entries", LAYER_ENTRY_FIELDS, None),
+                               ("via_overrides", VIA_OVERRIDE_FIELDS, "signal_layer_from")):
+        if found:
+            return found
+        if key not in row:
+            return key, MISSING, None
+        for i, item in enumerate(_kicad_items(row[key])):
+            if isinstance(item, dict) and (needs is None or needs in item):
+                found = found or check(item, fields, f"{key}[{i}].")
+    return found
+
+
 def _tuning_profiles(board_path):
     """Whether each tuning profile of the project has time-domain tuning on. pcbnew's Python API exposes no
-    tuning profiles, so this reads the .kicad_pro the way KiCad does: its JSON parser skips a UTF-8 BOM, and
-    KiCad has it skip comments."""
+    tuning profiles, so this reads the .kicad_pro the way KiCad does, and refuses a row KiCad cannot read: KiCad
+    stops reading the profiles at a field it cannot convert, and aborts at a missing one."""
     pro = os.path.splitext(board_path)[0] + ".kicad_pro"
     try:
         with open(pro, "rb") as f:
             raw = f.read()
     except FileNotFoundError:
         return {}  # tuning profiles live only in the .kicad_pro, so a lone board has none
+    data = _project_json(pro, raw)
     try:
-        data = json.loads(JSON_STRING_OR_COMMENT.sub(lambda m: m[1] or " ", raw.decode("utf-8-sig")))
-    except ValueError as e:
-        raise ValueError(f"Cannot parse {pro}: {e}. KiCad then opens the board without the project's net "
-                         "classes and tuning profiles.") from None
-    try:
-        rows = [r for r in data["tuning_profiles"]["tuning_profiles_impedance_geometric"]
-                if isinstance(r, dict) and "profile_name" in r]
+        rows = data["tuning_profiles"]["tuning_profiles_impedance_geometric"]
     except (KeyError, TypeError):
         return {}  # KiCad reads no tuning profiles from a project without this list
-    if unreadable := [str(r["profile_name"]) for r in rows if not isinstance(r.get("enable_time_domain_tuning"), bool)]:
-        raise ValueError(f"Tuning profile {', '.join(unreadable)} in {pro} has no enable_time_domain_tuning of true or "
-                         "false, and KiCad stops reading the project's tuning profiles there.")
-    return {r["profile_name"]: r["enable_time_domain_tuning"] for r in rows}
+    profiles = {}
+    for i, row in enumerate(rows if isinstance(rows, list) else ()):
+        if not isinstance(row, dict) or "profile_name" not in row:
+            continue  # KiCad skips these rows
+        if bad := _unreadable_field(row):
+            field, value, kind = bad
+            name = row["profile_name"] if isinstance(row["profile_name"], str) else json.dumps(row["profile_name"])
+            what = (f"has no {field}, without which KiCad cannot load the project" if value is MISSING else
+                    f"has {field} {json.dumps(value)} where KiCad reads {KICAD_TYPES[kind][1]}, so KiCad stops "
+                    "reading tuning profiles at this row")
+            raise ValueError(f"Tuning profile {name} (row {i + 1} of tuning_profiles_impedance_geometric) in {pro} "
+                             f"{what}.")
+        profiles[row["profile_name"]] = row["enable_time_domain_tuning"]
+    return profiles
 
 
 def _ps(attoseconds):
@@ -2929,11 +3011,6 @@ def _at(item):
     return f"({mm(item.GetPosition().x)}, {mm(item.GetPosition().y)})"
 
 
-def _cells(box):
-    return [(i, k) for i in range(box.GetLeft() // GRID, box.GetRight() // GRID + 1)
-            for k in range(box.GetTop() // GRID, box.GetBottom() // GRID + 1)]
-
-
 def _root(parent, x):
     """The representative of x in the disjoint sets that parent links; a new x starts its own set."""
     while parent.setdefault(x, x) != x:
@@ -2942,51 +3019,174 @@ def _root(parent, x):
     return x
 
 
+def _key(item):
+    return int(item.this)  # SWIG wraps one C++ item in a new Python object per call
+
+
+def _spine(t):
+    """A track's centre line in nm: ("seg", x0, y0, x1, y1) or ("arc", cx, cy, radius, start angle, signed sweep)."""
+    s, e = t.GetStart(), t.GetEnd()
+    if t.GetClass() == "PCB_ARC" and 0 < t.GetRadius() < math.inf:
+        c, m = t.GetCenter(), t.GetMid()
+        a0, am, a1 = (math.atan2(p.y - c.y, p.x - c.x) for p in (s, m, e))
+        sweep = (a1 - a0) % TAU
+        return "arc", c.x, c.y, t.GetRadius(), a0, sweep if (am - a0) % TAU <= sweep else sweep - TAU
+    return "seg", s.x, s.y, e.x, e.y
+
+
+def _span(sp):
+    return math.hypot(sp[3] - sp[1], sp[4] - sp[2]) if sp[0] == "seg" else sp[3] * abs(sp[5])
+
+
+def _point_at(sp, s):
+    if sp[0] == "seg":
+        f = s / _span(sp) if _span(sp) else 0.0
+        return sp[1] + f * (sp[3] - sp[1]), sp[2] + f * (sp[4] - sp[2])
+    _, cx, cy, r, a0, sweep = sp
+    return cx + r * math.cos(a0 + math.copysign(s / r, sweep)), cy + r * math.sin(a0 + math.copysign(s / r, sweep))
+
+
+def _locate(sp, x, y):
+    """How far along the centre line sp lies its point nearest (x, y)."""
+    if sp[0] == "seg":
+        _, ax, ay, bx, by = sp
+        n2 = (bx - ax) ** 2 + (by - ay) ** 2
+        return min(1.0, max(0.0, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / n2)) * math.sqrt(n2) if n2 else 0.0
+    _, cx, cy, r, a0, sweep = sp
+    turned = (math.atan2(y - cy, x - cx) - a0) * math.copysign(1, sweep) % TAU
+    if turned <= abs(sweep):
+        return r * turned
+    return min((0.0, _span(sp)), key=lambda s: math.dist((x, y), _point_at(sp, s)))
+
+
+def _centre_line(t):
+    if t.GetClass() != "PCB_ARC":
+        return pcbnew.SHAPE_SEGMENT(t.GetStart(), t.GetEnd(), 0)
+    line = t.GetEffectiveShape(t.GetLayer()).Clone()
+    line.SetWidth(0)
+    return line
+
+
+def _nearest(t, shape):
+    """KiCad's nearest points of the centre line of track t and the shape, one on each."""
+    p, q = pcbnew.VECTOR2I(0, 0), pcbnew.VECTOR2I(0, 0)
+    _centre_line(t).NearestPoints(shape, p, q)
+    return (p.x, p.y), (q.x, q.y)
+
+
+def _contacts(c, conn):
+    """Where the net's copper items touch, by KiCad's connectivity, placed along the tracks: an end whose copper
+    reaches the other item touches it there, at the other track's point nearest that end; items touching by no
+    end touch where their centre lines cross or come nearest. Track-track contacts are (reach, (track, s),
+    (track, s)), track-joint ones ((track, s), joint) and joint-joint ones (joint, joint), with s the distance
+    along the track; also the layers on which track ends touch each via."""
+    tracks = {_key(t): t for t in c["tracks"]}
+    joints = {_key(j): j for j in (*c["vias"], *c["pads"])}
+    sp = {k: _spine(t) for k, t in tracks.items()}
+    ends = {k: ((0.0, t.GetStart()), (_span(sp[k]), t.GetEnd())) for k, t in tracks.items()}
+    tt, tj, layers_in = [], [], {}
+    for k, t in tracks.items():
+        layer = t.GetLayer()
+        for o in (*conn.GetConnectedTracks(t), *conn.GetConnectedPads(t)):
+            ok = _key(o)
+            if ok in joints:
+                shape = joints[ok].GetEffectiveShape(layer)  # the copper KiCad draws: unflashed, a via is its hole
+                hits = [s for s, e in ends[k] if shape.Collide(e, t.GetWidth() // 2)]
+                tj += [((k, s), ok) for s in hits] or [((k, _locate(sp[k], *_nearest(t, shape)[0])), ok)]
+                if hits:
+                    layers_in.setdefault(ok, set()).add(layer)
+            elif ok in tracks and ok > k:
+                found = []
+                for a, b in ((k, ok), (ok, k)):
+                    other = tracks[b].GetEffectiveShape(layer)
+                    for s, e in ends[a]:
+                        if other.Collide(e, tracks[a].GetWidth() // 2):
+                            sb = _locate(sp[b], e.x, e.y)
+                            found.append((math.dist((e.x, e.y), _point_at(sp[b], sb)), (a, s), (b, sb)))
+                if not found:
+                    p, q = _nearest(t, _centre_line(tracks[ok]))
+                    found = [(0.0, (k, _locate(sp[k], *p)), (ok, _locate(sp[ok], *q)))]
+                tt += found
+    jj = [(_key(j), _key(o)) for j in joints.values() for o in (*conn.GetConnectedTracks(j), *conn.GetConnectedPads(j))
+          if _key(o) in joints]
+    return tracks, joints, sp, tt, tj, jj, layers_in
+
+
+def _joined(near, a, b, limit):
+    """Whether a and b are already joined by less than limit of copper."""
+    best, heap = {a: 0}, [(0, a)]
+    while heap:
+        d, x = heapq.heappop(heap)
+        if x == b:
+            return True
+        if d <= best[x]:
+            for y, step in near[x]:
+                if d + step < min(limit, best.get(y, math.inf)):
+                    best[y] = d + step
+                    heapq.heappush(heap, (d + step, y))
+    return False
+
+
+def _lies_along(js, t, sp, s0, s1):
+    """Whether the copper of the piece [s0, s1] of track t touches one of the vias and pads js all along it,
+    tested every quarter width."""
+    shapes = [j.GetEffectiveShape(t.GetLayer()) for j in js if j.IsOnLayer(t.GetLayer())]
+    n = max(1, math.ceil(4 * (s1 - s0) / t.GetWidth()))
+    return bool(shapes) and all(any(sh.Collide(pcbnew.VECTOR2I(*map(round, _point_at(sp, s0 + (s1 - s0) * i / n))),
+                                               t.GetWidth() // 2) for sh in shapes) for i in range(n + 1))
+
+
 def _topology(c, conn):
     """Whether a net's copper is branched, and the layers on which its tracks end in each via.
 
-    A track end lies in the first via or pad on its layer (vias before pads) whose copper holds the end point,
-    else at its own point. KiCad's connectivity says which vias, pads and tracks each track touches. The
-    copper is branched when three or more pieces of track meet at one place, where a track that runs over a
-    via or pad and ends clear of it counts as two, or when the tracks close a loop, such as a track drawn
-    twice."""
-    key = lambda item: int(item.this)  # noqa: E731 (SWIG wraps one C++ item in a new Python object per call)
-    joints = {key(j): j for j in (*c["vias"], *c["pads"])}
-    tracks = {key(t): t for t in c["tracks"]}
-    touching = {k: [key(o) for o in (*conn.GetConnectedTracks(t), *conn.GetConnectedPads(t))] for k, t in tracks.items()}
-    by_cell = {}
-    for o, j in joints.items():
-        for cell in _cells(j.GetBoundingBox()):
-            by_cell.setdefault(cell, []).append(o)
-    pieces, ending, loops, loop = Counter(), {}, {}, False
+    KiCad's connectivity says which items touch, and _contacts places each contact along the tracks. Split there,
+    the tracks are pieces between places, and the copper is branched when the pieces loop back on themselves (a
+    track drawn twice or run along another, wherever it lies), or when, with each via and pad one place, three
+    pieces meet or the pieces close a loop. Copper reaches past the centre lines, so three tolerances keep its
+    own shape from reading as a fork: a piece shorter than its width is a point, a contact between places already
+    joined by less than twice the wider track's width of copper is the place they meet, and a piece whose copper
+    touches the vias and pads at its ends all along it belongs to them."""
+    tracks, joints, sp, tt, tj, jj, layers_in = _contacts(c, conn)
+    place = lambda x: x if isinstance(x, int) else (x[0], round(x[1]))  # noqa: E731
+    stops = {k: {0, round(_span(sp[k]))} for k in tracks}
+    for k, s in [x for _, a, b in tt for x in (a, b)] + [a for a, _ in tj]:
+        stops[k].add(round(s))
+    near, short, pieces = defaultdict(list), {}, []
     for k, t in tracks.items():
-        ends = (t.GetStart(), t.GetEnd())
-        a, z = (next((("joint", o) for o in by_cell.get((p.x // GRID, p.y // GRID), ())
-                      if joints[o].IsOnLayer(t.GetLayer()) and joints[o].HitTest(p)), ("point", t.GetLayer(), p.x, p.y))
-                for p in ends)
-        ending.setdefault(a, set()).add(k)
-        ending.setdefault(z, set()).add(k)
-        if a != z:
-            pieces.update((a, z))
-            ra, rz = _root(loops, a), _root(loops, z)
-            loop |= ra == rz
-            loops[ra] = rz
-        near = {o for o in touching[k] if o in joints}
-        for o in near - {o for o in near for p in ends if joints[o].HitTest(p, t.GetWidth() // 2)}:
-            pieces[("joint", o)] += 2
+        pos = sorted(stops[k])
+        for s0, s1 in zip(pos, pos[1:]):
+            near[(k, s0)].append(((k, s1), s1 - s0))
+            near[(k, s1)].append(((k, s0), s1 - s0))
+            if s1 - s0 < t.GetWidth():
+                short[_root(short, (k, s0))] = _root(short, (k, s1))
+            else:
+                pieces.append((k, s0, s1))
+    links = []
+    for _, a, b in sorted(tt, key=lambda contact: contact[0]):
+        a, b = place(a), place(b)
+        if not _joined(near, a, b, 2 * max(tracks[a[0]].GetWidth(), tracks[b[0]].GetWidth())):
+            near[a].append((b, 0))
+            near[b].append((a, 0))
+            links.append((a, b))
 
-    def runs_through(u, x, y):
-        clear_of_ends = min(math.hypot(x - q.x, y - q.y) for q in (u.GetStart(), u.GetEnd())) > u.GetWidth() / 2
-        return clear_of_ends and u.HitTest(pcbnew.VECTOR2I(x, y))
+    def shape(extra, in_joints):
+        parent = dict(short)
+        for a, b in (*links, *extra):
+            parent[_root(parent, place(a))] = _root(parent, place(b))
+        degree, loops, loop = Counter(), {}, False
+        for k, s0, s1 in pieces:
+            a, b = _root(parent, (k, s0)), _root(parent, (k, s1))
+            if in_joints and a == b and _lies_along([j for jk, j in joints.items() if _root(parent, jk) == a],
+                                                    tracks[k], sp[k], s0, s1):
+                continue
+            degree.update((a, b))
+            la, lb = _root(loops, a), _root(loops, b)
+            loop |= la == lb
+            loops[la] = lb
+        return loop, max(degree.values(), default=0)
 
-    for place, enders in ending.items():
-        if place[0] == "point" and place in pieces:
-            _, layer, x, y = place
-            through = {o for k in enders for o in touching[k] if o in tracks and o not in enders
-                       and tracks[o].GetLayer() == layer and runs_through(tracks[o], x, y)}
-            pieces[place] += 2 * len(through)
-    via_layers = [{tracks[k].GetLayer() for k in ending.get(("joint", key(v)), ())} for v in c["vias"]]
-    return loop or any(n >= 3 for n in pieces.values()), via_layers
+    loop, degree = shape((*tj, *jj), True)
+    return shape((), False)[0] or loop or degree >= 3, [layers_in.get(_key(v), set()) for v in c["vias"]]
 
 
 def _via_delays(b, c, via_layers, profile):
@@ -3093,9 +3293,9 @@ def op_lengths(p):
     cached = settings.GetProject(os.path.splitext(os.path.abspath(p["path"]))[0] + ".kicad_pro")
     if cached:  # a resident worker keeps the project it first loaded; the delays must use the file on disk
         settings.UnloadProject(cached, False)
+    profiles = _tuning_profiles(p["path"])  # before KiCad loads the project, which aborts at a row missing a field
     b = load(p["path"])
     copper = _net_copper(b)
-    profiles = _tuning_profiles(p["path"])
     netclasses = b.GetDesignSettings().m_NetSettings
     conn = b.GetConnectivity()
     import fnmatch
