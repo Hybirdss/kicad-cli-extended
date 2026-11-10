@@ -108,6 +108,51 @@ def build_pair_project(root: str) -> str:
     return p
 
 
+def _row(edit):
+    """A change to the tuning profile row write_tuning_profile wrote, as an edit of the .kicad_pro text."""
+    def apply(text):
+        data = json.loads(text)
+        edit(data["tuning_profiles"]["tuning_profiles_impedance_geometric"])
+        return json.dumps(data, indent=2)
+    return apply
+
+
+def _second_row(**fields):
+    return _row(lambda rows: rows.append(dict(rows[0], profile_name="RG50", **fields)))
+
+
+# damage: (edit of the .kicad_pro text, words the error must name). Each is a file KiCad 10.0.8 does not read
+# whole: it opens the board without the project's net classes, stops reading tuning profiles at the row, or
+# aborts at a missing field.
+UNREADABLE = {
+    "cut short": (lambda text: text[:len(text) // 2], ["Cannot parse"]),
+    "NaN": (lambda text: text.replace('"target_impedance": 50.0', '"target_impedance": NaN'), ["NaN"]),
+    "Infinity": (lambda text: text.replace('"target_impedance": 50.0', '"target_impedance": Infinity'), ["Infinity"]),
+    "NUL inside a line comment": (lambda text: "// a\0 b\n" + text, ["Cannot parse"]),
+    "top-level array": (lambda text: "[" + text + "]", ["not a JSON object"]),
+    "unpaired surrogate": (lambda text: text.replace('"tuning_profiles": {', '"x": "\\ud800", "tuning_profiles": {', 1),
+                           ["surrogate"]),
+    "flag 1": (_row(lambda rows: rows[0].update(enable_time_domain_tuning=1)),
+               ["RF50", "row 1", "enable_time_domain_tuning"]),
+    "via_prop_delay string": (_row(lambda rows: rows[0].update(via_prop_delay="8000000")),
+                              ["RF50", "row 1", "via_prop_delay"]),
+    "target_impedance null": (_row(lambda rows: rows[0].update(target_impedance=None)), ["RF50", "target_impedance"]),
+    "type string": (_row(lambda rows: rows[0].update(type="single")), ["RF50", "type"]),
+    "layer delay string": (_row(lambda rows: rows[0]["layer_entries"][0].update(delay="6000000")),
+                           ["RF50", "layer_entries[0].delay"]),
+    "signal_layer number": (_row(lambda rows: rows[0]["layer_entries"][1].update(signal_layer=0)),
+                            ["RF50", "layer_entries[1].signal_layer"]),
+    "override delay string": (_row(lambda rows: rows[0]["via_overrides"][0].update(delay="9000000")),
+                              ["RF50", "via_overrides[0].delay"]),
+    "profile_name number": (_row(lambda rows: rows.insert(0, dict(rows[0], profile_name=5))),
+                            ["row 1", "profile_name"]),
+    "via_overrides missing": (_row(lambda rows: rows[0].pop("via_overrides")), ["RF50", "no via_overrides"]),
+    "layer delay missing": (_row(lambda rows: rows[0]["layer_entries"][1].pop("delay")),
+                            ["RF50", "no layer_entries[1].delay"]),
+    "second row bad": (_second_row(via_prop_delay="x"), ["RG50", "row 2", "via_prop_delay"]),
+}
+
+
 class TestDiffPairsAndLengths:
     def test_route_rules_and_tuning(self, tmp_dir):
         p = build_pair_project(tmp_dir)
@@ -151,6 +196,8 @@ class TestDiffPairsAndLengths:
         assert rf1["via_delay_ps"] == pytest.approx(VIA_PS) and rf1["pad_to_die_delay_ps"] == 0
         assert rf1["delay_ps"] == pytest.approx(RF1_DELAY_PS)
         assert (rf1["tuning_profile"], rf1["delay_reason"], rf1["branched"]) == ("RF50", None, False)
+        reach = nets["RF_VIA_REACH"]  # its In1.Cu track ends outside the via, with its copper touching the via
+        assert (reach["via_delay_ps"], reach["delay_reason"]) == (pytest.approx(VIA_PS), None)
         assert [(r["layer"], r["length"], r["delay_ps"]) for r in rf2["by_layer"]] == [
             ("B.Cu", pytest.approx(b_cu), None)]
         assert rf2["via_delay_ps"] is None and rf2["delay_ps"] is None
@@ -175,29 +222,42 @@ class TestDiffPairsAndLengths:
             "VIA_GRAZE": (pytest.approx((110 - 100) + (120 - 110) + (265 - 255)), True),
             "PAD_ON_TRACK": (pytest.approx(120 - 100), False)}
 
+    def test_branched_reads_contacts_from_kicad_within_one_track_width(self, rf):
+        nets = {n["net"]: n for n in rj(["--project", rf, "pcb", "length", "report"])["nets"]}
+        assert {name: (nets[name]["length"], nets[name]["branched"]) for name in JUNCTIONS} == {
+            name: (pytest.approx(length, abs=1e-5), branched) for name, (length, branched, _) in JUNCTIONS.items()}
+
     def test_report_reads_a_project_file_with_a_bom_and_comments_as_kicad_does(self, rf):
-        write_tuning_profile(rf, enabled=True)
+        name = 'RF//50 /* not a comment */ "q"'
+        write_tuning_profile(rf, enabled=True, profile=name)
         pro = os.path.join(rf, "rf.kicad_pro")
-        text = read_text(pro).replace('"tuning_profiles": {', '/* RF */ "tuning_profiles": {', 1)
+        data = json.loads(read_text(pro))
+        [row] = data["tuning_profiles"]["tuning_profiles_impedance_geometric"]
+        row["layer_entries"][0]["diff_pair_gap"] = True  # KiCad reads a C++ int from true, as 1
+        row["layer_entries"].append(7)  # KiCad skips a layer entry that is not an object
+        row["via_overrides"].append({"delay": 1})  # and a via override without signal_layer_from
+        data["tuning_profiles"]["tuning_profiles_impedance_geometric"].insert(0, {"type": "x"})  # and a nameless row
+        next(c for c in data["net_settings"]["classes"] if c["name"] == "RF")["tuning_profile"] = name
+        text = json.dumps(data, indent=2).replace('"tuning_profiles": {', '/* RF */ "tuning_profiles": {', 1)
         with open(pro, "w", encoding="utf-8") as f:
-            f.write("\ufeff// edited by hand\n" + text)
+            f.write("\ufeff// edited by hand\n// a NUL ends this comment\0\n" + text + "\0 and KiCad's input")
         [rf1] = rj(["--project", rf, "pcb", "length", "report", "--net", "RF1"])["nets"]
-        assert (rf1["tuning_profile"], rf1["delay_reason"]) == ("RF50", None)
+        assert (rf1["tuning_profile"], rf1["delay_reason"]) == (name, None)
         assert rf1["delay_ps"] == pytest.approx(RF1_DELAY_PS)
 
-    @pytest.mark.parametrize("damage", ["cut short", "time-domain flag not true or false"])
+    @pytest.mark.parametrize("damage", UNREADABLE)
     def test_report_refuses_a_project_file_it_cannot_read(self, rf, damage):
         write_tuning_profile(rf, enabled=True)
         pro = os.path.join(rf, "rf.kicad_pro")
-        text = read_text(pro)
-        text = text[:len(text) // 2] if damage == "cut short" else \
-            text.replace('"enable_time_domain_tuning": true', '"enable_time_domain_tuning": 1')
+        edit, words = UNREADABLE[damage]
+        text = edit(read_text(pro))
         with open(pro, "w", encoding="utf-8") as f:
             f.write(text)
         r = run(["--json", "--project", rf, "pcb", "length", "report"], check=False)
         assert r.returncode == 2, r.stdout[:300]
         error = json.loads(r.stderr)
         assert error["type"] == "InvalidInput" and "rf.kicad_pro" in error["error"]
+        assert all(w in error["error"] for w in words), error["error"]
 
     def test_resident_server_reports_the_tuning_profile_the_project_names_now(self, rf):
         write_tuning_profile(rf, enabled=True)
@@ -261,19 +321,103 @@ def build_rf_project(root: str) -> str:
     run(P + ["pcb", "track", "110.2,255;110.2,265", "--layer", "B.Cu", "--net", "VIA_GRAZE"])
     run(P + ["pcb", "hole", "--at", "110,270", "--drill", "1", "--pad", "2", "--net", "PAD_ON_TRACK"])
     run(P + ["pcb", "track", "100,270.5;120,270.5", "--net", "PAD_ON_TRACK"])
+    with open(os.path.join(root, "junctions.json"), "w", encoding="utf-8") as f:
+        json.dump([action for _, _, actions in JUNCTIONS.values() for action in actions], f)
+    run(P + ["pcb", "batch", os.path.join(root, "junctions.json")])
     run(P + ["project", "netclass", "set", "RF", "--set", "tuning_profile=RF50"])
     run(P + ["project", "netclass", "assign", "RF*", "RF"])
     return p
 
 
-def write_tuning_profile(project: str, enabled: bool) -> None:
+W = 0.2  # every junction track is this wide: copper within one width of a meeting place counts as that place
+
+
+def _track(net, *points, layer="F.Cu"):
+    return {"action": "add_track", "net": net, "layer": layer, "width": W, "points": [list(p) for p in points]}
+
+
+def _via(net, x, y):
+    return {"action": "add_via", "net": net, "x": x, "y": y, "diameter": 0.6, "drill": 0.3}
+
+
+def _pad(net, x, y, diameter):
+    return {"action": "add_hole", "net": net, "x": x, "y": y, "drill": 0.4, "pad": diameter}
+
+
+def _arc(net, start, mid, end):
+    code = (f"a = pcbnew.PCB_ARC(board); a.SetStart(vec(*{start})); a.SetMid(vec(*{mid})); a.SetEnd(vec(*{end}))\n"
+            f"a.SetWidth(FromMM({W})); a.SetLayer(pcbnew.F_Cu); a.SetNet(board.FindNet({net!r})); board.Add(a)")
+    return {"action": "script", "code": code}
+
+
+R, H = 0.135, 0.135 * math.sqrt(0.5)  # a quarter arc this tight is longer than W, its chord shorter
+
+
+# net: (length, branched, how it is built). Geometry from the cases a verifier built against KiCad's connectivity:
+# crossings, ends whose copper (not their end point) reaches a via, pad or junction, a T at a via in a pad, and
+# offsets just inside and just outside one track width.
+JUNCTIONS = {
+    "X_STUB": (24, True, [_pad("X_STUB", 100, 300, 1), _pad("X_STUB", 120, 300, 1),
+                          _track("X_STUB", (100, 300), (120, 300)), _track("X_STUB", (110, 298), (110, 302))]),
+    "STUB_NEAR_VIA": (30, True, [_via("STUB_NEAR_VIA", 110, 310), _track("STUB_NEAR_VIA", (100, 310), (110, 310)),
+                                 _track("STUB_NEAR_VIA", (110, 310), (120, 310), layer="In1.Cu"),
+                                 _track("STUB_NEAR_VIA", (110.35, 310), (110.35, 320), layer="B.Cu")]),
+    "STUB_NEAR_PAD": (29.45, True, [_pad("STUB_NEAR_PAD", 110, 330, 1), _track("STUB_NEAR_PAD", (100, 330), (110, 330)),
+                                    _track("STUB_NEAR_PAD", (110, 330), (120, 330)),
+                                    _track("STUB_NEAR_PAD", (110, 330.55), (110, 340))]),
+    "VIA_IN_PAD_T": (28.8, True, [_pad("VIA_IN_PAD_T", 110, 350, 1.6), _via("VIA_IN_PAD_T", 110, 350),
+                                  _track("VIA_IN_PAD_T", (110, 350), (100, 350)),
+                                  _track("VIA_IN_PAD_T", (110.6, 350), (120, 350)),
+                                  _track("VIA_IN_PAD_T", (110, 350.6), (110, 360))]),
+    **{f"NEAR_T_{tag}": (49.999 if tag == "1UM" else 50 - dy, dy < W, [
+        _track(f"NEAR_T_{tag}", (100, y), (120, y)), _track(f"NEAR_T_{tag}", (120, y), (140, y)),
+        _track(f"NEAR_T_{tag}", (120, y + dy), (120, y + 10))])
+       for tag, dy, y in (("1UM", 0.001, 370), ("INSIDE", W - 0.002, 385), ("OUTSIDE", W + 0.002, 400))},
+    **{f"NEAR_DUP_{tag}": (40, dy < W, [_track(f"NEAR_DUP_{tag}", (100, y), (120, y)),
+                                        _track(f"NEAR_DUP_{tag}", (100, y + dy), (120, y + dy))])
+       for tag, dy, y in (("1UM", 0.001, 415), ("INSIDE", W - 0.002, 420), ("OUTSIDE", W + 0.002, 425))},
+    **{f"OVERHANG_{tag}": (30, d >= W, [_track(f"OVERHANG_{tag}", (100, y), (120, y)),
+                                        _track(f"OVERHANG_{tag}", (120 - d, y + 10), (120 - d, y))])
+       for tag, d, y in (("INSIDE", W - 0.002, 430), ("OUTSIDE", W + 0.002, 445))},
+    **{f"DOUBLED_{tag}": (20 + o, o >= W, [_track(f"DOUBLED_{tag}", (100, y), (110, y)),
+                                          _track(f"DOUBLED_{tag}", (110 - o, y), (120, y))])
+       for tag, o, y in (("INSIDE", W - 0.002, 460), ("OUTSIDE", W + 0.002, 465))},
+    "VIA_FANOUT": (20, False, [_via("VIA_FANOUT", 110, 470),
+                               _track("VIA_FANOUT", (110, 470), (110.35, 470), (120, 470)),
+                               _track("VIA_FANOUT", (110, 470), (100, 470), layer="In1.Cu")]),
+    "PAD_FANOUT": (math.hypot(0.5, 0.5) + 9.5, False, [
+        _pad("PAD_FANOUT", 110, 480, 2), _track("PAD_FANOUT", (110, 480), (110.5, 480.5), (120, 480.5))]),
+    "DOUBLED_IN_PAD": (10.8, True, [_pad("DOUBLED_IN_PAD", 110, 490, 2),
+                                    _track("DOUBLED_IN_PAD", (110, 490), (120, 490)),
+                                    _track("DOUBLED_IN_PAD", (110, 490), (110.8, 490))]),
+    "RF_VIA_REACH": (10 + (120 - 110.35), False, [
+        _track("RF_VIA_REACH", (100, 520), (110, 520)), _via("RF_VIA_REACH", 110, 520),
+        _track("RF_VIA_REACH", (110.35, 520), (120, 520), layer="In1.Cu")]),
+    "ARC_CORNER": (10 + R * math.pi / 2 + (510 - 500 - R), False, [
+        _track("ARC_CORNER", (100, 500), (110, 500)),
+        _arc("ARC_CORNER", (110, 500), (110 + H, 500 + R - H), (110 + R, 500 + R)),
+        _track("ARC_CORNER", (110 + R, 500 + R), (110 + R, 510))]),
+    "ARC_STUB": (20 + R * math.pi / 2, True, [
+        _track("ARC_STUB", (100, 560), (120, 560)),
+        _arc("ARC_STUB", (110, 560), (110 + R - H, 560 + H), (110 + R, 560 + R))]),
+    "VIA_BY_PAD_T": (10 + (120 - 110.7) + 10, True, [
+        _pad("VIA_BY_PAD_T", 110.7, 530, 1), _via("VIA_BY_PAD_T", 110, 530),
+        _track("VIA_BY_PAD_T", (100, 530), (110, 530)),
+        _track("VIA_BY_PAD_T", (110.7, 530), (120, 530)), _track("VIA_BY_PAD_T", (110.7, 530), (110.7, 540))]),
+    "VIA_LOOP": (40, True, [_via("VIA_LOOP", 100, 545), _via("VIA_LOOP", 120, 545),
+                            _track("VIA_LOOP", (100, 545), (120, 545)),
+                            _track("VIA_LOOP", (100, 545), (120, 545), layer="B.Cu")]),
+}
+
+
+def write_tuning_profile(project: str, enabled: bool, profile: str = "RF50") -> None:
     def layer(name, top, bottom, ps_per_mm):
         return {"signal_layer": name, "top_reference_layer": top, "bottom_reference_layer": bottom,
                 "width": 300000, "diff_pair_gap": 0, "delay": round(ps_per_mm * AS_PER_PS)}
     pro = os.path.join(project, "rf.kicad_pro")
     data = json.loads(read_text(pro))
     data["tuning_profiles"] = {"meta": {"version": 0}, "tuning_profiles_impedance_geometric": [{
-        "profile_name": "RF50", "type": 0, "target_impedance": 50.0, "enable_time_domain_tuning": enabled,
+        "profile_name": profile, "type": 0, "target_impedance": 50.0, "enable_time_domain_tuning": enabled,
         "layer_entries": [layer("F.Cu", "UNDEFINED", "In1.Cu", F_CU_PS_PER_MM),
                           layer("In1.Cu", "F.Cu", "In2.Cu", IN1_CU_PS_PER_MM)],
         "via_prop_delay": 8 * AS_PER_PS,
