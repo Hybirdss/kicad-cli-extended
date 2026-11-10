@@ -271,11 +271,14 @@ Verify routed/skew/length DRC, via counts and unchanged source hash. V-score for
 Length report: by_layer track length and KiCad's delay per copper layer from the net class tuning
 profile; delay_ps adds vias and pad-to-die (null plus delay_reason where KiCad gives none). Match
 delay_ps across layers; vias add no length. off_path_mm is track off the route between the net's two
-pads (one footprint's pads with one number are one pad); branched means more than 0.2 mm off it, or
-a net with tracks and other than two pads, or whose tracks do not join its two pads (off_path_mm
-null); branched_reason says which. DRC ps rules can read more or less: DRC measures track ends in a
-via from its centre, straightens bends inside a pad whose centre a track ends at, and spans a via by
-the track ends inside it and the pads it touches, not by every track touching it.
+pads (one footprint's pads with one number are one pad). Track inside a pad's or via's copper belongs
+to that pad or via and counts neither on nor off the route. branched means more than 0.2 mm off it,
+or a net with tracks and other than two pads, or whose tracks do not join its two pads (off_path_mm
+null); branched_reason says which. The route keeps to centre lines, so off_path_mm misses copper a
+signal can cut across, such as a short U whose legs touch, a spike or a sharp corner. DRC ps rules
+can read more or less: DRC measures track ends in a via from its centre, straightens bends inside a
+pad whose centre a track ends at, and spans a via by the track ends inside it and the pads it
+touches, not by every track touching it.
 
 ## Advanced
 

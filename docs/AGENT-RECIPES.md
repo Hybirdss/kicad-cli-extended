@@ -316,23 +316,26 @@ copper layer's track length and the delay KiCad computes from the net class's ti
 profile, and delay_ps adds the vias and pad-to-die paths. A value is null, with delay_reason, where
 KiCad gives no delay. Compare delay_ps, not length, for nets that change layers, such as RF
 channels. Vias add no length. off_path_mm is the track off the route between the net's two pads
-(pads of one footprint with one number count as one), so track_length less off_path_mm is the
-route's. A net is branched when more than 0.2 mm of track is off that route (a stub, a loop, a
-track drawn twice, track inside a pad off the route) or when it has tracks and other than two pads,
-or tracks that do not join its two pads, with off_path_mm null; branched_reason says why. A DRC
-length rule in ps can read more or less than delay_ps, as measured on KiCad's demos with a test
-tuning profile. DRC measures a track that ends inside a via from the via centre: tracks of video's
-/TVB1 end up to 0.38 mm off the centre of a 0.89 mm via, and DRC reads 2.42 ps more. DRC
-straightens a track that bends inside the pad whose centre it ends at: video's Net-(U23-P87) reads
-2.20 ps less. DRC spans a via across the layers where a track ends inside it and the side of a pad
-it touches, while KiCad's per-via delay, which kce adds, spans the layers where tracks touch it. A
-top-layer track over a via that joins L10 and the bottom layer makes vme-wren's
-/io_drivers_fp/bank3/EN7 read 9.76 ps less in DRC, 9.48 ps of it at that via. A track that ends on
-a via's rim or just outside it with its copper touching it, on a layer beyond the others, also
-reads less in DRC, and a via that touches a pad on a layer beyond its tracks reads more. V-score
-forces spacing zero (warning; --strict rejects conflicting spacing). Fab panel capability/impedance
-certification is not implemented; obtain independent review. A panel export alone is not a
-manufacturing package.
+(pads of one footprint with one number count as one). Track inside the copper of a pad or via
+belongs to that pad or via and counts neither on the route nor off it, and where the tracks are cut
+into segments changes nothing. A net is branched when more than 0.2 mm of track is off that route
+(a stub, a loop, a track drawn twice) or when it has tracks and other than two pads, or tracks that
+do not join its two pads, with off_path_mm null. branched_reason says why. The route keeps to track
+centre lines and steps across touching copper only where that leaves out more than twice the step,
+so off_path_mm misses copper that a signal can cut across, such as a short U whose legs touch, a
+spike or a sharp corner. A DRC length rule in ps can read more or less than delay_ps, as measured
+on KiCad's demos with a test tuning profile. DRC measures a track that ends inside a via from the
+via centre: tracks of video's /TVB1 end up to 0.38 mm off the centre of a 0.89 mm via, and DRC
+reads 2.42 ps more. DRC straightens a track that bends inside the pad whose centre it ends at:
+video's Net-(U23-P87) reads 2.20 ps less. DRC spans a via across the layers where a track ends
+inside it and the side of a pad it touches, while KiCad's per-via delay, which kce adds, spans the
+layers where tracks touch it. A top-layer track over a via that joins L10 and the bottom layer
+makes vme-wren's /io_drivers_fp/bank3/EN7 read 9.76 ps less in DRC, 9.48 ps of it at that via. A
+track that ends on a via's rim or just outside it with its copper touching it, on a layer beyond
+the others, also reads less in DRC, and a via that touches a pad on a layer beyond its tracks reads
+more. V-score forces spacing zero (warning; --strict rejects conflicting spacing). Fab panel
+capability/impedance certification is not implemented; obtain independent review. A panel export
+alone is not a manufacturing package.
 
 ## Advanced
 

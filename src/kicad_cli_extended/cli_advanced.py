@@ -309,15 +309,25 @@ def length_report(nets, netclass):
     via_delay_ps for vias in which tracks end on two or more layers outside any pad, pad_to_die_delay_ps,
     and their sum delay_ps. Where KiCad gives no delay, the value is null and delay_reason says why.
 
-    off_path_mm is the track length off the route between the net's two pads, so track_length less
-    off_path_mm is the route's; pads of one footprint with one number count as one pad. The route is the
-    shortest path along track centre lines in which a step between items that KiCad's connectivity says
-    touch counts twice its length, a via or pad standing at its centre. Steps start at a track end whose
-    copper reaches the other item, where two centre lines cross, where a track runs over a via or pad (at
-    its point nearest the centre), and where two tracks touching nowhere else come nearest. Copper zones
-    join nothing. branched is true when more than 0.2 mm of track is off the route, as with a stub, a loop,
-    a track drawn twice or track inside a pad off the route, and when a net with tracks has other than two
-    pads or its tracks do not join them, where off_path_mm is null. branched_reason says why.
+    off_path_mm is the length of track off the route between the net's two pads. Pads of one footprint
+    with one number count as one pad. Track whose centre line lies inside the copper of a pad or via on
+    its layer belongs to that pad or via, so it is neither on the route nor off it, and track_length less
+    off_path_mm is the route plus that track. The route is the shortest path along track centre lines.
+    Each pad or via on it is one node. A track joins it where the track's centre line enters its copper,
+    and pads and vias whose copper touches join at no cost. Every other step between items that KiCad's
+    connectivity says touch counts twice its length. Such steps
+    start at four kinds of contact: the point of a track nearest a pad or via that only its copper
+    touches, a track end whose copper reaches another track, a crossing of two centre lines, and the
+    nearest points of two tracks that touch nowhere else. Segments on one line, or arcs on one circle,
+    that have one layer and width and meet end to end count as one track, so where a track is cut changes
+    nothing. Copper zones join nothing. Because a step counts twice its length, the route cuts across
+    touching copper only where the track it leaves out is longer than twice the step. Where copper
+    overlaps with no crossing or touching end, as along a spike, in a sharp corner or where a track passes
+    a via, the route keeps to the centre lines. In both cases off_path_mm misses copper that a signal can
+    cut across, such as a short U whose legs touch. branched is true when more than 0.2 mm of track is off
+    the route, as with a stub, a loop or a track drawn twice. It is also true when a net with tracks has
+    other than two pads or its tracks do not join them, and then off_path_mm is null. branched_reason
+    says why.
 
     KiCad's DRC sums the same copper but can read more or less. It measures a track that ends inside a
     via from the via centre, which adds delay when the track stops short of the centre and removes it
