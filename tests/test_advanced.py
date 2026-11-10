@@ -122,8 +122,8 @@ def _second_row(**fields):
 
 
 # damage: (edit of the .kicad_pro text, words the error must name). Each is a file KiCad 10.0.8 does not read
-# whole: it opens the board without the project's net classes, stops reading tuning profiles at the row, or
-# aborts at a missing field.
+# whole: it opens the board without the project's net classes, stops reading tuning profiles at the row, aborts at
+# a missing field, or stops loading the board.
 UNREADABLE = {
     "cut short": (lambda text: text[:len(text) // 2], ["Cannot parse"]),
     "NaN": (lambda text: text.replace('"target_impedance": 50.0', '"target_impedance": NaN'), ["NaN"]),
@@ -138,6 +138,9 @@ UNREADABLE = {
                               ["RF50", "row 1", "via_prop_delay"]),
     "target_impedance null": (_row(lambda rows: rows[0].update(target_impedance=None)), ["RF50", "target_impedance"]),
     "type string": (_row(lambda rows: rows[0].update(type="single")), ["RF50", "type"]),
+    "type true": (_row(lambda rows: rows[0].update(type=True)), ["RF50", "row 1", "type true"]),
+    "number beyond a double": (lambda text: text.replace('"target_impedance": 50.0', '"target_impedance": 1e400'),
+                               ["number overflow parsing '1e400'", "stops loading"]),
     "layer delay string": (_row(lambda rows: rows[0]["layer_entries"][0].update(delay="6000000")),
                            ["RF50", "layer_entries[0].delay"]),
     "signal_layer number": (_row(lambda rows: rows[0]["layer_entries"][1].update(signal_layer=0)),
@@ -184,7 +187,8 @@ class TestDiffPairsAndLengths:
         b_cu, tee = math.hypot(124 - 100, 167 - 160), (140 - 100) + (188 - 180)
 
         nets = {n["net"]: n for n in rj(P + ["pcb", "length", "report"])["nets"]}
-        assert nets["RF1"]["delay_ps"] is None and "does not define" in nets["RF1"]["delay_reason"]
+        assert nets["RF1"]["delay_ps"] is None and 'profile "RF50", which the project does not define' in \
+            nets["RF1"]["delay_reason"]
 
         write_tuning_profile(rf, enabled=True)
         nets = {n["net"]: n for n in rj(P + ["pcb", "length", "report"])["nets"]}
@@ -195,7 +199,8 @@ class TestDiffPairsAndLengths:
             ("In1.Cu", pytest.approx(RF1_IN1_CU), pytest.approx(RF1_IN1_CU * IN1_CU_PS_PER_MM))]
         assert rf1["via_delay_ps"] == pytest.approx(VIA_PS) and rf1["pad_to_die_delay_ps"] == 0
         assert rf1["delay_ps"] == pytest.approx(RF1_DELAY_PS)
-        assert (rf1["tuning_profile"], rf1["delay_reason"], rf1["branched"]) == ("RF50", None, False)
+        assert (rf1["tuning_profile"], rf1["delay_reason"]) == ("RF50", None)
+        assert (rf1["off_path_mm"], rf1["branched"], rf1["branched_reason"]) == (0, False, None)
         reach = nets["RF_VIA_REACH"]  # its In1.Cu track ends outside the via, with its copper touching the via
         assert (reach["via_delay_ps"], reach["delay_reason"]) == (pytest.approx(VIA_PS), None)
         assert [(r["layer"], r["length"], r["delay_ps"]) for r in rf2["by_layer"]] == [
@@ -203,29 +208,54 @@ class TestDiffPairsAndLengths:
         assert rf2["via_delay_ps"] is None and rf2["delay_ps"] is None
         assert "B.Cu" in rf2["delay_reason"] and "(124.0, 167.0)" in rf2["delay_reason"]
         assert [(r["layer"], r["length"]) for r in nets["TEE"]["by_layer"]] == [("F.Cu", pytest.approx(tee))]
-        assert nets["TEE"]["branched"] is True and nets["VIA_TEE"]["branched"] is True
+        assert (nets["TEE"]["off_path_mm"], nets["TEE"]["branched"]) == (pytest.approx(188 - 180), True)
+        assert "8.0 mm of track lies off the shortest route from H" in nets["TEE"]["branched_reason"]
+        assert (nets["VIA_TEE"]["off_path_mm"], nets["VIA_TEE"]["branched"]) == (pytest.approx(210 - 200), True)
         assert nets["TEE"]["delay_ps"] is None and nets["TEE"]["via_delay_ps"] is None
         assert nets["TEE"]["tuning_profile"] is None and "Default" in nets["TEE"]["delay_reason"]
+        p2d, holds = nets["RF_P2D"], nets["RF_VIA_HOLDS_PAD"]
+        assert p2d["delay_ps"] is None and "pad RF_P2D1:1 has a pad-to-die length but no pad-to-die delay" in \
+            p2d["delay_reason"]
+        assert holds["via_delay_ps"] is None and "pad around the via at (110.0, 690.0)" in holds["delay_reason"]
 
         write_tuning_profile(rf, enabled=False)
         [rf1] = rj(P + ["pcb", "length", "report", "--net", "RF1"])["nets"]
         assert [r["delay_ps"] for r in rf1["by_layer"]] == [None, None]
         assert rf1["via_delay_ps"] is None and rf1["delay_ps"] is None and "turned off" in rf1["delay_reason"]
 
-    def test_branched_sees_a_track_drawn_twice_and_tracks_that_run_over_a_pad_or_via(self, rf):
+    def test_branched_measures_the_track_off_the_route_between_two_pads(self, rf):
         nets = {n["net"]: n for n in rj(["--project", rf, "pcb", "length", "report"])["nets"]}
-        assert {name: (nets[name]["length"], nets[name]["branched"]) for name in
-                ("DUP", "DUP_REV", "PAD_GRAZE", "VIA_GRAZE", "PAD_ON_TRACK")} == {
-            "DUP": (pytest.approx(2 * (120 - 100)), True),
-            "DUP_REV": (pytest.approx(2 * (120 - 100)), True),
-            "PAD_GRAZE": (pytest.approx((125 - 110) + (120 - 100)), True),
-            "VIA_GRAZE": (pytest.approx((110 - 100) + (120 - 110) + (265 - 255)), True),
-            "PAD_ON_TRACK": (pytest.approx(120 - 100), False)}
+        assert {name: (nets[name]["length"], nets[name]["off_path_mm"], nets[name]["branched"]) for name in ROUTES} == {
+            name: (pytest.approx(length, abs=1e-5), off if off is None else pytest.approx(off, abs=1e-4), branched)
+            for name, (length, off, branched, _) in ROUTES.items()}
+        assert {name: nets[name]["branched_reason"] for name in ("THREE_PADS", "NO_PADS", "APART", "NO_TRACKS")} == {
+            "THREE_PADS": "the net joins 3 pads, so it has no single route",
+            "NO_PADS": "the net joins no pads, so it has no single route",
+            "APART": "its tracks do not join APART1:1 to APART2:1", "NO_TRACKS": None}
+        assert nets["STUB_0202"]["branched_reason"] == \
+            "0.202 mm of track lies off the shortest route from STUB_02021:1 to STUB_02022:1"
 
-    def test_branched_reads_contacts_from_kicad_within_one_track_width(self, rf):
+    def test_report_reads_tuning_profile_names_as_kicad_does(self, rf):
+        write_tuning_profile(rf, enabled=True)
+        pro = os.path.join(rf, "rf.kicad_pro")
+        data = json.loads(read_text(pro))
+        rows = data["tuning_profiles"]["tuning_profiles_impedance_geometric"]
+        rows.append(dict(rows[0], enable_time_domain_tuning=False))  # KiCad keeps the last row of a name
+        with open(pro, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+        [rf1] = rj(["--project", rf, "pcb", "length", "report", "--net", "RF1"])["nets"]
+        assert rf1["delay_ps"] is None
+        assert rf1["delay_reason"] == 'tuning profile "RF50" has time-domain tuning turned off'
+
+        rows[1:] = [dict(rows[0], profile_name="")]  # KiCad looks up a class's empty profile name too
+        rows[0]["profile_name"] = "RF50\0 row"  # and reads a name up to a NUL
+        next(c for c in data["net_settings"]["classes"] if c["name"] == "RF")["tuning_profile"] = "RF50\0 class"
+        with open(pro, "w", encoding="utf-8") as f:
+            json.dump(data, f)
         nets = {n["net"]: n for n in rj(["--project", rf, "pcb", "length", "report"])["nets"]}
-        assert {name: (nets[name]["length"], nets[name]["branched"]) for name in JUNCTIONS} == {
-            name: (pytest.approx(length, abs=1e-5), branched) for name, (length, branched, _) in JUNCTIONS.items()}
+        assert (nets["RF1"]["tuning_profile"], nets["RF1"]["delay_ps"]) == ("RF50", pytest.approx(RF1_DELAY_PS))
+        tee = (140 - 100) + (188 - 180)
+        assert (nets["TEE"]["tuning_profile"], nets["TEE"]["delay_ps"]) == ("", pytest.approx(tee * F_CU_PS_PER_MM))
 
     def test_report_reads_a_project_file_with_a_bom_and_comments_as_kicad_does(self, rf):
         name = 'RF//50 /* not a comment */ "q"'
@@ -308,40 +338,59 @@ def build_rf_project(root: str) -> str:
     run(P + ["pcb", "track", "100,200;140,200", "--net", "VIA_TEE"])
     run(P + ["pcb", "via", "--at", "120,200", "--net", "VIA_TEE"])
     run(P + ["pcb", "track", "120,200;120,210", "--layer", "In1.Cu", "--net", "VIA_TEE"])
-    run(P + ["pcb", "track", "100,230;120,230", "--net", "DUP"])
-    run(P + ["pcb", "track", "100,230;120,230", "--net", "DUP"])
-    run(P + ["pcb", "track", "100,240;120,240", "--net", "DUP_REV"])
-    run(P + ["pcb", "track", "120,240;100,240", "--net", "DUP_REV"])
-    run(P + ["pcb", "hole", "--at", "110,250", "--drill", "1", "--pad", "2", "--net", "PAD_GRAZE"])
-    run(P + ["pcb", "track", "110,250;125,250", "--net", "PAD_GRAZE"])
-    run(P + ["pcb", "track", "100,250.5;120,250.5", "--net", "PAD_GRAZE"])
-    run(P + ["pcb", "via", "--at", "110,260", "--net", "VIA_GRAZE"])
-    run(P + ["pcb", "track", "100,260;110,260", "--net", "VIA_GRAZE"])
-    run(P + ["pcb", "track", "110,260;120,260", "--layer", "In1.Cu", "--net", "VIA_GRAZE"])
-    run(P + ["pcb", "track", "110.2,255;110.2,265", "--layer", "B.Cu", "--net", "VIA_GRAZE"])
-    run(P + ["pcb", "hole", "--at", "110,270", "--drill", "1", "--pad", "2", "--net", "PAD_ON_TRACK"])
-    run(P + ["pcb", "track", "100,270.5;120,270.5", "--net", "PAD_ON_TRACK"])
-    with open(os.path.join(root, "junctions.json"), "w", encoding="utf-8") as f:
-        json.dump([action for _, _, actions in JUNCTIONS.values() for action in actions], f)
-    run(P + ["pcb", "batch", os.path.join(root, "junctions.json")])
+    for net, ends in (("RF1", ("100,100", "150,140")), ("TEE", ("100,180", "140,180")),
+                      ("VIA_TEE", ("100,200", "140,200"))):
+        for at in ends:
+            run(P + ["pcb", "hole", "--at", at, "--drill", "0.4", "--pad", "1", "--net", net])
+    with open(os.path.join(root, "routes.json"), "w", encoding="utf-8") as f:
+        json.dump([action for *_, actions in ROUTES.values() for action in actions] + DELAY_CASES, f)
+    run(P + ["pcb", "batch", os.path.join(root, "routes.json")])
     run(P + ["project", "netclass", "set", "RF", "--set", "tuning_profile=RF50"])
     run(P + ["project", "netclass", "assign", "RF*", "RF"])
     return p
 
 
-W = 0.2  # every junction track is this wide: copper within one width of a meeting place counts as that place
+W = 0.2
 
 
-def _track(net, *points, layer="F.Cu"):
-    return {"action": "add_track", "net": net, "layer": layer, "width": W, "points": [list(p) for p in points]}
+def _track(net, *points, layer="F.Cu", width=W):
+    return {"action": "add_track", "net": net, "layer": layer, "width": width,
+            "points": [[round(x, 6), round(y, 6)] for x, y in points]}
 
 
-def _via(net, x, y):
-    return {"action": "add_via", "net": net, "x": x, "y": y, "diameter": 0.6, "drill": 0.3}
+def _via(net, x, y, diameter=0.6, drill=0.3):
+    return {"action": "add_via", "net": net, "x": x, "y": y, "diameter": diameter, "drill": drill}
 
 
-def _pad(net, x, y, diameter):
-    return {"action": "add_hole", "net": net, "x": x, "y": y, "drill": 0.4, "pad": diameter}
+def _pad(net, ref, x, y, size=1.0, layer="F.Cu", number="1"):
+    """A square SMD pad on one copper layer, in footprint ref."""
+    code = "\n".join([
+        f"net = board.FindNet({net!r})",
+        "if net is None:",
+        f"    net = pcbnew.NETINFO_ITEM(board, {net!r})",
+        "    board.Add(net)",
+        f"fp = board.FindFootprintByReference({ref!r})",
+        "if fp is None:",
+        "    fp = pcbnew.FOOTPRINT(board)",
+        f"    fp.SetReference({ref!r})",
+        "    board.Add(fp)",
+        f"    fp.SetPosition(vec({x}, {y}))",
+        "p = pcbnew.PAD(fp)",
+        f"p.SetNumber({number!r})",
+        "p.SetAttribute(pcbnew.PAD_ATTRIB_SMD)",
+        "layers = pcbnew.LSET()",
+        f"layers.AddLayer(pcbnew.{layer.replace('.', '_')})",
+        "p.SetLayerSet(layers)",
+        "p.SetShape(pcbnew.F_Cu, pcbnew.PAD_SHAPE_RECTANGLE)",
+        f"p.SetSize(pcbnew.F_Cu, vec({size}, {size}))",
+        "fp.Add(p)",
+        f"p.SetPosition(vec({x}, {y}))",
+        "p.SetNet(net)"])
+    return {"action": "script", "code": code}
+
+
+def _ends(net, a, b, **pad):
+    return [_pad(net, f"{net}1", *a, **pad), _pad(net, f"{net}2", *b, **pad)]
 
 
 def _arc(net, start, mid, end):
@@ -350,64 +399,136 @@ def _arc(net, start, mid, end):
     return {"action": "script", "code": code}
 
 
-R, H = 0.135, 0.135 * math.sqrt(0.5)  # a quarter arc this tight is longer than W, its chord shorter
+def _circle(cx, cy, r, a0, a1, n):
+    """n segments' worth of points on a circle, from angle a0 to a1 (degrees), to the nanometre."""
+    return [(round(cx + r * math.cos(math.radians(a0 + (a1 - a0) * i / n)), 6),
+             round(cy + r * math.sin(math.radians(a0 + (a1 - a0) * i / n)), 6)) for i in range(n + 1)]
 
 
-# net: (length, branched, how it is built). Geometry from the cases a verifier built against KiCad's connectivity:
-# crossings, ends whose copper (not their end point) reaches a via, pad or junction, a T at a via in a pad, and
-# offsets just inside and just outside one track width.
-JUNCTIONS = {
-    "X_STUB": (24, True, [_pad("X_STUB", 100, 300, 1), _pad("X_STUB", 120, 300, 1),
-                          _track("X_STUB", (100, 300), (120, 300)), _track("X_STUB", (110, 298), (110, 302))]),
-    "STUB_NEAR_VIA": (30, True, [_via("STUB_NEAR_VIA", 110, 310), _track("STUB_NEAR_VIA", (100, 310), (110, 310)),
-                                 _track("STUB_NEAR_VIA", (110, 310), (120, 310), layer="In1.Cu"),
-                                 _track("STUB_NEAR_VIA", (110.35, 310), (110.35, 320), layer="B.Cu")]),
-    "STUB_NEAR_PAD": (29.45, True, [_pad("STUB_NEAR_PAD", 110, 330, 1), _track("STUB_NEAR_PAD", (100, 330), (110, 330)),
-                                    _track("STUB_NEAR_PAD", (110, 330), (120, 330)),
-                                    _track("STUB_NEAR_PAD", (110, 330.55), (110, 340))]),
-    "VIA_IN_PAD_T": (28.8, True, [_pad("VIA_IN_PAD_T", 110, 350, 1.6), _via("VIA_IN_PAD_T", 110, 350),
-                                  _track("VIA_IN_PAD_T", (110, 350), (100, 350)),
-                                  _track("VIA_IN_PAD_T", (110.6, 350), (120, 350)),
-                                  _track("VIA_IN_PAD_T", (110, 350.6), (110, 360))]),
-    **{f"NEAR_T_{tag}": (49.999 if tag == "1UM" else 50 - dy, dy < W, [
-        _track(f"NEAR_T_{tag}", (100, y), (120, y)), _track(f"NEAR_T_{tag}", (120, y), (140, y)),
-        _track(f"NEAR_T_{tag}", (120, y + dy), (120, y + 10))])
-       for tag, dy, y in (("1UM", 0.001, 370), ("INSIDE", W - 0.002, 385), ("OUTSIDE", W + 0.002, 400))},
-    **{f"NEAR_DUP_{tag}": (40, dy < W, [_track(f"NEAR_DUP_{tag}", (100, y), (120, y)),
-                                        _track(f"NEAR_DUP_{tag}", (100, y + dy), (120, y + dy))])
-       for tag, dy, y in (("1UM", 0.001, 415), ("INSIDE", W - 0.002, 420), ("OUTSIDE", W + 0.002, 425))},
-    **{f"OVERHANG_{tag}": (30, d >= W, [_track(f"OVERHANG_{tag}", (100, y), (120, y)),
-                                        _track(f"OVERHANG_{tag}", (120 - d, y + 10), (120 - d, y))])
-       for tag, d, y in (("INSIDE", W - 0.002, 430), ("OUTSIDE", W + 0.002, 445))},
-    **{f"DOUBLED_{tag}": (20 + o, o >= W, [_track(f"DOUBLED_{tag}", (100, y), (110, y)),
-                                          _track(f"DOUBLED_{tag}", (110 - o, y), (120, y))])
-       for tag, o, y in (("INSIDE", W - 0.002, 460), ("OUTSIDE", W + 0.002, 465))},
-    "VIA_FANOUT": (20, False, [_via("VIA_FANOUT", 110, 470),
-                               _track("VIA_FANOUT", (110, 470), (110.35, 470), (120, 470)),
-                               _track("VIA_FANOUT", (110, 470), (100, 470), layer="In1.Cu")]),
-    "PAD_FANOUT": (math.hypot(0.5, 0.5) + 9.5, False, [
-        _pad("PAD_FANOUT", 110, 480, 2), _track("PAD_FANOUT", (110, 480), (110.5, 480.5), (120, 480.5))]),
-    "DOUBLED_IN_PAD": (10.8, True, [_pad("DOUBLED_IN_PAD", 110, 490, 2),
-                                    _track("DOUBLED_IN_PAD", (110, 490), (120, 490)),
-                                    _track("DOUBLED_IN_PAD", (110, 490), (110.8, 490))]),
-    "RF_VIA_REACH": (10 + (120 - 110.35), False, [
-        _track("RF_VIA_REACH", (100, 520), (110, 520)), _via("RF_VIA_REACH", 110, 520),
-        _track("RF_VIA_REACH", (110.35, 520), (120, 520), layer="In1.Cu")]),
-    "ARC_CORNER": (10 + R * math.pi / 2 + (510 - 500 - R), False, [
-        _track("ARC_CORNER", (100, 500), (110, 500)),
-        _arc("ARC_CORNER", (110, 500), (110 + H, 500 + R - H), (110 + R, 500 + R)),
-        _track("ARC_CORNER", (110 + R, 500 + R), (110 + R, 510))]),
-    "ARC_STUB": (20 + R * math.pi / 2, True, [
-        _track("ARC_STUB", (100, 560), (120, 560)),
-        _arc("ARC_STUB", (110, 560), (110 + R - H, 560 + H), (110 + R, 560 + R))]),
-    "VIA_BY_PAD_T": (10 + (120 - 110.7) + 10, True, [
-        _pad("VIA_BY_PAD_T", 110.7, 530, 1), _via("VIA_BY_PAD_T", 110, 530),
-        _track("VIA_BY_PAD_T", (100, 530), (110, 530)),
-        _track("VIA_BY_PAD_T", (110.7, 530), (120, 530)), _track("VIA_BY_PAD_T", (110.7, 530), (110.7, 540))]),
-    "VIA_LOOP": (40, True, [_via("VIA_LOOP", 100, 545), _via("VIA_LOOP", 120, 545),
-                            _track("VIA_LOOP", (100, 545), (120, 545)),
-                            _track("VIA_LOOP", (100, 545), (120, 545), layer="B.Cu")]),
+def _polyline_length(points):
+    return sum(math.dist(a, b) for a, b in zip(points, points[1:]))
+
+
+R, H = 0.135, 0.135 * math.sqrt(0.5)  # a quarter arc this tight is longer than 0.2 mm, its chord shorter
+CHAIN = [(round(100 + 0.15 * i, 6), 300) for i in range(51)]
+BEND = _circle(100, 316, 1, -90, 0, 32)  # chords of 0.049 mm on a 0.2 mm track: each end touches the next four
+RING_UP, RING_DOWN = _circle(108, 350, 3, 180, 360, 48), _circle(108, 350, 3, 180, 0, 48)
+CROSS_R = math.hypot(4, 0.5)  # an arc from a track's end, around and back across it at x = 102
+CROSS_END = (round(106 - math.sqrt(CROSS_R ** 2 - 1.3 ** 2), 6), 721.8)
+CROSS_TURN = math.atan2(0.5, 4) + 2 * math.pi - math.atan2(1.3, CROSS_END[0] - 106)
+CROSS_AT = math.atan2(0.5, 4) + 2 * math.pi - math.atan2(0.5, -4)
+TOUCH_R = (0.4 ** 2 + 1.5 ** 2) / (2 * 1.5)  # an arc 1.5 mm high on a 0.8 mm chord
+TOUCH_ARC = TOUCH_R * (2 * math.pi - 2 * math.asin(0.4 / TOUCH_R))
+
+
+# net: (length, off_path_mm, branched, how it is built). Each route runs between two pads, apart from the last
+# four nets, which show what makes a net branched without a route. The tracks are 0.2 mm wide unless said.
+ROUTES = {
+    "CHAIN_STUB": (25, 5, True, [_track("CHAIN_STUB", *CHAIN), _track("CHAIN_STUB", (107.5, 300), (120, 300)),
+                                 _track("CHAIN_STUB", (103.75, 300), (103.75, 305)),
+                                 *_ends("CHAIN_STUB", (100, 300), (120, 300))]),
+    "TESS_BEND": (_polyline_length(BEND) + 4, 0, False, [
+        _track("TESS_BEND", *BEND), _track("TESS_BEND", (101, 316), (101, 320)),
+        *_ends("TESS_BEND", (100, 315), (101, 320))]),
+    "TESS_BEND_STUB": (_polyline_length(BEND) + 4 + 3, 3, True, [
+        _track("TESS_BEND_STUB", *((x, y + 15) for x, y in BEND)), _track("TESS_BEND_STUB", (101, 331), (101, 335)),
+        _track("TESS_BEND_STUB", (BEND[16][0], BEND[16][1] + 15),
+               (BEND[16][0] + 3 * math.sqrt(0.5), BEND[16][1] + 15 - 3 * math.sqrt(0.5))),
+        *_ends("TESS_BEND_STUB", (100, 330), (101, 335))]),
+    "TESS_RING": (10 + _polyline_length(RING_UP) + _polyline_length(RING_DOWN), _polyline_length(RING_UP), True, [
+        _track("TESS_RING", (100, 350), (105, 350)), _track("TESS_RING", (111, 350), (116, 350)),
+        _track("TESS_RING", *RING_UP), _track("TESS_RING", *RING_DOWN), *_ends("TESS_RING", (100, 350), (116, 350))]),
+    **{f"STUB_{tag}": (20 + d, d, d > 0.2, [
+        _track(f"STUB_{tag}", (100, y), (120, y)), _track(f"STUB_{tag}", (110, y), (110, y + d)),
+        *_ends(f"STUB_{tag}", (100, y), (120, y))]) for tag, d, y in (("0198", 0.198, 365), ("0202", 0.202, 375))},
+    "DUP": (40, 20, True, [_track("DUP", (100, 385), (120, 385)), _track("DUP", (120, 385), (100, 385)),
+                           *_ends("DUP", (100, 385), (120, 385))]),
+    **{f"OVERHANG_{tag}": (30, d, d > 0.2, [
+        _track(f"OVERHANG_{tag}", (100, y), (120, y)), _track(f"OVERHANG_{tag}", (120 - d, y), (120 - d, y + 10)),
+        *_ends(f"OVERHANG_{tag}", (100, y), (120 - d, y + 10))]) for tag, d, y in (("0198", 0.198, 395),
+                                                                                   ("0202", 0.202, 410))},
+    "VIA_FANOUT": (20, 0, False, [
+        _via("VIA_FANOUT", 110, 425), _track("VIA_FANOUT", (110, 425), (110.35, 425), (120, 425)),
+        _track("VIA_FANOUT", (110, 425), (100, 425), layer="B.Cu"),
+        _pad("VIA_FANOUT", "VIA_FANOUT1", 120, 425), _pad("VIA_FANOUT", "VIA_FANOUT2", 100, 425, layer="B.Cu")]),
+    "PAD_FANOUT": (math.hypot(0.5, 0.5) + 9.5, 0, False, [
+        _track("PAD_FANOUT", (110, 440), (110.5, 440.5), (120, 440.5)),
+        _pad("PAD_FANOUT", "PAD_FANOUT1", 110, 440, size=2), _pad("PAD_FANOUT", "PAD_FANOUT2", 120, 440.5)]),
+    "DOUBLED_IN_PAD": (10.8, 0.8, True, [
+        _track("DOUBLED_IN_PAD", (110, 455), (120, 455)), _track("DOUBLED_IN_PAD", (110, 455), (110.8, 455)),
+        _pad("DOUBLED_IN_PAD", "DOUBLED_IN_PAD1", 110, 455, size=2),
+        _pad("DOUBLED_IN_PAD", "DOUBLED_IN_PAD2", 120, 455)]),
+    "STUB_NEAR_VIA": (30, 10, True, [  # the B.Cu track ends outside the via, its copper on the via
+        _via("STUB_NEAR_VIA", 110, 470), _track("STUB_NEAR_VIA", (100, 470), (110, 470)),
+        _track("STUB_NEAR_VIA", (110, 470), (120, 470), layer="In1.Cu"),
+        _track("STUB_NEAR_VIA", (110.35, 470), (110.35, 480), layer="B.Cu"),
+        _pad("STUB_NEAR_VIA", "STUB_NEAR_VIA1", 100, 470),
+        _pad("STUB_NEAR_VIA", "STUB_NEAR_VIA2", 110.35, 480, layer="B.Cu")]),
+    "STUB_NEAR_PAD": (29.45, 20, True, [  # the stub ends outside the pad, its copper on the pad
+        _track("STUB_NEAR_PAD", (100, 490), (110, 490)), _track("STUB_NEAR_PAD", (110, 490), (120, 490)),
+        _track("STUB_NEAR_PAD", (110, 490.55), (110, 500)), *_ends("STUB_NEAR_PAD", (110, 490), (110, 500))]),
+    "PASS_OVER_PAD": (20, 10, True, [
+        _track("PASS_OVER_PAD", (100, 505.3), (120, 505.3)), *_ends("PASS_OVER_PAD", (110, 505), (100, 505.3))]),
+    "PASS_OVER_VIA": (20, 5, True, [
+        _via("PASS_OVER_VIA", 110, 520), _track("PASS_OVER_VIA", (100, 520), (110, 520)),
+        _track("PASS_OVER_VIA", (110.2, 515), (110.2, 525), layer="B.Cu"),
+        _pad("PASS_OVER_VIA", "PASS_OVER_VIA1", 100, 520),
+        _pad("PASS_OVER_VIA", "PASS_OVER_VIA2", 110.2, 525, layer="B.Cu")]),
+    "VIA_LOOP": (50, 20, True, [
+        _via("VIA_LOOP", 100, 540), _via("VIA_LOOP", 120, 540), _track("VIA_LOOP", (95, 540), (100, 540)),
+        _track("VIA_LOOP", (100, 540), (120, 540)), _track("VIA_LOOP", (100, 540), (120, 540), layer="B.Cu"),
+        _track("VIA_LOOP", (120, 540), (125, 540)), *_ends("VIA_LOOP", (95, 540), (125, 540))]),
+    "ARC_CORNER": (10 + R * math.pi / 2 + (10 - R), 0, False, [
+        _track("ARC_CORNER", (100, 555), (110, 555)), _arc("ARC_CORNER", (110, 555), (110 + H, 555 + R - H),
+                                                          (110 + R, 555 + R)),
+        _track("ARC_CORNER", (110 + R, 555 + R), (110 + R, 565)), *_ends("ARC_CORNER", (100, 555), (110 + R, 565))]),
+    "ARC_STUB": (20 + R * math.pi / 2, R * math.pi / 2, True, [
+        _track("ARC_STUB", (100, 570), (120, 570)), _arc("ARC_STUB", (110, 570), (110 + R - H, 570 + H),
+                                                        (110 + R, 570 + R)),
+        *_ends("ARC_STUB", (100, 570), (120, 570))]),
+    "WIDE_OVER_VIA": (26.4, 1.4, True, [  # a 1 mm B.Cu track runs over a via where F.Cu and In1.Cu tracks end
+        _track("WIDE_OVER_VIA", (100, 585), (110, 585)), _via("WIDE_OVER_VIA", 110, 585, 0.3, 0.15),
+        _track("WIDE_OVER_VIA", (110, 585), (120, 585), layer="In1.Cu"), _via("WIDE_OVER_VIA", 120, 585),
+        _track("WIDE_OVER_VIA", (120, 585), (125, 585)),
+        _track("WIDE_OVER_VIA", (110, 584.3), (110, 585.7), layer="B.Cu", width=1.0),
+        *_ends("WIDE_OVER_VIA", (100, 585), (125, 585))]),
+    "SAME_NUMBER": (10, 0, False, [  # pads of one footprint with one number are one pad
+        _track("SAME_NUMBER", (100, 600), (110, 600)), _pad("SAME_NUMBER", "SN1", 100, 600),
+        _pad("SAME_NUMBER", "SN1", 100, 600, layer="B.Cu"), _pad("SAME_NUMBER", "SN2", 110, 600)]),
+    "CROSS_AFTER_END": (10 + CROSS_R * CROSS_TURN, 10 - 2 + CROSS_R * CROSS_AT, True, [
+        _track("CROSS_AFTER_END", (100, 721), (110, 721)),
+        _arc("CROSS_AFTER_END", (110, 721), (106, 721 - 0.5 - CROSS_R), CROSS_END),
+        _pad("CROSS_AFTER_END", "CROSS_AFTER_END1", 100, 721),
+        _pad("CROSS_AFTER_END", "CROSS_AFTER_END2", *CROSS_END)]),
+    "PAD_TO_TOUCHING_PAD": (TOUCH_ARC, TOUCH_ARC, True, [  # the arc loops from one pad to another it overlaps
+        _arc("PAD_TO_TOUCHING_PAD", (100, 735), (100.4, 733.5), (100.8, 735)),
+        *_ends("PAD_TO_TOUCHING_PAD", (100, 735), (100.8, 735))]),
+    "LOOP_AT_WIDE_TRACK": (15 + 1.65, 1.65, True, [  # a 0.1 mm loop on a 1 mm track
+        _track("LOOP_AT_WIDE_TRACK", (100, 750), (110, 750), (115, 750), width=1),
+        _track("LOOP_AT_WIDE_TRACK", (110, 750), (110, 749.3), (109.75, 749.3), (109.75, 750), width=0.1),
+        *_ends("LOOP_AT_WIDE_TRACK", (100, 750), (115, 750), size=1.5)]),
+    "THREE_PADS": (20, None, True, [
+        _track("THREE_PADS", (100, 615), (110, 615)), _track("THREE_PADS", (110, 615), (120, 615)),
+        *_ends("THREE_PADS", (100, 615), (120, 615)), _pad("THREE_PADS", "THREE_PADS3", 110, 615)]),
+    "NO_PADS": (10, None, True, [_track("NO_PADS", (100, 630), (110, 630))]),
+    "APART": (16, None, True, [_track("APART", (100, 645), (108, 645)), _track("APART", (112, 645), (120, 645)),
+                               *_ends("APART", (100, 645), (120, 645))]),
+    "NO_TRACKS": (0, None, False, _ends("NO_TRACKS", (100, 660), (120, 660))),
 }
+# nets of class RF for the delay checks: a route through a via its In1.Cu track reaches with copper only, a pad whose
+# centre lies in a via whose centre lies outside the pad, and a pad with a pad-to-die length and no delay
+DELAY_CASES = [
+    _track("RF_VIA_REACH", (100, 675), (110, 675)), _via("RF_VIA_REACH", 110, 675),
+    _track("RF_VIA_REACH", (110.35, 675), (120, 675), layer="In1.Cu"), _pad("RF_VIA_REACH", "RF_VIA_REACH1", 100, 675),
+    {"action": "add_hole", "net": "RF_VIA_REACH", "x": 120, "y": 675, "drill": 0.4, "pad": 1},
+    _track("RF_VIA_HOLDS_PAD", (100, 690), (110, 690)), _via("RF_VIA_HOLDS_PAD", 110, 690, 1.0, 0.3),
+    _track("RF_VIA_HOLDS_PAD", (110, 690), (110, 700), layer="B.Cu"), _pad("RF_VIA_HOLDS_PAD", "VHP1", 100, 690),
+    _pad("RF_VIA_HOLDS_PAD", "VHP2", 110, 700, layer="B.Cu"),
+    _pad("RF_VIA_HOLDS_PAD", "VHP3", 110.4, 690, size=0.3, layer="B.Cu"),
+    _track("RF_P2D", (100, 705), (110, 705)), *_ends("RF_P2D", (100, 705), (110, 705)),
+    {"action": "script",
+     "code": "[p] = board.FindFootprintByReference('RF_P2D1').Pads(); p.SetPadToDieLength(FromMM(2))"},
+]
 
 
 def write_tuning_profile(project: str, enabled: bool, profile: str = "RF50") -> None:
